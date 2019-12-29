@@ -22,6 +22,8 @@ import us.ajg0702.parkour.Messages;
 
 public class Manager implements Listener {
 	
+	static Manager instance = null;
+	
 	List<PkPlayer> plys = new ArrayList<>();
 	
 	List<PkArea> areas = new ArrayList<>();
@@ -31,6 +33,7 @@ public class Manager implements Listener {
 	Messages msgs;
 
 	public Manager(Main pl) {
+		instance = this;
 		main = pl;
 		
 		msgs = main.msgs;
@@ -45,6 +48,14 @@ public class Manager implements Listener {
 				checkActive();
 			}
 		}, 15*20, 60*20);
+	}
+	
+	/**
+	 * Gets the manager instance
+	 * @return the instance of manager;
+	 */
+	public static Manager getInstance() {
+		return instance;
 	}
 	
 	
