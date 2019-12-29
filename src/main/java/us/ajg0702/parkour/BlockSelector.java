@@ -235,6 +235,7 @@ public class BlockSelector implements Listener {
 	public void onInvClick(InventoryClickEvent e) {
 		Player p = (Player) e.getWhoClicked();
 		ItemStack clicked = e.getCurrentItem();
+		
 		Inventory inv = e.getInventory();
 		if(!inv.equals(plys.get(p))) {
 			return;
@@ -247,7 +248,7 @@ public class BlockSelector implements Listener {
 			clicked.setType(Material.FLOWER_POT);
 		}
 		String matname = null; 
-		if(e.getSlot() > 9) {
+		if(e.getSlot() >= 9) {
 			matname = types.get(e.getSlot()-9);
 		} else {
 			matname = "random";
