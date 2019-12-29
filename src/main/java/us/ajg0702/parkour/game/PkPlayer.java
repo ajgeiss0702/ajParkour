@@ -20,6 +20,7 @@ import us.ajg0702.parkour.Main;
 import us.ajg0702.parkour.Messages;
 import us.ajg0702.parkour.Rewards;
 import us.ajg0702.parkour.Scores;
+import us.ajg0702.parkour.game.Manager;
 import us.ajg0702.parkour.utils.Config;
 import us.ajg0702.parkour.utils.InvManager;
 import us.ajg0702.parkour.utils.VersionSupport;
@@ -140,14 +141,16 @@ public class PkPlayer implements Listener {
 			}
 		}
 		
-		afktask = Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
-			public void run() {
-				long distance = System.currentTimeMillis() - lastmove;
-				if(distance > (afkkick*1000)) {
-					end(msgs.get("fall.force.afk"));
+		if(afkkick >= 0) {
+			afktask = Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
+				public void run() {
+					long distance = System.currentTimeMillis() - lastmove;
+					if(distance > (afkkick*1000)) {
+						end(msgs.get("fall.force.afk"));
+					}
 				}
-			}
-		}, afkkick*20, 20).getTaskId();
+			}, afkkick*20, 20).getTaskId();
+		}
 	}
 	
 	
