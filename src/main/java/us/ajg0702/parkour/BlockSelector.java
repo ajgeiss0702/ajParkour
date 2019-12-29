@@ -239,8 +239,8 @@ public class BlockSelector implements Listener {
 		if(!inv.equals(plys.get(p))) {
 			return;
 		}
+		e.setCancelled(true);
 		if(clicked.getType() == null || clicked.getType() == Material.AIR || p.getUniqueId() == null) {
-			e.setCancelled(true);
 			return;
 		}
 		if(clicked.getType().toString().equals("FLOWER_POT_ITEM")) {
