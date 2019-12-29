@@ -280,10 +280,10 @@ public class BlockSelector implements Listener {
 	
 	public String getBlock(Player p) {
 		String raw = scores.getMaterial(p.getUniqueId());
-		if(raw == null || raw.equalsIgnoreCase("random") || raw.equalsIgnoreCase("vine")) {
+		if(raw == null || raw.equalsIgnoreCase("random") || raw.equalsIgnoreCase(plugin.config.getString("random-item"))) {
 			int max = types.size()-1;
 			int i = Main.random(0, max);
-			return types.get(i).toString()+":true";
+			return types.get(i).toString();
 		} else {
 			return raw;
 		}
