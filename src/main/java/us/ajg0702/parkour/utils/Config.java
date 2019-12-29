@@ -124,6 +124,9 @@ public class Config {
 						add += e.get("name")+": " + e.get("value")+"\n\n";
 					}
 				}
+
+				add.replaceAll("\\n#\\n", "\\n");
+				
 				if(!add.equals("")) {
 					try {
 						File dir = plugin.getDataFolder();
