@@ -289,7 +289,7 @@ public class Scores {
 					conn.createStatement().executeUpdate("insert into "+tablename+" (id, score, name, material) "
 						+ "values ('"+uuid+"', 0, "+Bukkit.getOfflinePlayer(uuid)+", "+mat.toString()+")");
 				} else {
-					conn.createStatement().executeUpdate("update "+tablename+" set material=" + mat + " where id='"+uuid.toString()+"'");
+					conn.createStatement().executeUpdate("update "+tablename+" set material=\"" + mat + "\" where id='"+uuid.toString()+"'");
 				}
 			} catch (SQLException e) {
 				Bukkit.getLogger().severe("[ajParkour] Unable to set material for a player:");

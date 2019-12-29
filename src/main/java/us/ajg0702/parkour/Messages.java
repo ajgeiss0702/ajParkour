@@ -169,6 +169,8 @@ public class Messages {
 		msgDefaults.put("gui.selector.items.random.lore", "&7Will pick a random block.");
 		msgDefaults.put("gui.selector.items.selected.lore", "&aCurrently Selected");
 		
+		msgDefaults.put("items.blockselector.name", "&aBlock Selector");
+		
 		msgDefaults.put("start.no-area-player", "&cNo arena or player could be found called '{INPUT}'!");
 		msgDefaults.put("start.unknown-player", "&cCannot find that player!");
 		msgDefaults.put("start.unknown-area", "&cCannot find that area!");

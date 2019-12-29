@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
@@ -13,7 +14,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
-
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import us.ajg0702.parkour.Main;
 import us.ajg0702.parkour.Messages;
 import us.ajg0702.parkour.Rewards;
@@ -126,6 +128,11 @@ public class PkPlayer implements Listener {
 			try {
 				InvManager.saveInventory(ply);
 				ply.getInventory().clear();
+				ItemStack bsItem = new ItemStack(Material.CHEST, 1); // bs = block selector
+				ItemMeta bsMeta = bsItem.getItemMeta();
+				bsMeta.setDisplayName(msgs.get("items.blockselector.name"));
+				bsItem.setItemMeta(bsMeta);
+				ply.getInventory().setItem(4, bsItem);
 			} catch (IOException e) {
 				ply.sendMessage("&cAn error occured while trying to save your inventory!");
 				Bukkit.getLogger().severe("[ajParkour] An error occured while trying to save player's inventory:");

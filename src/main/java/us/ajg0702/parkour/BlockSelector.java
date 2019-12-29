@@ -169,6 +169,9 @@ public class BlockSelector implements Listener {
 	private Inventory addBlocks(Inventory inv) {
 		Material randomMat = Material.valueOf(plugin.config.getString("random-item"));
 		String rawselected = plugin.scores.getMaterial(((Player)inv.getViewers().get(0)).getUniqueId());
+		if(rawselected == null) {
+			rawselected = "random";
+		}
 		int selectedd = -1;
 		Material selected;
 		if(rawselected.equalsIgnoreCase("random")) {
