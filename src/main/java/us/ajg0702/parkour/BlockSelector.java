@@ -240,7 +240,7 @@ public class BlockSelector implements Listener {
 			return;
 		}
 		e.setCancelled(true);
-		if(clicked.getType() == null || clicked.getType() == Material.AIR || p.getUniqueId() == null) {
+		if(clicked == null || clicked.getType() == null || clicked.getType() == Material.AIR || p.getUniqueId() == null) {
 			return;
 		}
 		if(clicked.getType().toString().equals("FLOWER_POT_ITEM")) {
