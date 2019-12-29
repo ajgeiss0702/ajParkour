@@ -1,0 +1,53 @@
+# One of these are randomly chosen when the parkour starts.
+# The easiest way to find the name of a block, is to hold it, and (if you have essentials)
+# do /itemdb and the thing in all caps is what you would add here.
+blocks:
+- LIGHT_GRAY_GLAZED_TERRACOTTA
+blocks-fallen-before-teleport: 1
+jump-sound: ENTITY_CHICKEN_EGG
+disabled-worlds:
+- start_command_doesnt_work_in_this_world
+clear-potions: false
+particles: 25
+max-players: -1
+max-score: -1
+kick-time: 60
+enable-start-permission: false
+rewards:
+  interval: -1
+  message: '&aCongrats! &7You got to {SCORE} jumps! &bHave a diamond!'
+  command: give {PLAYER} diamond 1
+  exceptions:
+    '100':
+      message: '&a&lCongrats!!! &7You got to &d&l100 &r&7jumps!! Awesome job! Have
+        an emerald'
+      command: give {PLAYER} emerald 1
+    '1':
+      message: '&a&lCongrats, you made a jump!'
+      cooldown: 10
+      command: []
+area:
+  world: world
+  pos1:
+    x: -164
+    y: 89
+    z: 46
+  pos2:
+    x: -175
+    y: 103
+    z: 58
+  diepos:
+    world: world
+    x: -160
+    y: 80
+    z: 30
+    pi: -0.11312359
+    ya: 90.38226
+  portals:
+  - world: world
+    x: -163
+    y: 79
+    z: 30
+delay-rewards: true
+teleport-kick: false
+fall-sound: asdasda

@@ -1,0 +1,12 @@
+name: ajParkour
+version: 2.0.0-prerelease11
+author: ajgeiss0702
+main: us.ajg0702.parkour.Main
+softdepend: [PlaceholderAPI, WorldEdit]
+api-version: 1.13
+
+commands:
+  ajParkour:
+    description: ajParkour commands
+    aliases: [ap, ajp, ajpk, apk]
+    usage: "/ajPakour, /ap, /ajp, /ajpk, /apk"
