@@ -246,7 +246,13 @@ public class BlockSelector implements Listener {
 		if(clicked.getType().toString().equals("FLOWER_POT_ITEM")) {
 			clicked.setType(Material.FLOWER_POT);
 		}
-		scores.setMaterial(p.getUniqueId(), types.get(e.getSlot()-9));
+		String matname = null; 
+		if(e.getSlot() > 9) {
+			matname = types.get(e.getSlot()-9);
+		} else {
+			matname = "random";
+		}
+		scores.setMaterial(p.getUniqueId(), matname);
 		inv.clear();
 		plys.put(p, addBlocks(inv));
 		e.setCancelled(true);
