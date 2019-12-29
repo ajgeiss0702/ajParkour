@@ -14,6 +14,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -259,11 +261,26 @@ public class Manager implements Listener {
 	}
 	
 	@EventHandler
+	public void onDrop(PlayerDropItemEvent e) {
+		Player p = e.getPlayer();
+		if(getPlayer(p) == null) return;
+		e.setCancelled(true);
+	}
+	
+	@EventHandler
+	public void onInvClick(InventoryClickEvent e) {
+		Player p = (Player) e.getWhoClicked();
+		if(getPlayer(p) == null) return;
+		e.setCancelled(true);
+	}
+	
+	@EventHandler
 	public void onInteract(PlayerInteractEvent e) {
 		Player p = e.getPlayer();
 		if(getPlayer(p) == null) return;
 		if(e.getMaterial().equals(Material.CHEST)) {
 			main.selector.openSelector(p);
+			e.setCancelled(true);
 		}
 	}
 	
