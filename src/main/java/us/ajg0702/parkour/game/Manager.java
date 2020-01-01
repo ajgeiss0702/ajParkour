@@ -24,6 +24,12 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import us.ajg0702.parkour.Main;
 import us.ajg0702.parkour.Messages;
 
+/**
+ * A class for managing all players in the parkour.
+ * To get the instance, use Manager.getInstance()
+ * @author ajgeiss0702
+ *
+ */
 public class Manager implements Listener {
 	
 	static Manager instance = null;
@@ -214,8 +220,7 @@ public class Manager implements Listener {
 	}
 	
 	/**
-	 * Check if players are active (still in parkour).
-	 * If they are not, they are removed from the list of player in parkour
+	 * Checks that all players are still in parkour. If they are not, they are removed from the list of player in parkour
 	 */
 	public void checkActive() {
 		Iterator<PkPlayer> iter = plys.iterator();
@@ -244,19 +249,15 @@ public class Manager implements Listener {
 		return f;
 	}
 	
+	public boolean pluginDisabling = false;
+	
 	/**
-	 * Function called when plugin is getting disabled.
-	 * It kicks all players from the parkour.
+	 * Function called when plugin is getting disabled. It kicks all players from the parkour.
 	 */
 	public void disable() {
-		int i = 0;
+		pluginDisabling = true;
 		for(PkPlayer p : plys) {
-			Bukkit.getScheduler().scheduleSyncDelayedTask(main, new Runnable() {
-				public void run() {
-					p.end();
-				}
-			}, 5*i);
-			i++;
+			p.end();
 		}
 	}
 	

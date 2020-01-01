@@ -347,7 +347,9 @@ public class PkPlayer implements Listener {
 			jump.remove();
 		}
 		active = false;
-		man.checkActive();
+		if(!man.pluginDisabling) {
+			man.checkActive();
+		}
 		
 		playSound("end-sound", ply);
 	}
