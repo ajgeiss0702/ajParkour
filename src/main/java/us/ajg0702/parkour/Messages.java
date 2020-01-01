@@ -149,7 +149,7 @@ public class Messages {
 		msgDefaults.put("setup.set.we", "&aPositions set!");
 		msgDefaults.put("setup.set.diff", "&aDifficulty set!");
 		msgDefaults.put("setup.diff.not-valid", "&cInvalid difficulty! &7Valid difficulties are &feasy&7, &fmedium&7, &fhard&7, and &fbalanced");
-		msgDefaults.put("setup.diff.need-args", "&cPlease enter a difficulty! &7Valid difficulties are &feasy&7, &fmedium&7, &fhard&7, and &fbalanced");
+		msgDefaults.put("setup.diff.need-args", "&cPlease enter a difficulty! &7Valid difficulties are &feasy&7, &fmedium&7, &fhard&7, &fexpert&7, and &fbalanced&7.\n&aBalanced difficulty will make the parkour get harder as the player gets higher scores.");
 		msgDefaults.put("setup.save.not-done", "&cYou have not set all of the required settings! &7Check &f/{CMD} setup info&7 to see what you have left.");
 		msgDefaults.put("setup.save.success", "&aArena {NAME} saved and loaded!");
 		
