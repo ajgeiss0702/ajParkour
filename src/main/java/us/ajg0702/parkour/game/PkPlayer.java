@@ -111,7 +111,7 @@ public class PkPlayer implements Listener {
 		}
 		Location tp = jumps.get(0).getTo();
 		teleporting = true;
-		p.teleport(new Location(tp.getWorld(), tp.getX()+0.5, tp.getY()+1.0, tp.getZ()+0.5));
+		p.teleport(new Location(tp.getWorld(), tp.getX()+0.5, tp.getY()+1.0, tp.getZ()+0.5, p.getLocation().getYaw(), p.getLocation().getPitch()));
 		Bukkit.getScheduler().scheduleSyncDelayedTask(m.main, new Runnable() {
 			public void run() {
 				teleporting = false;
