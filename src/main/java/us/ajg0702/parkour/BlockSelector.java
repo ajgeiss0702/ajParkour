@@ -159,9 +159,8 @@ public class BlockSelector implements Listener {
 		Inventory inv = Bukkit.createInventory(ply, 54, msgs.get("gui.selector.title", ply));
 		
 		ply.openInventory(inv);
-		inv = addBlocks(inv);
-		
 		plys.put(ply, inv);
+		inv = addBlocks(inv);
 		return inv;
 	}
 	
@@ -189,7 +188,9 @@ public class BlockSelector implements Listener {
 		randomImeta.setLore(Arrays.asList(msgs.get("gui.selector.items.random.lore").split("\n")));
 		if(selected.equals(randomMat)) {
 			randomImeta.addEnchant(Enchantment.DAMAGE_ALL, 1, false);
-			randomImeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+			if(VersionSupport.getMinorVersion() >= 8) {
+				randomImeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+			}
 		}
 		randomI.setItemMeta(randomImeta);
 		
@@ -220,7 +221,9 @@ public class BlockSelector implements Listener {
 			if(m.split(":")[0].equals(selected.toString()) && d == selectedd) {
 				ItemMeta iMeta = i.getItemMeta();
 				iMeta.addEnchant(Enchantment.DAMAGE_ALL, 1, false);
-				iMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+				if(VersionSupport.getMinorVersion() >= 8) {
+					iMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+				}
 				iMeta.setLore(Arrays.asList(msgs.get("gui.selector.items.selected.lore").split("\n")));
 				i.setItemMeta(iMeta);
 			}
