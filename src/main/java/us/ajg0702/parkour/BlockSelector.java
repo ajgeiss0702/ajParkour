@@ -89,7 +89,7 @@ public class BlockSelector implements Listener {
 					"NETHER_BRICK",
 					"QUARTZ_BLOCK",
 					"WOOD",
-					"WOOL",
+					"WOOL:true",
 					"RED_SANDSTONE",
 					"SMOOTH_BRICK",
 					"BRICK");
