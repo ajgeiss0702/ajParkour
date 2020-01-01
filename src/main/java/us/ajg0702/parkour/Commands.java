@@ -138,6 +138,7 @@ public class Commands implements CommandExecutor {
 				return true;
 			case "version":
 				sender.sendMessage(msgs.color("&aajParkour &2v&a"+pl.getDescription().getVersion()+" &2by &6ajgeiss0702 &7(https://www.spigotmc.org/members/ajgeiss0702.49935?)"));
+				return true;
 			case "top":
 				
 				List<UUID> list = scores.getPlayers();
@@ -151,7 +152,7 @@ public class Commands implements CommandExecutor {
 				for(UUID uuid : list) {
 					String name = scores.getName(uuid);
 					if(name == null || name.isEmpty() || name.equals("")) {
-						name = "&7[Unknown]#"+i;
+						name = msgs.color("&7[Unknown]#"+i);
 					}
 					map.put(name, Double.valueOf(scores.getScore(uuid)));
 					i++;
