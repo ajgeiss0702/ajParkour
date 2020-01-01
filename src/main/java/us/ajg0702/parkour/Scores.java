@@ -261,7 +261,7 @@ public class Scores {
 					size = r.getRow();
 				}
 				if(size <= 0) {
-					conn.createStatement().executeUpdate("insert into "+tablename+" (id, score, name, time, material) "
+					conn.createStatement().executeUpdate("insert into "+tablename+" (id, score, name, time) "
 						+ "values ('"+uuid+"', "+score+", '"+Bukkit.getOfflinePlayer(uuid).getName()+"', "+secs+")");
 				} else {
 					conn.createStatement().executeUpdate("update "+tablename+" set score="+score + ",time="+secs+" where id='"+uuid.toString()+"'");
