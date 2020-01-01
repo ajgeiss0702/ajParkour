@@ -136,6 +136,8 @@ public class Commands implements CommandExecutor {
 				}
 				pl.selector.openSelector(sply);
 				return true;
+			case "version":
+				sender.sendMessage(msgs.color("&aajParkour &2v&a"+pl.getDescription().getVersion()+" &2by &6ajgeiss0702 &7(https://www.spigotmc.org/members/ajgeiss0702.49935?)"));
 			case "top":
 				
 				List<UUID> list = scores.getPlayers();
