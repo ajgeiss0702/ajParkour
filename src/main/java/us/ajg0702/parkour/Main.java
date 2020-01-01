@@ -73,7 +73,6 @@ public class Main extends JavaPlugin {
 		
 		rewards = new Rewards(this);
 		
-		new Metrics(this);
 		
 		Bukkit.getScheduler().runTaskLaterAsynchronously(this, new Runnable() {
 			public void run() {
@@ -93,6 +92,9 @@ public class Main extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(selector, this);
 		
 		cmds = new Commands(this);
+		
+		
+		new Metrics(this);
 		
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', 
 				"&aajParkour &2v"+this.getDescription().getVersion()+" by ajgeiss0702 has been &aenabled!"));
