@@ -167,7 +167,7 @@ public class Commands implements CommandExecutor {
 							.replaceAll("\\{NAME\\}", key.split("#")[0])
 							.replaceAll("\\{SCORE\\}", ((int)Math.round(map.get(key)))+"") + "\n";
 					i++;
-					if(i >= maxs) {
+					if(i > maxs) {
 						break;
 					} else {
 						addList += "\n";
