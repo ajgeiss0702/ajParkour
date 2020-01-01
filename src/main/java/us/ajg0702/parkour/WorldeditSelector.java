@@ -12,6 +12,10 @@ import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.math.BlockVector3;
 
+/**
+ * I had to split this into its own class because for some reason eclipse didnt like it in with the rest of the commands.
+ * 
+ */
 public class WorldeditSelector {
 
 	public static boolean bruh(WorldEditPlugin wep, CommandSender sender, Messages msgs, HashMap<String, Object> editing) {
