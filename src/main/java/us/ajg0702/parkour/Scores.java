@@ -251,6 +251,9 @@ public class Scores {
 		if(method.equals("yaml")) {
 			scores.set(uuid.toString()+".score", score);
 			scores.set(uuid.toString()+".time", secs);
+			if(score == 0 && secs == 0) {
+				scores.set(uuid.toString(), null);
+			}
 			saveYaml();
 		} else if(method.equals("mysql")) {
 			try {
@@ -261,10 +264,16 @@ public class Scores {
 					size = r.getRow();
 				}
 				if(size <= 0) {
-					conn.createStatement().executeUpdate("insert into "+tablename+" (id, score, name, time) "
-						+ "values ('"+uuid+"', "+score+", '"+Bukkit.getOfflinePlayer(uuid).getName()+"', "+secs+")");
+					if(!(score == 0 && secs == 0)) {
+						conn.createStatement().executeUpdate("insert into "+tablename+" (id, score, name, time) "
+								+ "values ('"+uuid+"', "+score+", '"+Bukkit.getOfflinePlayer(uuid).getName()+"', "+secs+")");
+					}
 				} else {
-					conn.createStatement().executeUpdate("update "+tablename+" set score="+score + ",time="+secs+" where id='"+uuid.toString()+"'");
+					if(score == 0 && secs == 0) {
+						conn.createStatement().executeUpdate("delete from `"+tablename+"` where id="+uuid.toString());
+					} else {
+						conn.createStatement().executeUpdate("update "+tablename+" set score="+score + ",time="+secs+" where id='"+uuid.toString()+"'");
+					}
 				}
 			} catch (SQLException e) {
 				Bukkit.getLogger().severe("[ajParkour] Unable to set score for a player:");

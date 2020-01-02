@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -41,6 +42,7 @@ public class Commands implements CommandExecutor {
 	HashMap<String, Object> editing = new HashMap<>();
 	Player editingoverrideplayer = null;
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		Player sply = null;
@@ -137,6 +139,19 @@ public class Commands implements CommandExecutor {
 					return true;
 				}
 				pl.selector.openSelector(sply);
+				return true;
+			case "reset":
+				if(sender instanceof Player) {
+					sply.sendMessage(msgs.get("not-in-game"));
+					return true;
+				}
+				if(args.length > 1) {
+					OfflinePlayer p = Bukkit.getOfflinePlayer(args[1]);
+					scores.setScore(p.getUniqueId(), 0, 0);
+					sender.sendMessage(msgs.get("reset.success").replaceAll("\\{PLAYER\\}", p.getName() == null ? p.getUniqueId().toString() : p.getName()));
+				} else {
+					sender.sendMessage(msgs.get("reset.usage").replaceAll("\\{CMD\\}", label));
+				}
 				return true;
 			case "version":
 				sender.sendMessage(msgs.color("&aajParkour &2v&a"+pl.getDescription().getVersion()+" &2by &6ajgeiss0702 &7(https://www.spigotmc.org/members/ajgeiss0702.49935?)"));

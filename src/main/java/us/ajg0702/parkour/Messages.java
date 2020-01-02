@@ -71,6 +71,7 @@ public class Messages {
 		msgDefaults.put("block.break", "&cNope!");
 		
 		msgDefaults.put("must-be-ingame", "&cYou must be in-game to do that!");
+		msgDefaults.put("not-in-game", "&cYou must do this command from the console!");
 		msgDefaults.put("couldnt-find-player", "&cCould not find player {PLAYER}");
 		msgDefaults.put("list.header", "&9Players playing parkour:");
 		msgDefaults.put("list.format", "&6{NAME} &7- &e{SCORE} jumps");
@@ -186,6 +187,9 @@ public class Messages {
 		msgDefaults.put("start.started-other-area", "&aStarted parkour for &l{PLY}&r&a on area &l&{AREA}r&a!");
 		
 		msgDefaults.put("commands.not-on-whitelist", "&cYou cannot use this command while on parkour!");
+		
+		msgDefaults.put("reset.usage", "&cUsage: /{CMD} reset <player>");
+		msgDefaults.put("reset.success", "&aReset score of {PLAYER} to 0");
 		
 		for(String key : msgDefaults.keySet()) {
 			if(!msgs.isSet(key)) {
