@@ -165,7 +165,7 @@ public class Messages {
 		msgDefaults.put("portals.remove.no-portals", "&cNo portals have been set up yet! Please create portals before removing them.");
 		
 		msgDefaults.put("gui.selector.title", "Block Selector");
-		msgDefaults.put("gui.selector.items.random.title", "Random Blocks");
+		msgDefaults.put("gui.selector.items.random.title", "&rRandom Blocks");
 		msgDefaults.put("gui.selector.items.random.lore", "&7Will pick a random block.");
 		msgDefaults.put("gui.selector.items.selected.lore", "&aCurrently Selected");
 		
