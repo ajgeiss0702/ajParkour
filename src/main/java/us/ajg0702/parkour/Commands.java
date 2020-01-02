@@ -64,9 +64,11 @@ public class Commands implements CommandExecutor {
 					return true;
 				}
 				
-				if(config.inCommaList("start-disabled-worlds", sply.getWorld().getName())) {
-					sply.sendMessage(msgs.get("disabledworld"));
-					return true;
+				if(sply != null) {
+					if(config.inCommaList("start-disabled-worlds", sply.getWorld().getName())) {
+						sply.sendMessage(msgs.get("disabledworld"));
+						return true;
+					}
 				}
 				
 				if(args.length <= 1) {
