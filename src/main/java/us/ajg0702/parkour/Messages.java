@@ -2,8 +2,10 @@ package us.ajg0702.parkour;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
@@ -21,12 +23,17 @@ public class Messages {
 		return get(key, null);
 	}
 	
+	List<String> noprefix = Arrays.asList("score");
+	
 	public String get(String key, Player p) {
 		String raw;
 		if(msgs.isSet(key)) {
 			raw = msgs.getString(key);
+			if(noprefix.indexOf(key) == -1 && !key.equals("prefix")) {
+				raw = get("prefix")+raw;
+			}
 		} else {
-			raw = "&4| &cCould not find the message '" + key + "'! &4|";
+			raw = "&4| &cCould not find the message '" + key + "'! &4| "; 
 		}
 		if(plugin.papi) {
 			raw = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(p, raw);
@@ -49,6 +56,7 @@ public class Messages {
 	public Messages(Main pl) {
 		this.plugin = pl;
 		Map<String, String> msgDefaults = new LinkedHashMap<String, String>();
+		msgDefaults.put("prefix", "");
 		msgDefaults.put("alreadyin", "&cYou are already in parkour!");
 		msgDefaults.put("start.score", "&aStarted parkour! &7Try to beat your high-score of &r{SCORE}&7!");
 		msgDefaults.put("start.first", "&aStarted parkour!");
