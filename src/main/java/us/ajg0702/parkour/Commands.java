@@ -21,6 +21,7 @@ import us.ajg0702.parkour.game.Manager;
 import us.ajg0702.parkour.game.PkArea;
 import us.ajg0702.parkour.game.PkPlayer;
 import us.ajg0702.parkour.utils.Config;
+import us.ajg0702.parkour.utils.Updater;
 
 public class Commands implements CommandExecutor {
 	
@@ -132,7 +133,12 @@ public class Commands implements CommandExecutor {
 						);
 				}
 				return true;
-			
+			case "update":
+				if(!sender.hasPermission("ajparkour.update")) {
+					sender.sendMessage(msgs.get("msgs.noperm", sply));
+				}
+				Updater.getInstance().downloadUpdate(sender);
+				return true;
 			case "blocks":
 				if(!(sender instanceof Player)) {
 					sender.sendMessage(msgs.get("not-from-console"));

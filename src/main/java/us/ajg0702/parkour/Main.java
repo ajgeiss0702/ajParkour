@@ -14,6 +14,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import net.md_5.bungee.api.ChatColor;
 import us.ajg0702.parkour.game.Manager;
 import us.ajg0702.parkour.utils.Config;
+import us.ajg0702.parkour.utils.Updater;
 import us.ajg0702.parkour.utils.VersionSupport;
 
 public class Main extends JavaPlugin {
@@ -32,6 +33,8 @@ public class Main extends JavaPlugin {
 	public BlockSelector selector;
 	
 	public Rewards rewards;
+	
+	Updater updater;
 	
 	@Override
 	public void onEnable() {
@@ -60,6 +63,7 @@ public class Main extends JavaPlugin {
 		config.addEntry("parkour-inventory", false, "If this is true, the player's inventory will be cleared while on the parkour, and reset after.\nNOTICE: If one of your reward commands gives items, you need to set execute-reward-commands to 'after' or else they will lose the items.\n Default: false");
 		config.addEntry("start-disabled-worlds", "disabledworld1,disabledworld2", "If a world is listed here, the /ajParkour start command will not be usable from that world.\nWorld names are seperated by commas (without spaces) and are case-sensitive!\n Example: 'disabledworld1,disabledworld2'");
 		config.addEntry("kick-time", 60, "How long, in seconds, after a player doesnt move should we kick them from the parkour?\nSet to -1 to disable\n Default: 60");
+		config.addEntry("notify-update", true, "Should we notify people with the permission ajparkour.update that an update is available?\nThey will then be able to download it using /ajParkour update\n Default: true");
 		config.setEntries();
 		
 		msgs = new Messages(this);
@@ -95,6 +99,8 @@ public class Main extends JavaPlugin {
 		
 		
 		new Metrics(this);
+		
+		updater = new Updater(this);
 		
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', 
 				"&aajParkour &2v"+this.getDescription().getVersion()+" by ajgeiss0702 has been &aenabled!"));
