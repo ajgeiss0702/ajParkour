@@ -16,6 +16,8 @@ import net.md_5.bungee.api.ChatColor;
 
 public class Messages {
 	
+	static Messages instance = null;
+	
 	File file = new File(Bukkit.getPluginManager().getPlugin("ajParkour").getDataFolder(), "messages.yml");
 	YamlConfiguration msgs = YamlConfiguration.loadConfiguration(file);
 	
@@ -52,9 +54,14 @@ public class Messages {
 	
 	Main plugin;
 	
+	public static Messages getInstance() {
+		return instance;
+	}
+	
 	
 	public Messages(Main pl) {
 		this.plugin = pl;
+		instance = this;
 		Map<String, String> msgDefaults = new LinkedHashMap<String, String>();
 		msgDefaults.put("prefix", "");
 		msgDefaults.put("alreadyin", "&cYou are already in parkour!");
