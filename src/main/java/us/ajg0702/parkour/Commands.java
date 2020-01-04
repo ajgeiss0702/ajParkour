@@ -166,7 +166,7 @@ public class Commands implements CommandExecutor {
 				
 				String area = null;
 				if(args.length > 1) {
-					area = args[2];
+					area = args[1];
 				}
 				
 				List<UUID> list = scores.getPlayers();
@@ -188,7 +188,12 @@ public class Commands implements CommandExecutor {
 				map = pl.sortByValue(map);
 				
 				i = 1;
-				String addList = msgs.get("top.header", sply)+"\n";
+				String addList = "";
+				if(area == null) {
+					addList += msgs.get("top.header", sply)+"\n";
+				} else {
+					addList += msgs.get("top.header-area", sply).replaceAll("\\{AREA\\}", area)+"\n";
+				}
 				for( int ai = 0; ai < map.size(); ai++) {
 					String key = (String) map.keySet().toArray()[ai];
 					addList += msgs.get("top.format", sply)

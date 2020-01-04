@@ -91,6 +91,7 @@ public class Messages {
 		msgDefaults.put("fallpos.set", "&aFall position set!");
 		msgDefaults.put("fallpos.removed", "&aFall position removed!");
 		msgDefaults.put("top.header", "&9Top Scores:");
+		msgDefaults.put("top.header-area", "&9Top Scores for {AREA}:");
 		msgDefaults.put("top.format", "&a{#}. &6{NAME} &e{SCORE} jumps");
 		
 		msgDefaults.put("fall.normal", "&cYou fell! &7Your score was &r{SCORE}");
