@@ -78,6 +78,54 @@ public class CommandComplete implements TabCompleter {
 		            	}
 		            }
 		        	return finalL;
+				case "portals":
+					List<String> pc = new ArrayList<>();
+					pc.add("create");
+					pc.add("remove");
+					List<String> pl = new ArrayList<>();
+		        	for(String command : pc) {
+		            	if(command.startsWith(args[1].toLowerCase())) {
+		            		pl.add(command);
+		            	}
+		            }
+		        	return pl;
+			}
+		} else if(args.length == 3) {
+			switch(args[0].toLowerCase()) {
+				case "setup":
+					if(args[1].equalsIgnoreCase("difficulty")) {
+						
+						List<String> sc = new ArrayList<>();
+						sc.add("easy");
+						sc.add("medium");
+						sc.add("hard");
+						sc.add("expert");
+						sc.add("balanced");
+						List<String> finalL = new ArrayList<>();
+			        	for(String command : sc) {
+			            	if(command.startsWith(args[2].toLowerCase())) {
+			            		finalL.add(command);
+			            	}
+			            }
+			        	return finalL;
+					}
+				case "portals":
+					return new ArrayList<>();
+			}
+		} else if(args.length == 4) {
+			switch(args[0].toLowerCase()) {
+				case "portals":
+					List<String> areas = new ArrayList<>();
+					for(PkArea p : plugin.man.getAreas()) {
+						areas.add(p.getName().toLowerCase());
+					}
+					List<String> finalList = new ArrayList<>();
+		        	for(String command : areas) {
+		            	if(command.startsWith(args[3].toLowerCase())) {
+		            		finalList.add(command);
+		            	}
+		            }
+		        	return finalList;
 			}
 		}
 		
