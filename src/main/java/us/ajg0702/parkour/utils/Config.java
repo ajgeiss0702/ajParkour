@@ -107,6 +107,7 @@ public class Config {
 				String[] comments = header.split("\n");
 				String commentsParsed = "";
 				for(String comment : comments) {
+					if(comment.trim().isEmpty()) continue;
 					commentsParsed += "#"+comment+"\n";
 				}
 				add += commentsParsed;
@@ -125,7 +126,7 @@ public class Config {
 					}
 				}
 
-				add.replaceAll("\\n#\\n", "\\n");
+				add.replaceAll("#\\n", "");
 				
 				if(!add.equals("")) {
 					try {
