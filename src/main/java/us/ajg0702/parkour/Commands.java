@@ -153,7 +153,7 @@ public class Commands implements CommandExecutor {
 				}
 				if(args.length > 1) {
 					OfflinePlayer p = Bukkit.getOfflinePlayer(args[1]);
-					scores.setScore(p.getUniqueId(), 0, 0);
+					scores.setScore(p.getUniqueId(), 0, 0, null);
 					sender.sendMessage(msgs.get("reset.success").replaceAll("\\{PLAYER\\}", p.getName() == null ? p.getUniqueId().toString() : p.getName()));
 				} else {
 					sender.sendMessage(msgs.get("reset.usage").replaceAll("\\{CMD\\}", label));
@@ -163,6 +163,11 @@ public class Commands implements CommandExecutor {
 				sender.sendMessage(msgs.color("&aajParkour &2v&a"+pl.getDescription().getVersion()+" &2by &6ajgeiss0702 &7(https://www.spigotmc.org/members/ajgeiss0702.49935?)"));
 				return true;
 			case "top":
+				
+				String area = null;
+				if(args.length > 1) {
+					area = args[2];
+				}
 				
 				List<UUID> list = scores.getPlayers();
 				if(list.size() < 1) {
@@ -177,7 +182,7 @@ public class Commands implements CommandExecutor {
 					if(name == null || name.isEmpty() || name.equals("")) {
 						name = msgs.color("&7[Unknown]#"+i);
 					}
-					map.put(name, Double.valueOf(scores.getScore(uuid)));
+					map.put(name, Double.valueOf(scores.getScore(uuid, area)));
 					i++;
 				}
 				map = pl.sortByValue(map);

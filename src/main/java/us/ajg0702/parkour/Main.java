@@ -64,6 +64,7 @@ public class Main extends JavaPlugin {
 		config.addEntry("start-disabled-worlds", "disabledworld1,disabledworld2", "If a world is listed here, the /ajParkour start command will not be usable from that world.\nWorld names are seperated by commas (without spaces) and are case-sensitive!\n Example: 'disabledworld1,disabledworld2'");
 		config.addEntry("kick-time", 60, "How long, in seconds, after a player doesnt move should we kick them from the parkour?\nSet to -1 to disable\n Default: 60");
 		config.addEntry("notify-update", true, "Should we notify people with the permission ajparkour.update that an update is available?\nThey will then be able to download it using /ajParkour update\n Default: true");
+		config.addEntry("begin-score-per-area", false, "Should the score we tell the player to beat be per-area or global?\nFor example, if this is true and the player got 30 on another area but only 10 on this one, they will be told to beat their record of 10.\n Default: false");
 		config.setEntries();
 		
 		msgs = new Messages(this);
@@ -194,6 +195,15 @@ public class Main extends JavaPlugin {
 		man.disable();
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', 
 				"&cajParkour &4v"+this.getDescription().getVersion()+" by ajgeiss0702 has been &cdisabled!"));
+	}
+	
+	
+	public static String nullstring(Object n) {
+		if(n == null) {
+			return "null";
+		} else {
+			return n.toString();
+		}
 	}
 	
 	

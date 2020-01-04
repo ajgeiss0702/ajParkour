@@ -109,11 +109,12 @@ class Placeholders extends PlaceholderExpansion {
         
         if(identifier.matches("stats_top_name_[1-9][0-9]*$")){
         	int number = Integer.valueOf(identifier.split("stats_top_name_")[1]);
-        	Map<String, Double> scores = plugin.scores.getSortedScores(true);
-        	if(scores.keySet().size() < number) {
+        	Map<String, Double> scores = plugin.scores.getSortedScores(true, null);
+        	Set<String> names = scores.keySet();
+        	if(scores.keySet().size() < number || names.toArray()[number-1] == null) {
         		return plugin.msgs.get("placeholders.stats.no-data", player);
         	}
-        	Set<String> names = scores.keySet();
+
         	String name = names.toArray()[number-1].toString();
             return name;
         }
@@ -121,11 +122,11 @@ class Placeholders extends PlaceholderExpansion {
         // %someplugin_placeholder2%
         if(identifier.matches("stats_top_score_[1-9][0-9]*$")){
         	int number = Integer.valueOf(identifier.split("stats_top_score_")[1]);
-        	Map<String, Double> scores = plugin.scores.getSortedScores(true);
-        	if(scores.keySet().size() < number) {
+        	Map<String, Double> scores = plugin.scores.getSortedScores(true, null);
+        	Set<String> plys = scores.keySet();
+        	if(scores.keySet().size() < number || plys.toArray()[number-1] == null) {
         		return plugin.msgs.get("placeholders.stats.no-data", player);
         	}
-        	Set<String> plys = scores.keySet();
         	String playername = plys.toArray()[number-1].toString();
         	int score = Integer.valueOf((int) Math.round(scores.get(playername)));
         	return score+"";
@@ -133,11 +134,11 @@ class Placeholders extends PlaceholderExpansion {
         
         if(identifier.matches("stats_top_time_[1-9][0-9]*$")){
         	int number = Integer.valueOf(identifier.split("stats_top_time_")[1]);
-        	Map<String, Double> scores = plugin.scores.getSortedScores(false);
-        	if(scores.keySet().size() < number) {
+        	Map<String, Double> scores = plugin.scores.getSortedScores(false, null);
+        	Set<String> uuids = scores.keySet();
+        	if(scores.keySet().size() < number || uuids.toArray()[number-1] == null) {
         		return plugin.msgs.get("placeholders.stats.no-data", player);
         	}
-        	Set<String> uuids = scores.keySet();
         	UUID uuid = UUID.fromString(uuids.toArray()[number-1].toString());
         	
         	int time = plugin.scores.getTime(uuid);
@@ -158,7 +159,7 @@ class Placeholders extends PlaceholderExpansion {
         	if(player == null) {
         		return "0";
         	}
-        	int score = plugin.scores.getScore(player.getUniqueId());
+        	int score = plugin.scores.getScore(player.getUniqueId(), null);
         	if(score < 0) {
         		score = 0;
         	}

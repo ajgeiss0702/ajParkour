@@ -86,7 +86,7 @@ public class PkPlayer implements Listener {
 		
 		block = plugin.selector.getBlock(p);
 		
-		prevhigh = scores.getScore(ply.getUniqueId());
+		prevhigh = scores.getScore(ply.getUniqueId(), config.getBoolean("begin-score-per-area") ? area.getName() : null);
 		
 		started = System.currentTimeMillis();
 		
@@ -309,10 +309,10 @@ public class PkPlayer implements Listener {
 		}
 		ply.sendMessage(msgs.get("fall.normal").replaceAll("\\{SCORE\\}", score+""));
 		
-		int prevscore = scores.getScore(ply.getUniqueId());
+		int prevscore = scores.getScore(ply.getUniqueId(), area.getName());
 		if(prevscore < score) {
 			int time = (int) (System.currentTimeMillis() - started)/1000;
-			scores.setScore(ply.getUniqueId(), score, time);
+			scores.setScore(ply.getUniqueId(), score, time, area.getName());
 			ply.sendMessage(msgs.get("beatrecord", ply).replaceAll("\\{SCORE\\}", prevscore+""));
 		}
 		

@@ -37,7 +37,7 @@ public class CommandComplete implements TabCompleter {
         	return finalList;
 		} else if(args.length == 2) {
 			switch(args[0].toLowerCase()) {
-				case "edit":
+				case "top":
 					List<String> areas = new ArrayList<>();
 					for(PkArea p : plugin.man.getAreas()) {
 						areas.add(p.getName().toLowerCase());
@@ -49,6 +49,18 @@ public class CommandComplete implements TabCompleter {
 		            	}
 		            }
 		        	return finalList;
+				case "edit":
+					List<String> areas1 = new ArrayList<>();
+					for(PkArea p : plugin.man.getAreas()) {
+						areas1.add(p.getName().toLowerCase());
+					}
+					List<String> finalList1 = new ArrayList<>();
+		        	for(String command : areas1) {
+		            	if(command.startsWith(args[1].toLowerCase())) {
+		            		finalList1.add(command);
+		            	}
+		            }
+		        	return finalList1;
 				case "setup":
 					List<String> sc = new ArrayList<>();
 					sc.add("create");

@@ -15,6 +15,8 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 public class Scores {
 	
@@ -56,9 +58,12 @@ public class Scores {
 		}
 	}
 	
-	
+	/**
+	 * For getting all players and their names in a sorted map
+	 * @return A sorted HashMap<String player, Double score>
+	 */
 	public HashMap<String, Double> getTopScores() {
-		return getTopScores(true);
+		return getTopScores(true, null);
 	}
 	
 	
@@ -70,44 +75,85 @@ public class Scores {
      *
      * @return map with a list of all scores.
      */
-	public HashMap<String, Double> getTopScores(boolean nameKeys) {
+	public HashMap<String, Double> getTopScores(boolean nameKeys, String area) {
 		HashMap<String, Double> map = new HashMap<String, Double>();
 		if(!nameKeys) {
 			for(UUID uuid : this.getPlayers()) {
-				map.put(uuid.toString(), Double.valueOf(this.getScore(uuid)));
+				JSONObject o = getJsonObject(uuid);
+				int highest = -1;
+				if(area == null || area.equals("null")) {
+					for(Object kr : o.keySet()) {
+						int value = (int) Math.round((long) o.get(kr));
+						if(value > highest) {
+							highest = value;
+						}
+					}
+				} else {
+					Object raw = o.get(area);
+					highest = raw == null ? -1 : (int) raw;
+				}
+				map.put(uuid.toString(), Double.valueOf(highest));
 			}
 			return map;
 		}
 		for(UUID uuid : this.getPlayers()) {
-			String n = this.getName(uuid);
-			if(n == null) {
-				n = "-Unknown-";
-				//Bukkit.getLogger().warning("[ajParkour] Could not find name for a person! This probably means the person's name is missing from the databse, or the player has never joined before.");
+			String name = Bukkit.getOfflinePlayer(uuid).getName();
+			JSONObject o = getJsonObject(uuid);
+			int highest = -1;
+			if(area == null || area.equals("null")) {
+				for(Object kr : o.keySet()) {
+					int value = (int) Math.round((long) o.get(kr));
+					if(value > highest) {
+						highest = value;
+					}
+				}
+			} else {
+				Object raw = o.get(area);
+				highest = raw == null ? -1 : (int) raw;
 			}
-			map.put(n, Double.valueOf(this.getScore(uuid)));
+			map.put(name, Double.valueOf(highest));
 		}
 		//Bukkit.getLogger().info("Returned "+map.toString()+" scores");
 		return map;
 	}
 	
-	public LinkedHashMap<String, Double> getSortedScores(boolean nameKeys) {
+	public LinkedHashMap<String, Double> getSortedScores(boolean nameKeys, String area) {
 		LinkedHashMap<String, Double> map = new LinkedHashMap<String, Double>();
 		if(!nameKeys) {
 			for(UUID uuid : this.getPlayers(true)) {
-				map.put(uuid.toString(), Double.valueOf(this.getScore(uuid)));
+				JSONObject o = getJsonObject(uuid);
+				int highest = -1;
+				if(area == null || area.equals("null")) {
+					for(Object kr : o.keySet()) {
+						int value = (int) Math.round((long) o.get(kr));
+						if(value > highest) {
+							highest = value;
+						}
+					}
+				} else {
+					Object raw = o.get(area);
+					highest = raw == null ? -1 : (int) raw;
+				}
+				map.put(uuid.toString(), Double.valueOf(highest));
 			}
 			return map;
 		}
-		for(UUID uuid : this.getPlayers()) {
-			String n = this.getName(uuid);
-			if(n == null) {
-				n = "-Unknown-";
-				//Bukkit.getLogger().warning("[ajParkour] Could not find name for a person! This probably means the person's name is missing from the databse, or the player has never joined before.");
+		for(UUID uuid : this.getPlayers(true)) {
+			String name = Bukkit.getOfflinePlayer(uuid).getName();
+			JSONObject o = getJsonObject(uuid);
+			int highest = -1;
+			if(area == null || area.equals("null")) {
+				for(Object kr : o.keySet()) {
+					int value = (int) Math.round((long) o.get(kr));
+					if(value > highest) {
+						highest = value;
+					}
+				}
+			} else {
+				Object raw = o.get(area);
+				highest = raw == null ? -1 : (int) raw;
 			}
-			map.put(n, Double.valueOf(this.getScore(uuid)));
-		}
-		if(method.equalsIgnoreCase("yaml")) {
-			map = plugin.sortByValue(map);
+			map.put(name, Double.valueOf(highest));
 		}
 		//Bukkit.getLogger().info("Returned "+map.toString()+" scores");
 		return map;
@@ -174,18 +220,57 @@ public class Scores {
 		Class.forName("org.gjt.mm.mysql.Driver");
 		tablename = table;
 		conn = DriverManager.getConnection(url, username, password);
-		conn.createStatement().executeUpdate("create table if not exists "+tablename+" (id VARCHAR(36), score BIGINT(255), name VARCHAR(17))");
+		conn.createStatement().executeUpdate("create table if not exists "+tablename+" (id VARCHAR(36), score VARCHAR(65535), name VARCHAR(17))");
 		method = "mysql";
 		try {
 			conn.createStatement().executeUpdate("alter table "+tablename+" add column time INT(255) after name");
+		} catch(Exception e) {}
+		try {
 			conn.createStatement().executeUpdate("alter table "+tablename+" add column material TINYTEXT after time");
+		} catch(Exception e) {}
+		try {
+			conn.createStatement().executeUpdate("alter table "+tablename+" modify score score VARCHAR(65535)");
 		} catch(Exception e) {}
 	}
 	
-	public int getScore(UUID uuid) {
+	public int getScore(UUID uuid, String area) {
+		if(area == null) {
+			area = "null";
+		}
+		JSONObject o = getJsonObject(uuid);
+		if(!area.equalsIgnoreCase("null")) {
+			Object r = o.get(area);
+			if(r == null) {
+				return 0;
+			}
+			return Math.round((long)r);
+		}
+		int highest = -1;
+		for(Object key : o.keySet()) {
+			int value = (int) Math.round((long) o.get(key));
+			if(value > highest) {
+				highest = value;
+			}
+		}
+		return highest;
+	}
+	
+	public JSONObject getJsonObject(UUID uuid) {
 		if(method.equals("yaml")) {
 			
-			return scores.getInt(uuid.toString()+".score", -1);
+			String raw = scores.getString(uuid.toString()+".score", "{}");
+			if(isInt(raw)) {
+				raw = "{\"null\":"+raw+"}";
+			}
+			
+			try {
+				JSONObject o = (JSONObject) new JSONParser().parse(raw);
+				return o;
+			} catch(Exception e) {
+				Bukkit.getLogger().severe("[ajParkour] An error occured when attempting get a player's score:");
+				e.printStackTrace();
+				return new JSONObject();
+			}
 			
 		} else if(method.equals("mysql")) {
 			try {
@@ -196,18 +281,28 @@ public class Scores {
 					size = p.getRow();
 				}
 				if(size == 0) {
-					return -1;
+					return new JSONObject();
 				}
 				p.first();
-				return p.getInt(1);
-			} catch (SQLException e) {
-				Bukkit.getLogger().severe("[ajParkour] An error occured when attempting to read from database:");
+				
+				
+				String raw = p.getString(1);
+				if(isInt(raw)) {
+					raw = "{\"null\":"+raw+"}";
+				}
+				
+				
+
+				JSONObject o = (JSONObject) new JSONParser().parse(raw);
+				return o;
+			} catch (Exception e) {
+				Bukkit.getLogger().severe("[ajParkour] An error occured when attempting get a player's score:");
 				e.printStackTrace();
-				return -1;
+				return new JSONObject();
 			}
 		}
-		Bukkit.getLogger().severe("[ajParkour] getScore() could not find a method!");
-		return -1;
+		Bukkit.getLogger().severe("[ajParkour] getJsonObject() could not find a method!");
+		return new JSONObject();
 	}
 	
 	public int getTime(UUID uuid) {
@@ -247,9 +342,16 @@ public class Scores {
 		}
 	}
 	
-	public void setScore(UUID uuid, int score, int secs) {
+	@SuppressWarnings("unchecked")
+	public void setScore(UUID uuid, int score, int secs, String area) {
+		if(area == null) {
+			area = "null";
+		}
+		JSONObject o = getJsonObject(uuid);
+		o.put(area, score);
+		String out = o.toJSONString();
 		if(method.equals("yaml")) {
-			scores.set(uuid.toString()+".score", score);
+			scores.set(uuid.toString()+".score", out);
 			scores.set(uuid.toString()+".time", secs);
 			if(score == 0 && secs == 0) {
 				scores.set(uuid.toString(), null);
@@ -266,13 +368,13 @@ public class Scores {
 				if(size <= 0) {
 					if(!(score == 0 && secs == 0)) {
 						conn.createStatement().executeUpdate("insert into "+tablename+" (id, score, name, time) "
-								+ "values ('"+uuid+"', "+score+", '"+Bukkit.getOfflinePlayer(uuid).getName()+"', "+secs+")");
+								+ "values ('"+uuid+"', '"+out+"', '"+Bukkit.getOfflinePlayer(uuid).getName()+"', "+secs+")");
 					}
 				} else {
 					if(score == 0 && secs == 0) {
 						conn.createStatement().executeUpdate("delete from `"+tablename+"` where id="+uuid.toString());
 					} else {
-						conn.createStatement().executeUpdate("update "+tablename+" set score="+score + ",time="+secs+" where id='"+uuid.toString()+"'");
+						conn.createStatement().executeUpdate("update "+tablename+" set score='"+out+"',time="+secs+" where id='"+uuid.toString()+"'");
 					}
 				}
 			} catch (SQLException e) {
@@ -449,7 +551,7 @@ public class Scores {
 			int count = 0;
 			for(String key : s.getKeys(false)) {
 				UUID uuid = UUID.fromString(key);
-				setScore(uuid, s.getInt(key), -1);
+				setScore(uuid, s.getInt(key), -1, "null");
 				count++;
 			}
 			sc = null;
@@ -481,7 +583,7 @@ public class Scores {
 					
 					int i = size;
 					while(i > 0) {
-						setScore(UUID.fromString(r.getString(1)), r.getInt(2), r.getInt(3));
+						setScore(UUID.fromString(r.getString(1)), r.getInt(2), r.getInt(3), null);
 						i--;
 						r.next();
 					}
@@ -493,6 +595,17 @@ public class Scores {
 			}
 		}
 		return -1;
+	}
+	
+	
+	
+	private boolean isInt(String str) {
+	    try {
+	        Integer.parseInt(str);
+	        return true;
+	    } catch (NumberFormatException nfe) {
+	        return false;
+	    }
 	}
 	
 	

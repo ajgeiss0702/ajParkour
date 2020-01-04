@@ -100,7 +100,7 @@ public class Rewards {
 				boolean firstTimeOnly = rw.getBoolean("exceptions."+ec+".first-time-only", false);
 				//p.getPlayer().sendMessage(ec+".first-time-only: "+firstTimeOnly);
 				if(firstTimeOnly) {
-					int highscore = plugin.scores.getScore(p.getPlayer().getUniqueId());
+					int highscore = plugin.scores.getScore(p.getPlayer().getUniqueId(), null);
 					if(ec <= highscore) {
 						//p.getPlayer().sendMessage(ec+" <= "+highscore);
 						continue;
