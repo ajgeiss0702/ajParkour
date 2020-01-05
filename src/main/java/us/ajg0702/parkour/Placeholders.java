@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.bukkit.entity.Player;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import us.ajg0702.parkour.game.PkArea;
 import us.ajg0702.parkour.game.PkPlayer;
 
 /**
@@ -107,9 +108,11 @@ class Placeholders extends PlaceholderExpansion {
     public String onPlaceholderRequest(Player player, String identifier){
         
         
-        if(identifier.matches("stats_top_name_[1-9][0-9]*$")){
+    	
+    	
+        if(identifier.matches("stats_top_name_[1-9][0-9]*$")) {
         	int number = Integer.valueOf(identifier.split("stats_top_name_")[1]);
-        	Map<String, Double> scores = plugin.scores.getSortedScores(true, null);
+        	Map<String, Double> scores = plugin.scores.getSortedScores(true, null);	
         	Set<String> names = scores.keySet();
         	if(scores.keySet().size() < number || names.toArray()[number-1] == null) {
         		return plugin.msgs.get("placeholders.stats.no-data", player);
@@ -118,9 +121,24 @@ class Placeholders extends PlaceholderExpansion {
         	String name = names.toArray()[number-1].toString();
             return name;
         }
+        if(identifier.matches("stats_top_name_[1-9][0-9]*_.+$")) {
+        	int number = Integer.valueOf(identifier.split("_")[3]);
+        	String area = identifier.split("_")[4];
+        	Map<String, Double> scores = plugin.scores.getSortedScores(true, area);	
+        	Set<String> names = scores.keySet();
+        	if(scores.keySet().size() < number || names.toArray()[number-1] == null) {
+        		return plugin.msgs.get("placeholders.stats.no-data", player);
+        	}
+
+        	String name = names.toArray()[number-1].toString();
+            return name;
+        }
+        
+        
+        
 
         // %someplugin_placeholder2%
-        if(identifier.matches("stats_top_score_[1-9][0-9]*$")){
+        if(identifier.matches("stats_top_score_[1-9][0-9]*$")) {
         	int number = Integer.valueOf(identifier.split("stats_top_score_")[1]);
         	Map<String, Double> scores = plugin.scores.getSortedScores(true, null);
         	Set<String> plys = scores.keySet();
@@ -131,8 +149,23 @@ class Placeholders extends PlaceholderExpansion {
         	int score = Integer.valueOf((int) Math.round(scores.get(playername)));
         	return score+"";
         }
+        if(identifier.matches("stats_top_score_[1-9][0-9]*_.+$")) {
+        	int number = Integer.valueOf(identifier.split("_")[3]);
+        	String area = identifier.split("_")[4];
+        	Map<String, Double> scores = plugin.scores.getSortedScores(true, area);
+        	Set<String> plys = scores.keySet();
+        	if(scores.keySet().size() < number || plys.toArray()[number-1] == null) {
+        		return plugin.msgs.get("placeholders.stats.no-data", player);
+        	}
+        	String playername = plys.toArray()[number-1].toString();
+        	int score = Integer.valueOf((int) Math.round(scores.get(playername)));
+        	return score+"";
+        }
         
-        if(identifier.matches("stats_top_time_[1-9][0-9]*$")){
+        
+        
+        
+        if(identifier.matches("stats_top_time_[1-9][0-9]*$")) {
         	int number = Integer.valueOf(identifier.split("stats_top_time_")[1]);
         	Map<String, Double> scores = plugin.scores.getSortedScores(false, null);
         	Set<String> uuids = scores.keySet();
@@ -154,6 +187,33 @@ class Placeholders extends PlaceholderExpansion {
             		.replaceAll("\\{m\\}", min+"")
             		.replaceAll("\\{s\\}", sec+"");
         }
+        if(identifier.matches("stats_top_time_[1-9][0-9]*_.+$")) {
+        	int number = Integer.valueOf(identifier.split("_")[3]);
+        	String area = identifier.split("_")[4];
+        	Map<String, Double> scores = plugin.scores.getSortedScores(false, area);
+        	Set<String> uuids = scores.keySet();
+        	if(scores.keySet().size() < number || uuids.toArray()[number-1] == null) {
+        		return plugin.msgs.get("placeholders.stats.no-data", player);
+        	}
+        	UUID uuid = UUID.fromString(uuids.toArray()[number-1].toString());
+        	
+        	int time = plugin.scores.getTime(uuid);
+        	
+        	if(time < 0) {
+        		return plugin.msgs.get("placeholders.stats.no-data", player);
+        	}
+        	
+        	int min = (int) Math.floor((time) / (60));
+        	int sec = (int) Math.floor((time % (60)));
+        	
+            return plugin.msgs.get("placeholders.stats.time-format", player)
+            		.replaceAll("\\{m\\}", min+"")
+            		.replaceAll("\\{s\\}", sec+"");
+        }
+        
+        
+        
+        
         
         if(identifier.equals("stats_highscore")) {
         	if(player == null) {
@@ -165,6 +225,20 @@ class Placeholders extends PlaceholderExpansion {
         	}
         	return score+"";
         }
+        if(identifier.equals("stats_highscore_.+$")) {
+        	if(player == null) {
+        		return "0";
+        	}
+        	String area = identifier.split("_")[2];
+        	int score = plugin.scores.getScore(player.getUniqueId(), area);
+        	if(score < 0) {
+        		score = 0;
+        	}
+        	return score+"";
+        }
+        
+        
+        
         
         if(identifier.equals("current")) {
         	if(player == null) return "0";
@@ -184,6 +258,14 @@ class Placeholders extends PlaceholderExpansion {
         
         if(identifier.equals("jumping")) {
         	return plugin.man.getTotalPlayers()+"";
+        }
+        if(identifier.equals("jumping_.+")) {
+        	String arearaw = identifier.split("_")[1];
+        	PkArea area = plugin.man.getArea(arearaw);
+        	if(area == null) {
+        		return "!";
+        	}
+        	return plugin.man.getPlayerCounts(area)+"";
         }
  
         // We return null if an invalid placeholder (f.e. %someplugin_placeholder3%) 
