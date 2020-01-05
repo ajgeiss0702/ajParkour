@@ -90,7 +90,7 @@ public class Scores {
 					}
 				} else {
 					Object raw = o.get(area);
-					highest = raw == null ? -1 : (int) raw;
+					highest = raw == null ? -1 : Math.round((long) raw);
 				}
 				map.put(uuid.toString(), Double.valueOf(highest));
 			}
@@ -109,7 +109,7 @@ public class Scores {
 				}
 			} else {
 				Object raw = o.get(area);
-				highest = raw == null ? -1 : (int) raw;
+				highest = raw == null ? -1 : Math.round((long) raw);
 			}
 			map.put(name, Double.valueOf(highest));
 		}
@@ -132,7 +132,7 @@ public class Scores {
 					}
 				} else {
 					Object raw = o.get(area);
-					highest = raw == null ? -1 : (int) raw;
+					highest = raw == null ? -1 : Math.round((long) raw);
 				}
 				map.put(uuid.toString(), Double.valueOf(highest));
 			}
@@ -151,7 +151,7 @@ public class Scores {
 				}
 			} else {
 				Object raw = o.get(area);
-				highest = raw == null ? -1 : (int) raw;
+				highest = raw == null ? -1 : Math.round((long) raw);
 			}
 			map.put(name, Double.valueOf(highest));
 		}
