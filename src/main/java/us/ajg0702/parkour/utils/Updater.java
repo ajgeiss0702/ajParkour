@@ -47,6 +47,15 @@ public class Updater implements Listener {
 		
 		currentVersion = pl.getDescription().getVersion();
 		
+		check();
+		Bukkit.getScheduler().scheduleSyncDelayedTask(pl, new Runnable() {
+			public void run() {
+				check();
+			}
+		}, 18000*20); // checks for an update every 5 hours
+	}
+	
+	public void check() {
 		Bukkit.getScheduler().runTaskAsynchronously(pl, new Runnable() {
 			public void run() {
 				try {
@@ -87,12 +96,12 @@ public class Updater implements Listener {
 						}
 						i++;
 					}
-					ready = true;
-					if(updateAvailable) {
+					if(updateAvailable && !ready) {
 						Bukkit.getLogger().info(msgs.color("[ajParkour] An update is available! ("+latestVersion+") Do &7/ajParkour update&r to download it!"));
-					} else {
+					} else if(!ready) {
 						Bukkit.getLogger().info("[ajParkour] You are up to date! ("+latestVersion+")");
 					}
+					ready = true;
 				} catch (IOException e) {
 					// TODO: handle exception
 					e.printStackTrace();
