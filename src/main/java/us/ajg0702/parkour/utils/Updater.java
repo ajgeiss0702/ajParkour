@@ -133,7 +133,7 @@ public class Updater implements Listener {
 			return;
 		}
 		if(!updateAvailable) {
-			p.sendMessage("&cThere is no update to download!");
+			p.sendMessage(msgs.color("&cThere is no update to download!"));
 			return;
 		}
 		String curjarname = "ajParkour-"+currentVersion+".jar";
