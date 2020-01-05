@@ -187,7 +187,7 @@ class Placeholders extends PlaceholderExpansion {
             		.replaceAll("\\{m\\}", min+"")
             		.replaceAll("\\{s\\}", sec+"");
         }
-        if(identifier.matches("stats_top_time_[1-9][0-9]*_.+$")) {
+        /*if(identifier.matches("stats_top_time_[1-9][0-9]*_.+$")) {
         	int number = Integer.valueOf(identifier.split("_")[3]);
         	String area = identifier.split("_")[4];
         	Map<String, Double> scores = plugin.scores.getSortedScores(false, area);
@@ -209,7 +209,7 @@ class Placeholders extends PlaceholderExpansion {
             return plugin.msgs.get("placeholders.stats.time-format", player)
             		.replaceAll("\\{m\\}", min+"")
             		.replaceAll("\\{s\\}", sec+"");
-        }
+        }*/
         
         
         
