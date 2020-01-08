@@ -388,6 +388,7 @@ public class Commands implements CommandExecutor {
 								str += "\n"+t;
 							}
 							sender.sendMessage(str);
+							editing = new HashMap<>();
 							return true;
 						default:
 							if(!sender.hasPermission("ajparkour.setup")) {
