@@ -45,7 +45,7 @@ public class Updater implements Listener {
 		pl.getServer().getPluginManager().registerEvents(this, pl);
 		instance = this;
 		
-		currentVersion = pl.getDescription().getVersion();
+		currentVersion = pl.getDescription().getVersion().split("-")[0];
 		
 		check();
 		Bukkit.getScheduler().scheduleSyncDelayedTask(pl, new Runnable() {
