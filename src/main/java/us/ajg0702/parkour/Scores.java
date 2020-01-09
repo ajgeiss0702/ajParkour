@@ -136,6 +136,7 @@ public class Scores {
 				}
 				map.put(uuid.toString(), Double.valueOf(highest));
 			}
+			map = plugin.sortByValue(map);
 			return map;
 		}
 		for(UUID uuid : this.getPlayers(true)) {
@@ -156,6 +157,7 @@ public class Scores {
 			map.put(name, Double.valueOf(highest));
 		}
 		//Bukkit.getLogger().info("Returned "+map.toString()+" scores");
+		map = plugin.sortByValue(map);
 		return map;
 	}
 	
