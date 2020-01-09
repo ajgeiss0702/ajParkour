@@ -62,6 +62,9 @@ public class AreaStorage implements Listener {
 			return new ArrayList<>();
 		}
 		ConfigurationSection s = (ConfigurationSection) config.get("areas");
+		if(s == null) {
+			return new ArrayList<>();
+		}
 		List<PkArea> list = new ArrayList<>();
 		for(String name : s.getKeys(false)) {
 			Location p1 = parseLoc(s.getString(name+".pos1"));
@@ -122,6 +125,9 @@ public class AreaStorage implements Listener {
 			}
 		}
 		ConfigurationSection s = (ConfigurationSection) config.get("portals");
+		if(s == null) {
+			return new ArrayList<>();
+		}
 		List<Portal> list = new ArrayList<>();
 		for(String name : s.getKeys(false)) {
 			//Bukkit.getLogger().info("[ajParkour] Portal: "+name);
