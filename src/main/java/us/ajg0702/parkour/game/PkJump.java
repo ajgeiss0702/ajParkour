@@ -28,6 +28,8 @@ public class PkJump {
 	Main main;
 	
 	List<Location> blocks;
+	
+	boolean placed = false;
 
 	/**
 	 * Creating a jump for the payer. Will calculate best possible direction to place the block.
@@ -412,6 +414,11 @@ public class PkJump {
 				sd.update();
 			}
 		}
+		placed = true;
+	}
+	
+	public boolean isPlaced() {
+		return placed;
 	}
 	
 	/*
@@ -445,6 +452,7 @@ public class PkJump {
 				l.getBlock().setType(Material.AIR);
 			//}
 		}
+		placed = false;
 	}
 	
 	

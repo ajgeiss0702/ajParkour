@@ -100,14 +100,18 @@ public class PkPlayer implements Listener {
 		jumps.add(new PkJump(this, start));
 		Location prevJump = jumps.get(jumps.size()-1).getFrom();
 		jumps.add(new PkJump(this, prevJump));
+		jumps.get(0).place();
 		int i = 0;
 		while(i < ahead) {
 			i++;
 			jumps.add(new PkJump(this, jumps.get(jumps.size()-1).getFrom()));
+			jumps.get(jumps.size()-1).place();
 		}
 		
 		for(PkJump jump : jumps) {
-			jump.place();
+			if(!jump.isPlaced()) {
+				jump.place();
+			}
 		}
 		Location tp = jumps.get(0).getTo();
 		teleporting = true;
