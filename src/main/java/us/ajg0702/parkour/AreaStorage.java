@@ -19,6 +19,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 
 import us.ajg0702.parkour.game.Difficulty;
 import us.ajg0702.parkour.game.PkArea;
+import us.ajg0702.parkour.utils.Config;
 
 public class AreaStorage implements Listener {
 
@@ -26,6 +27,8 @@ public class AreaStorage implements Listener {
 	
 	File configfile;
 	YamlConfiguration config;
+	
+	Config mainConfig;
 	
 	Messages msgs;
 	
@@ -35,10 +38,26 @@ public class AreaStorage implements Listener {
 		
 		msgs = plugin.msgs;
 		
+		mainConfig = plugin.getAConfig();
+		
 		configfile = new File(plugin.getDataFolder(), "positions.yml");
 		config = YamlConfiguration.loadConfiguration(configfile);
 		
-		plugin.getServer().getPluginManager().registerEvents(this, plugin);
+		
+		if(mainConfig.getBoolean("enable-portals") && !mainConfig.getBoolean("faster-portals")) {
+			plugin.getServer().getPluginManager().registerEvents(this, plugin);
+		}
+		
+		if(mainConfig.getBoolean("enable-portals") && mainConfig.getBoolean("faster-portals")) {
+			Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+				public void run() {
+					for(Player p : Bukkit.getOnlinePlayers()) {
+						checkPortal(new PlayerMoveEvent(p, p.getLocation(), p.getLocation()));
+					}
+				}
+			}, 3*20, 5);
+		}
+		
 		
 		saveFile();
 	}

@@ -65,6 +65,8 @@ public class Main extends JavaPlugin {
 		config.addEntry("kick-time", 60, "How long, in seconds, after a player doesnt move should we kick them from the parkour?\nSet to -1 to disable\n Default: 60");
 		config.addEntry("notify-update", true, "Should we notify people with the permission ajparkour.update that an update is available?\nThey will then be able to download it using /ajParkour update\n Default: true");
 		config.addEntry("begin-score-per-area", false, "Should the score we tell the player to beat be per-area or global?\nFor example, if this is true and the player got 30 on another area but only 10 on this one, they will be told to beat their record of 10.\n Default: false");
+		config.addEntry("enable-portals", true, "Should the portals be disabled?\nIf your server is lagging from this plugin without many people on parkour, try disabling this.\nREQUIRES SERVER RESTART (not just config reload)\n Default: true");
+		config.addEntry("faster-portals", false, "Shoud we use a more optimized method to look if players are at a portal?\nIt may require the player to be in the block for a little longer\nEnable this if you have a lot of people on your server and are experiencing lag.\n Default: false");
 		config.setEntries();
 		
 		msgs = new Messages(this);
