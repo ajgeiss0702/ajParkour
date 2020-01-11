@@ -89,10 +89,20 @@ public class Updater implements Listener {
 						int n = Integer.valueOf(part);
 						int c = Integer.valueOf(curparts[i]);
 						if(n > c) {
-							updateAvailable = true;
+							if(i != 0) {
+								int nl = Integer.valueOf(parts[i-1]);
+								int cl = Integer.valueOf(curparts[i-1]);
+								if(nl < cl) {
+									updateAvailable = true;
+								} else {
+									continue;
+								}
+							} else {
+								updateAvailable = true;
+							}
 							break;
-						} else {
-							//System.out.println(n+" !> "+c);
+						} else if(n < c) {
+							break; //no update, version is newer
 						}
 						i++;
 					}
