@@ -222,7 +222,7 @@ public class Scores {
 		Class.forName("org.gjt.mm.mysql.Driver");
 		tablename = table;
 		conn = DriverManager.getConnection(url, username, password);
-		conn.createStatement().executeUpdate("create table if not exists "+tablename+" (id VARCHAR(36), score VARCHAR(65535), name VARCHAR(17))");
+		conn.createStatement().executeUpdate("create table if not exists "+tablename+" (id VARCHAR(36), score MEDIUMTEXT, name VARCHAR(17))");
 		method = "mysql";
 		try {
 			conn.createStatement().executeUpdate("alter table "+tablename+" add column time INT(255) after name");
@@ -231,7 +231,7 @@ public class Scores {
 			conn.createStatement().executeUpdate("alter table "+tablename+" add column material TINYTEXT after time");
 		} catch(Exception e) {}
 		try {
-			conn.createStatement().executeUpdate("alter table "+tablename+" modify score score VARCHAR(65535)");
+			conn.createStatement().executeUpdate("alter table "+tablename+" modify score score MEDIUMTEXT");
 		} catch(Exception e) {}
 	}
 	
