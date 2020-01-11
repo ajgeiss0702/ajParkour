@@ -133,9 +133,26 @@ public class Commands implements CommandExecutor {
 						);
 				}
 				return true;
+			case "migrate":
+				if(!sender.hasPermission("ajparkour.migrate")) {
+					sender.sendMessage(msgs.get("noperm", sply));
+					return true;
+				}
+				if(args.length <= 1) {
+					sender.sendMessage(msgs.get("migrate.more-args", sply));
+					return true;
+				}
+				int count = pl.scores.migrate(args[1]);
+				if(count < 0) {
+					sender.sendMessage(msgs.get("migrate.error", sply));
+					return true;
+				}
+				sender.sendMessage(msgs.get("migrate.success", sply).replaceAll("\\{COUNT\\}", count+""));
+				return true;
 			case "update":
 				if(!sender.hasPermission("ajparkour.update")) {
-					sender.sendMessage(msgs.get("msgs.noperm", sply));
+					sender.sendMessage(msgs.get("noperm", sply));
+					return true;
 				}
 				Updater.getInstance().downloadUpdate(sender);
 				return true;
