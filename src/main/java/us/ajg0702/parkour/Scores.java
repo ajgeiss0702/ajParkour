@@ -257,6 +257,22 @@ public class Scores {
 		return highest;
 	}
 	
+	public JSONObject getJsonObject(String raw) {
+		if(raw == null) {
+			raw = "{}";
+		}
+		if(isInt(raw)) {
+			raw = "{\"null\":"+raw+"}";
+		}
+		try {
+			JSONObject o = (JSONObject) new JSONParser().parse(raw);
+			return o;
+		} catch(Exception e) {
+			Bukkit.getLogger().severe("[ajParkour] An error occured when attempting get a player's score:");
+			e.printStackTrace();
+			return new JSONObject();
+		}
+	}
 	public JSONObject getJsonObject(UUID uuid) {
 		if(method.equals("yaml")) {
 			
@@ -553,7 +569,11 @@ public class Scores {
 			int count = 0;
 			for(String key : s.getKeys(false)) {
 				UUID uuid = UUID.fromString(key);
-				setScore(uuid, s.getInt(key), -1, "null");
+				//setScore(uuid, s.getInt(key), -1, "null");
+				JSONObject o = getJsonObject(s.getString(key+".score"));
+				for(Object k : o.keySet()) {
+					setScore(uuid, Integer.valueOf(o.get(k)+""), Integer.valueOf(s.getInt(key+".time")), k+"");
+				}
 				count++;
 			}
 			sc = null;
@@ -571,6 +591,7 @@ public class Scores {
 				Class.forName("org.gjt.mm.mysql.Driver");
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
+				return 0;
 			}
 			Connection con;
 			try {
@@ -585,7 +606,12 @@ public class Scores {
 					
 					int i = size;
 					while(i > 0) {
-						setScore(UUID.fromString(r.getString(1)), r.getInt(2), r.getInt(3), null);
+						UUID uuid = UUID.fromString(r.getString(1));
+						JSONObject o = getJsonObject(r.getString(2));
+						for(Object k : o.keySet()) {
+							setScore(uuid, Integer.valueOf(o.get(k)+""), r.getInt(3), k.toString());
+						}
+						//setScore(UUID.fromString(r.getString(1)), r.getString(2), r.getInt(3), null);
 						i--;
 						r.next();
 					}
@@ -594,6 +620,7 @@ public class Scores {
 				return size;
 			} catch (SQLException e) {
 				e.printStackTrace();
+				return 0;
 			}
 		}
 		return -1;
