@@ -261,8 +261,12 @@ public class AreaStorage implements Listener {
 			}
 			Location loc = p.getLocation();
 			save(new Portal(name, loc, area));
-			p.sendMessage(msgs.get("portals.create.success", p).replaceAll("\\{NAME\\}", name));
-			reload();
+			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+				public void run() {
+					reload();
+					p.sendMessage(msgs.get("portals.create.success", p).replaceAll("\\{NAME\\}", name));
+				}
+			});
 			break;
 		case "remove":
 			if(args.length < 3) {
