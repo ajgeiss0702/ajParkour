@@ -67,6 +67,8 @@ public class Commands implements CommandExecutor {
 					return true;
 				}
 				
+				
+				
 				if(sply != null) {
 					if(config.inCommaList("start-disabled-worlds", sply.getWorld().getName())) {
 						sply.sendMessage(msgs.get("disabledworld"));
@@ -380,6 +382,7 @@ public class Commands implements CommandExecutor {
 							Location fp = n(editing.get("fallpos")) ? null : (Location) editing.get("fallpos");
 							Difficulty diff = (Difficulty) editing.get("diff");
 							pl.areaStorage.save(new PkArea(name, p1, p2, fp, diff));
+							editing = new HashMap<>();
 							
 							final Player p = (Player) sender;
 							Bukkit.getScheduler().runTask(pl, new Runnable() {
@@ -405,7 +408,6 @@ public class Commands implements CommandExecutor {
 								str += "\n"+t;
 							}
 							sender.sendMessage(str);
-							editing = new HashMap<>();
 							return true;
 						default:
 							if(!sender.hasPermission("ajparkour.setup")) {
