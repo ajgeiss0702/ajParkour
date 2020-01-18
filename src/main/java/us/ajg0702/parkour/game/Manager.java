@@ -192,6 +192,10 @@ public class Manager implements Listener {
 			return null;
 		}
 		
+		if(getPlayer(ply) != null) {
+			return null;
+		}
+		
 		String fm = main.getAConfig().getString("area-selection");
 		//String fm = "lowest"; // TODO: fix config. apparently the get method doesnt exist
 		PkArea s = area;
