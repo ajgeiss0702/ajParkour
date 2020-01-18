@@ -242,6 +242,7 @@ public class Rewards {
 		//Bukkit.getLogger().info("staticExecuteRewards is getting executed");
 		for(String cmdr : cmds) {
 			//Bukkit.getLogger().info("staticExecuteRewards: "+cmdr);
+			if(cmdr == null) continue;
 			boolean execAsPlayer = (cmdr.indexOf("[p]") == 0);
 			String cmd = (execAsPlayer) ? cmdr.replaceFirst("\\[p\\]", "") : cmdr;
 			if(cmd.indexOf(" ") == 0) {
