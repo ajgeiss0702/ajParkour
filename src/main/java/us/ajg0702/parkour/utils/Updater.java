@@ -79,33 +79,41 @@ public class Updater implements Listener {
 					
 					//System.out.println("latest: "+latestVersion+" ("+parts.length+") cur: "+currentVersion+" ("+curparts.length+")");
 					
-					int i = 0;
+					/*int i = 0;
 					for(String part : parts) {
 						//System.out.println(i+": "+part);
 						if(i >= curparts.length) {
 							//System.out.println("curparts.length ("+curparts.length+") < i ("+i+")");
 							break;
 						}
-						int n = Integer.valueOf(part);
-						int c = Integer.valueOf(curparts[i]);
-						if(n > c) {
+						int newver = Integer.valueOf(part);
+						int curver = Integer.valueOf(curparts[i]);
+						if(newver > curver) {
 							if(i != 0) {
-								int nl = Integer.valueOf(parts[i-1]);
-								int cl = Integer.valueOf(curparts[i-1]);
-								if(nl < cl) {
+								int newverlast = Integer.valueOf(parts[i-1]);
+								int currentverlast = Integer.valueOf(curparts[i-1]);
+								if(newverlast < currentverlast) {
 									updateAvailable = true;
 								} else {
+									System.out.println("newverlast !< currentverlast "+newverlast+" !< "+currentverlast);
 									continue;
 								}
 							} else {
 								updateAvailable = true;
 							}
-							break;
-						} else if(n < c) {
+						} else if(newver < curver) {
 							break; //no update, version is newer
 						}
 						i++;
+					}*/
+					
+					int latestInt = Integer.valueOf(join(parts, ""));
+					int currentInt = Integer.valueOf(join(curparts, ""));
+					
+					if(latestInt > currentInt) {
+						updateAvailable = true;
 					}
+					
 					if(updateAvailable && !ready) {
 						Bukkit.getLogger().info(msgs.color("[ajParkour] An update is available! ("+latestVersion+") Do &7/ajParkour update&r to download it!"));
 					} else if(!ready) {
@@ -122,6 +130,20 @@ public class Updater implements Listener {
 	
 	public static Updater getInstance() {
 		return instance;
+	}
+	
+	
+	private String join(String[] array, String joiner) {
+		String f = "";
+		int i = 0;
+		for(String p : array) {
+			f += p;
+			if(i+1 != array.length-1) {
+				f += joiner;
+			}
+			i++;
+		}
+		return f;
 	}
 	
 	
