@@ -23,6 +23,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import us.ajg0702.parkour.game.PkArea;
 import us.ajg0702.parkour.utils.VersionSupport;
 
 public class BlockSelector implements Listener {
@@ -131,7 +132,7 @@ public class BlockSelector implements Listener {
 		for(String mat : mats) {
 			Material t = null;
 			try {
-				t = Material.valueOf(mat.split(":")[0]);
+				t = Material.valueOf(mat.split(";")[0].split(":")[0]);
 			} catch(IllegalArgumentException e) {}
 			
 			if(t != null) {
@@ -281,12 +282,38 @@ public class BlockSelector implements Listener {
 		return o;
 	}
 	
-	public String getBlock(Player p) {
+	public String getBlock(Player p, PkArea area) {
 		String raw = scores.getMaterial(p.getUniqueId());
 		if(raw == null || raw.equalsIgnoreCase("random") || raw.equalsIgnoreCase(plugin.config.getString("random-item"))) {
-			int max = types.size()-1;
+			List<String> ftypes = new ArrayList<>();
+			for(String b : types) {
+				if(b.indexOf(';') != -1) {
+					String a = b.split(";")[1];
+					b = b.split(";")[0];
+					String[] parts = a.split(",");
+					boolean isIn = false;
+					for(String pa : parts) {
+						if(pa.equalsIgnoreCase(area.getName())) {
+							isIn = true;
+							break;
+						}
+					}
+					
+					if(!isIn) {
+						//System.out.println("removing "+b+" because area not "+area.getName()+" ("+a+")");
+						continue;
+					}
+					//System.out.println("not removing "+b+" because area "+area.getName()+" ("+a+")");
+				}
+				//System.out.println("adding "+b);
+				ftypes.add(b);
+			}
+			int max = ftypes.size()-1;
 			int i = Main.random(0, max);
-			return types.get(i).toString();
+			//String dbug = "";
+			//for(String ft : ftypes) { dbug += ft+", "; }
+			//System.out.println("max: "+max+" r: "+i+" dbug: "+dbug);
+			return ftypes.get(i).toString();
 		} else {
 			return raw;
 		}

@@ -400,7 +400,7 @@ public class PkJump {
 			Material prev = l.getBlock().getType();
 			String type = ply.getBlock();
 			if(((String) main.config.get("random-block-selection")).equalsIgnoreCase("each")) {
-				type = main.selector.getBlock(ply.getPlayer());
+				type = main.selector.getBlock(ply.getPlayer(), ply.getArea());
 			}
 			MaterialParser.placeBlock(l, type);
 			l.getBlock().setMetadata("ajpk-prevtype", new FixedMetadataValue(main, prev));

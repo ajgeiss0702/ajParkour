@@ -84,7 +84,7 @@ public class PkPlayer implements Listener {
 		
 		config = plugin.getAConfig();
 		
-		block = plugin.selector.getBlock(p);
+		block = plugin.selector.getBlock(p, area);
 		
 		prevhigh = scores.getScore(ply.getUniqueId(), config.getBoolean("begin-score-per-area") ? area.getName() : null);
 		

@@ -10,6 +10,7 @@ public class MaterialParser {
 
 	@SuppressWarnings("deprecation")
 	public static void placeBlock(Location loc, String blockname) {
+		blockname = blockname.split(";")[0];
 		Material mat;
 		int data = -1;
 		if(blockname.indexOf(":") != -1 && VersionSupport.getMinorVersion() <= 12) {
