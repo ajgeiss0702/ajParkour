@@ -59,7 +59,8 @@ public class Updater implements Listener {
 		Bukkit.getScheduler().runTaskAsynchronously(pl, new Runnable() {
 			public void run() {
 				try {
-					URL url = new URL("https://api.spiget.org/v2/resources/60909/versions?size=1&sort=-releaseDate");
+					//URL url = new URL("https://api.spiget.org/v2/resources/60909/versions?size=1&sort=-releaseDate");
+					URL url = new URL("https://ajg0702.us/pl/ap/updates/getversion.php");
 					HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 					connection.addRequestProperty("User-Agent", "ajParkour/"+currentVersion);// Set User-Agent
 
