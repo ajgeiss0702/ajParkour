@@ -14,6 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -218,6 +219,9 @@ public class Manager implements Listener {
 			s = areas.get(0);
 		}
 		//ply.sendMessage("Starting game in area '" + s.getName()+"'");
+		if(ply.getFoodLevel() <= 6) {
+			ply.setFoodLevel(7);
+		}
 		PkPlayer p = new PkPlayer(ply, this, s);
 		plys.add(p);
 		return p;
@@ -338,6 +342,15 @@ public class Manager implements Listener {
 		if(getPlayer(p) != null) {
 			e.setCancelled(true);
 			p.sendMessage(msgs.get("block.break"));
+		}
+	}
+	@EventHandler
+	public void onHungerDeplete(FoodLevelChangeEvent e) {
+		Player p = (Player) e.getEntity();
+		if(getPlayer(p) == null) return;
+		if(e.getFoodLevel() <= 6) {
+			e.setCancelled(true);
+			p.setFoodLevel(7);
 		}
 	}
 	
