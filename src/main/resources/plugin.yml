@@ -1,6 +1,8 @@
 name: ajParkour
 version: ${project.version}
 author: ajgeiss0702
+description: Randomly generated parkour!
+website: https://www.spigotmc.org/resources/ajparkour.60909/
 main: us.ajg0702.parkour.Main
 softdepend: [PlaceholderAPI, WorldEdit]
 api-version: 1.13
