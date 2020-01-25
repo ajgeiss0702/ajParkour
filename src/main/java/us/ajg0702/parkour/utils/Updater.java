@@ -1,5 +1,6 @@
 package us.ajg0702.parkour.utils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -16,9 +17,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+/*
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+*/
 
 import us.ajg0702.parkour.Main;
 import us.ajg0702.parkour.Messages;
@@ -67,13 +70,25 @@ public class Updater implements Listener {
 					// If you're not sure if the request will be successful,
 					// you need to check the response code and use #getErrorStream if it returned an error code
 					InputStream inputStream = connection.getInputStream();
-					InputStreamReader reader = new InputStreamReader(inputStream);
+					/*InputStreamReader reader = new InputStreamReader(inputStream); // old update checker for spiget
 
 					// This could be either a JsonArray or JsonObject
 					JsonElement element = new JsonParser().parse(reader);
 					JsonArray o = element.getAsJsonArray();
 					
-					latestVersion = o.get(0).getAsJsonObject().get("name").getAsString();
+					latestVersion = o.get(0).getAsJsonObject().get("name").getAsString();*/
+					
+					BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+                    String line = null;
+                    
+                    String string = "";
+                    while ((line = br.readLine()) != null) {
+                        string += line;
+                    }
+                    
+                    latestVersion = string;
+					
+					
 					
 					String[] parts = latestVersion.split("\\.");
 					String[] curparts = currentVersion.split("\\.");
