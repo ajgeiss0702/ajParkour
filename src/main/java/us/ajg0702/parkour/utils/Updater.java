@@ -52,7 +52,7 @@ public class Updater implements Listener {
 			public void run() {
 				check();
 			}
-		}, 18000*20); // checks for an update every 5 hours
+		}, 3600*20); // checks for an update every hour
 	}
 	
 	public void check() {
