@@ -270,6 +270,7 @@ public class Updater implements Listener {
 			fos.close();
 			oldjar.delete();
 			p.sendMessage(msgs.color("&aSuccess! &7Restart the server and the new version will be ready!"));
+			updateAvailable = false;
 		} catch(Exception e) {
 			p.sendMessage(msgs.color("&cAn error occured while trying to download the newest version. Check console for more info"));
 			e.printStackTrace();
