@@ -309,6 +309,9 @@ public class BlockSelector implements Listener {
 				ftypes.add(b);
 			}
 			int max = ftypes.size()-1;
+			if(max < 0) {
+				max = 0;
+			}
 			int i = Main.random(0, max);
 			//String dbug = "";
 			//for(String ft : ftypes) { dbug += ft+", "; }
