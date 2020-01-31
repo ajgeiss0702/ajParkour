@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -106,6 +107,7 @@ class Placeholders extends PlaceholderExpansion {
      */
     @Override
     public String onPlaceholderRequest(Player player, String identifier){
+    	//Bukkit.getLogger().info("itentifier: "+identifier);
         
         
     	
@@ -214,15 +216,17 @@ class Placeholders extends PlaceholderExpansion {
         
         
         
-        if(identifier.equals("stats_highscore_.+$")) {
+        if(identifier.matches("stats_highscore_.+$")) {
         	if(player == null) {
         		return "0";
         	}
+        	//Bukkit.getLogger().info("parsing area highscore on "+player.getName());
         	String area = identifier.split("_")[2];
         	int score = plugin.scores.getScore(player.getUniqueId(), area);
         	if(score < 0) {
         		score = 0;
         	}
+        	//Bukkit.getLogger().info("parsed: "+score);
         	return score+"";
         }
         
