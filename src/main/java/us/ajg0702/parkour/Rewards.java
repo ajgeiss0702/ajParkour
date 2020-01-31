@@ -271,7 +271,7 @@ public class Rewards {
 			if(o > 0) {
 				r.add(o);
 			} else {
-				Bukkit.getLogger().warning("[ajParkour] Skipping interval "+s + " because it was parsed as "+o);
+				//Bukkit.getLogger().warning("[ajParkour] Skipping interval "+s + " because it was parsed as "+o);
 			}
 		}
 		return r;
@@ -284,7 +284,7 @@ public class Rewards {
 			if(o > 0) {
 				r.add(o);
 			} else {
-				Bukkit.getLogger().warning("[ajParkour] Skipping exception "+s + " because it was parsed as "+o);
+				//Bukkit.getLogger().warning("[ajParkour] Skipping exception "+s + " because it was parsed as "+o);
 			}
 		}
 		return r;
