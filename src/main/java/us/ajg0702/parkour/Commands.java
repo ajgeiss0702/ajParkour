@@ -154,6 +154,20 @@ public class Commands implements CommandExecutor {
 				}
 				sender.sendMessage(msgs.get("migrate.success", sply).replaceAll("\\{COUNT\\}", count+""));
 				return true;
+			case "areas":
+				String add1 = "";
+				sender.sendMessage(msgs.get("commands.listareas.header", sply));
+				for(PkArea a : man.getAreas()) {
+					String name = a.getName();
+					add1 += msgs.get("commands.listareas.format", sply)
+							.replaceAll("\\{NAME\\}", name)
+							.replaceAll("\\{DIFFICULTY\\}", a.getDifficulty().toString())+"\n";
+				}
+				if(add1.equalsIgnoreCase("")) {
+					add1 = msgs.get("commands.listareas.none", sply);
+				}
+				sender.sendMessage(add1);
+				return true;
 			case "update":
 				if(!sender.hasPermission("ajparkour.update")) {
 					sender.sendMessage(msgs.get("noperm", sply));
@@ -457,6 +471,7 @@ public class Commands implements CommandExecutor {
 		if(checkPerm("ajparkour.start.others", p)) c.add(msgs.get("commands.help.startothers", p));
 		c.add(msgs.get("commands.help.list", p));
 		c.add(msgs.get("commands.help.top", p));
+		if(checkPerm("ajparkour.setup", p)) c.add(msgs.get("commands.help.areas", p));
 		if(checkPerm("ajparkour.setup", p)) c.add(msgs.get("commands.help.setup", p));
 		if(checkPerm("ajparkour.portals", p) || checkPerm("ajparkour.setup", p)) c.add(msgs.get("commands.help.portals", p));
 		

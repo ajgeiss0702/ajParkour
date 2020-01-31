@@ -131,6 +131,7 @@ public class Messages {
 		msgDefaults.put("commands.help.list", "&6 /{CMD} list &7- &9See everyone that is playing parkour, and their current scores.");
 		msgDefaults.put("commands.help.setup", "&6 /{CMD} setup &7- &9Commands for setting up the plugin. &7(required permssion: ajparkour.setup)");
 		msgDefaults.put("commands.help.portals", "&6 /{CMD} portals &7- &9Commands for setting up portals.");
+		msgDefaults.put("commands.help.areas", "&6 /{CMD} areas &7- &9List all loaded areas");
 		
 		msgDefaults.put("commands.setup.header", "&aajParkour&2 setup commands");
 		msgDefaults.put("commands.setup.create", "&6 /{CMD} setup create &7- &9Create an area");
@@ -147,6 +148,10 @@ public class Messages {
 		msgDefaults.put("commands.portals.list", "&6 /{CMD} portals list &7- &9Lists all portals.");
 		msgDefaults.put("commands.portals.create", "&6 /{CMD} portals create &7- &9Create a portal.");
 		msgDefaults.put("commands.portals.remove", "&6 /{CMD} portals remove &7- &9Remove a portal.");
+		
+		msgDefaults.put("commands.listareas.header", "&9Loaded parkour areas:");
+		msgDefaults.put("commands.listareas.format", "&7 - &a{NAME} &7Difficulty: &9{DIFFICULTY}");
+		msgDefaults.put("commands.listareas.none", "&7No areas loaded!");
 		
 		msgDefaults.put("not-from-console", "&cYou cannot run this command from the console!");
 		

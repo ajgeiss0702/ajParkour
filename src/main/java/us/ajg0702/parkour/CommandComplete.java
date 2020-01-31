@@ -24,7 +24,7 @@ public class CommandComplete implements TabCompleter {
 		mainCommands.add("top");
 		if(sender.hasPermission("ajparkour.migrate")) mainCommands.add("migrate");
 		if(sender.hasPermission("ajparkour.update")) mainCommands.add("update");
-		if(sender.hasPermission("ajparkour.setup")) { mainCommands.add("setup"); mainCommands.add("edit");};
+		if(sender.hasPermission("ajparkour.setup")) { mainCommands.add("setup"); mainCommands.add("edit"); mainCommands.add("areas");}
 		if(sender.hasPermission("ajparkour.reload")) mainCommands.add("reload");
 		if(sender.hasPermission("ajparkour.setup") || sender.hasPermission("ajparkour.portals")) mainCommands.add("portals");
 		
