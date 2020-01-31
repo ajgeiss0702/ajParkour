@@ -214,23 +214,23 @@ class Placeholders extends PlaceholderExpansion {
         
         
         
-        
-        if(identifier.equals("stats_highscore")) {
-        	if(player == null) {
-        		return "0";
-        	}
-        	int score = plugin.scores.getScore(player.getUniqueId(), null);
-        	if(score < 0) {
-        		score = 0;
-        	}
-        	return score+"";
-        }
         if(identifier.equals("stats_highscore_.+$")) {
         	if(player == null) {
         		return "0";
         	}
         	String area = identifier.split("_")[2];
         	int score = plugin.scores.getScore(player.getUniqueId(), area);
+        	if(score < 0) {
+        		score = 0;
+        	}
+        	return score+"";
+        }
+        
+        if(identifier.equals("stats_highscore")) {
+        	if(player == null) {
+        		return "0";
+        	}
+        	int score = plugin.scores.getScore(player.getUniqueId(), null);
         	if(score < 0) {
         		score = 0;
         	}
