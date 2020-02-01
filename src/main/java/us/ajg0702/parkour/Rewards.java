@@ -57,7 +57,7 @@ public class Rewards {
 				rw.set("intervals.10.commands", Arrays.asList("give {PLAYER} diamond 1"));
 			}
 		}
-		if(!rw.isSet("exception")) {
+		if(!rw.isSet("exceptions")) {
 			if(oldconfig.isSet("rewards.exceptions")) {
 				ConfigurationSection s = oldconfig.getConfigurationSection("rewards.exceptions");
 				for(String k : s.getKeys(false)) {
