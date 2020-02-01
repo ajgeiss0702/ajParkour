@@ -1,4 +1,4 @@
-package us.ajg0702.parkour.utils;
+	package us.ajg0702.parkour.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -51,11 +51,11 @@ public class Updater implements Listener {
 		currentVersion = pl.getDescription().getVersion().split("-")[0];
 		
 		check();
-		Bukkit.getScheduler().scheduleSyncDelayedTask(pl, new Runnable() {
+		Bukkit.getScheduler().scheduleSyncRepeatingTask(pl, new Runnable() {
 			public void run() {
 				check();
 			}
-		}, 3600*20); // checks for an update every hour
+		},5*60*20, (long)3600*20); // checks for an update every hour
 	}
 	
 	public void check() {
