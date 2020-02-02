@@ -2,6 +2,7 @@ package us.ajg0702.parkour.game;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -16,6 +17,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+
 import us.ajg0702.parkour.Main;
 import us.ajg0702.parkour.Messages;
 import us.ajg0702.parkour.Rewards;
@@ -61,6 +65,8 @@ public class PkPlayer implements Listener {
 	int lasty = 0;
 	
 	int ahead = 1; // how many (extra) blocks to make ahead
+	
+	int clearPotsTaskID;
 	
 	List<String> cmds = new ArrayList<>();
 
@@ -155,6 +161,24 @@ public class PkPlayer implements Listener {
 				}
 			}, afkkick*20, 20).getTaskId();
 		}
+		
+		clearPots();
+		clearPotsTaskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+			public void run() {
+				if(Manager.getInstance().getPlayer(ply) != null) {
+					clearPots();
+				}
+			}
+		}, 0, 1*20);
+	}
+	
+	private List<PotionEffectType> disallowedPots = Arrays.asList(PotionEffectType.SPEED, PotionEffectType.JUMP);
+	private void clearPots() {
+		for(PotionEffect effect : ply.getActivePotionEffects()) {
+	        if(disallowedPots.indexOf(effect.getType()) != -1) {
+	        	ply.removePotionEffect(effect.getType());
+	        }
+	    }
 	}
 	
 	
@@ -354,6 +378,8 @@ public class PkPlayer implements Listener {
 		if(!man.pluginDisabling) {
 			man.checkActive();
 		}
+		
+		Bukkit.getScheduler().cancelTask(clearPotsTaskID);
 		
 		playSound("end-sound", ply);
 	}
