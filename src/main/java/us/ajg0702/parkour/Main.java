@@ -83,8 +83,8 @@ public class Main extends JavaPlugin {
 		
 		Bukkit.getScheduler().runTaskLaterAsynchronously(this, new Runnable() {
 			public void run() {
-				areaStorage.getPortals();
 				areaStorage.getAreas();
+				areaStorage.getPortals();
 			}
 		}, 10);
 		
