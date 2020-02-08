@@ -68,6 +68,9 @@ public class PkPlayer implements Listener {
 	
 	int clearPotsTaskID;
 	
+	boolean fasterAfkCheck = false;
+	int fastAfkCheckID;
+	
 	List<String> cmds = new ArrayList<>();
 
 	/**
@@ -98,8 +101,20 @@ public class PkPlayer implements Listener {
 		
 		afkkick = config.getInt("kick-time");
 		
+		fasterAfkCheck = config.getBoolean("faster-jump-detection");
 		
-		Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
+		
+		if(!fasterAfkCheck) {
+			if(afkkick > 0) {
+				Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
+			}
+		} else {
+			fastAfkCheckID = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {
+				public void run() {
+					onMove(new PlayerMoveEvent(ply, p.getLocation(), p.getLocation()));
+				}
+			}, 5, 5).getTaskId();
+		}
 		
 		Location start = area.getRandomPosition();
 		jumps = new ArrayList<>();
@@ -380,6 +395,7 @@ public class PkPlayer implements Listener {
 		}
 		
 		Bukkit.getScheduler().cancelTask(clearPotsTaskID);
+		Bukkit.getScheduler().cancelTask(fastAfkCheckID);
 		
 		playSound("end-sound", ply);
 	}

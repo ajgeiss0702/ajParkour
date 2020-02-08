@@ -68,7 +68,9 @@ public class Main extends JavaPlugin {
 		config.addEntry("enable-portals", true, "Should the portals be disabled?\nIf your server is lagging from this plugin without many people on parkour, try disabling this.\nREQUIRES SERVER RESTART (not just config reload)\n Default: true");
 		config.addEntry("faster-portals", false, "Shoud we use a more optimized method to look if players are at a portal?\nIt may require the player to be in the block for a little longer\nEnable this if you have a lot of people on your server and are experiencing lag.\n Default: false");
 		config.addEntry("enable-updater", true, "Should the updater be enabled?\nIf this is disabled, the plugin will not attempt to check for updates, and you will have to download new updates manually\nRequires a restart\n Default: true");
+		config.addEntry("faster-afk-detection", false, "Should we apply faster-portals to the afk detections?\n Default: false");
 		config.setEntries();
+		
 		
 		msgs = new Messages(this);
 		scores = new Scores(this);
