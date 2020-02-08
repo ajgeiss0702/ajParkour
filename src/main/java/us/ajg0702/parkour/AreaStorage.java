@@ -18,6 +18,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 import us.ajg0702.parkour.game.Difficulty;
+import us.ajg0702.parkour.game.Manager;
 import us.ajg0702.parkour.game.PkArea;
 import us.ajg0702.parkour.utils.Config;
 
@@ -261,12 +262,12 @@ public class AreaStorage implements Listener {
 			}
 			Location loc = p.getLocation();
 			save(new Portal(name, loc, area));
-			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+			Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
 				public void run() {
 					reload();
 					p.sendMessage(msgs.get("portals.create.success", p).replaceAll("\\{NAME\\}", name));
 				}
-			});
+			}, 20);
 			break;
 		case "remove":
 			if(args.length < 3) {
@@ -324,6 +325,10 @@ public class AreaStorage implements Listener {
 		}
 		
 		e.getPlayer().sendMessage(yaw+" o: "+oyaw);*/
+		
+		if(Manager.getInstance().inParkour(e.getPlayer())) {
+			return;
+		}
 		
 		
 		Location l = e.getTo();
