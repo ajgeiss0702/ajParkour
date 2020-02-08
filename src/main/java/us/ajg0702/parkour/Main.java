@@ -106,7 +106,7 @@ public class Main extends JavaPlugin {
 		
 		new Metrics(this);
 		
-		updater = new Updater(this);
+		updater = Updater.getInstance(this);
 		
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', 
 				"&aajParkour &2v"+this.getDescription().getVersion()+" by ajgeiss0702 has been &aenabled!"));
