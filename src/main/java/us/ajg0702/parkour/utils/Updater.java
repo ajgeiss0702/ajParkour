@@ -43,8 +43,9 @@ public class Updater implements Listener {
 	
 	boolean enabled = false;
 	
-	public Updater(Main pl) {
-		if(pl.config.getBoolean("enable-updater")) {
+	private Updater(Main pl) {
+		instance = this;
+		if(!pl.config.getBoolean("enable-updater")) {
 			enabled = false;
 			return;
 		}
@@ -52,7 +53,6 @@ public class Updater implements Listener {
 		msgs = Messages.getInstance();
 		lines = msgs.color("&7&m                                               &r");
 		pl.getServer().getPluginManager().registerEvents(this, pl);
-		instance = this;
 		
 		currentVersion = pl.getDescription().getVersion().split("-")[0];
 		
@@ -154,6 +154,12 @@ public class Updater implements Listener {
 	public static Updater getInstance() {
 		return instance;
 	}
+	public static Updater getInstance(Main plugin) {
+		if(instance == null) {
+			new Updater(plugin);
+		}
+		return instance;
+	}
 	
 	
 	private String join(String[] array, String joiner) {
@@ -186,6 +192,7 @@ public class Updater implements Listener {
 	public void downloadUpdate(CommandSender p) {
 		if(!enabled) {
 			p.sendMessage(msgs.color("&cThe updater is disabled."));
+			return;
 		}
 		if(!p.hasPermission("ajparkour.update")) {
 			p.sendMessage(msgs.get("noperm"));
