@@ -41,7 +41,13 @@ public class Updater implements Listener {
 	
 	String lines;
 	
+	boolean enabled = false;
+	
 	public Updater(Main pl) {
+		if(pl.config.getBoolean("enable-updater")) {
+			enabled = false;
+			return;
+		}
 		this.pl = pl;
 		msgs = Messages.getInstance();
 		lines = msgs.color("&7&m                                               &r");
@@ -59,6 +65,7 @@ public class Updater implements Listener {
 	}
 	
 	public void check() {
+		if(!enabled) return;
 		Bukkit.getScheduler().runTaskAsynchronously(pl, new Runnable() {
 			public void run() {
 				try {
@@ -165,6 +172,7 @@ public class Updater implements Listener {
 	
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
+		if(!enabled) return;
 		if(ready && updateAvailable && pl.config.getBoolean("notify-update")) {
 			if(!e.getPlayer().hasPermission("ajparkour.update")) return;
 			Bukkit.getScheduler().runTaskLater(pl, new Runnable() {
@@ -176,6 +184,9 @@ public class Updater implements Listener {
 	}
 	
 	public void downloadUpdate(CommandSender p) {
+		if(!enabled) {
+			p.sendMessage(msgs.color("&cThe updater is disabled."));
+		}
 		if(!p.hasPermission("ajparkour.update")) {
 			p.sendMessage(msgs.get("noperm"));
 			return;
