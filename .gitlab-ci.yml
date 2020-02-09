@@ -9,8 +9,9 @@ cache:
 
 pages:
   script:
-  - mvn install
-  - mv target/apidocs public
+  - mvn javadoc:javadoc
+  - ls target
+  - mv target/site/apidocs public
   artifacts:
     paths:
     - public
