@@ -24,6 +24,8 @@ import us.ajg0702.parkour.Main;
 import us.ajg0702.parkour.Messages;
 import us.ajg0702.parkour.Rewards;
 import us.ajg0702.parkour.Scores;
+import us.ajg0702.parkour.api.events.PlayerStartParkourEvent;
+import us.ajg0702.parkour.api.events.PrePlayerStartParkourEvent;
 import us.ajg0702.parkour.game.Manager;
 import us.ajg0702.parkour.utils.Config;
 import us.ajg0702.parkour.utils.InvManager;
@@ -103,12 +105,22 @@ public class PkPlayer implements Listener {
 		
 		fasterAfkCheck = config.getBoolean("faster-jump-detection");
 		
+		PrePlayerStartParkourEvent preevent = new PrePlayerStartParkourEvent(p);
+		Bukkit.getPluginManager().callEvent(preevent);
+		if(preevent.isCancelled()) {
+			active = false;
+			if(!man.pluginDisabling) {
+				man.checkActive();
+			}
+			return;
+		}
+		
 		
 		if(!fasterAfkCheck) {
 			if(afkkick > 0) {
 				Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
 			}
-		} else {
+		} else if(afkkick > 0) {
 			fastAfkCheckID = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {
 				public void run() {
 					onMove(new PlayerMoveEvent(ply, p.getLocation(), p.getLocation()));
@@ -185,6 +197,10 @@ public class PkPlayer implements Listener {
 				}
 			}
 		}, 0, 1*20);
+		
+		
+		
+		Bukkit.getPluginManager().callEvent(new PlayerStartParkourEvent(this));
 	}
 	
 	private List<PotionEffectType> disallowedPots = Arrays.asList(PotionEffectType.SPEED, PotionEffectType.JUMP);
