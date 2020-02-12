@@ -50,7 +50,8 @@ public class Scores {
 			try {
 				initDatabase(ip, username, password, database, table, useSSL);
 			} catch (Exception e) {
-				System.err.println("Could not connect to database! Switching to file storage. Error: " + e.getMessage());
+				System.err.println("Could not connect to database! Switching to file storage. Error: ");
+				e.printStackTrace();
 				initYaml();
 			}
 		} else {
@@ -219,7 +220,12 @@ public class Scores {
 	
 	private void initDatabase(String ip, String username, String password, String database, String table, boolean useSSL) throws Exception {
 		String url = "jdbc:mysql://"+ip+"/"+database+"?useSSL="+useSSL+"&autoReconnect=true";
-		Class.forName("org.gjt.mm.mysql.Driver");
+		try {
+			Class.forName("org.gjt.mm.mysql.Driver");
+		} catch(Exception e) {
+			Class.forName("com.mysql.jdbc.Driver");
+		}
+		
 		tablename = table;
 		conn = DriverManager.getConnection(url, username, password);
 		conn.createStatement().executeUpdate("create table if not exists "+tablename+" (id VARCHAR(36), score MEDIUMTEXT, name VARCHAR(17))");
