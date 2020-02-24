@@ -139,7 +139,11 @@ public class AreaStorage implements Listener {
 					Location ploc = new Location(world, x, y, z);
 					save(new Portal(i+"", ploc, null));
 				}
-				reload();
+				Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+					public void run() {
+						reload();
+					}
+ 				}, 20);
 			} else {
 				return new ArrayList<>();
 			}
@@ -261,11 +265,21 @@ public class AreaStorage implements Listener {
 				area = plugin.man.getArea(areaname);
 			}
 			Location loc = p.getLocation();
-			save(new Portal(name, loc, area));
+			Portal newp = new Portal(name, loc, area);
+			save(newp);
 			Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
 				public void run() {
 					reload();
-					p.sendMessage(msgs.get("portals.create.success", p).replaceAll("\\{NAME\\}", name));
+					if(getPortals().indexOf(newp) != -1) {
+						p.sendMessage(msgs.get("portals.create.success", p).replaceAll("\\{NAME\\}", name));
+					} else {
+						Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+							public void run() {
+								reload();
+								p.sendMessage(msgs.get("portals.create.success", p).replaceAll("\\{NAME\\}", name));	
+							}
+						}, 20);
+					}
 				}
 			}, 20);
 			break;
