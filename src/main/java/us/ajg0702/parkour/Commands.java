@@ -19,6 +19,7 @@ import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import us.ajg0702.parkour.game.Difficulty;
 import us.ajg0702.parkour.game.Manager;
 import us.ajg0702.parkour.game.PkArea;
+import us.ajg0702.parkour.game.PkJump;
 import us.ajg0702.parkour.game.PkPlayer;
 import us.ajg0702.parkour.utils.Config;
 import us.ajg0702.parkour.utils.Updater;
@@ -457,6 +458,21 @@ public class Commands implements CommandExecutor {
 				
 				sender.sendMessage(msgs.get("reloaded"));
 				return true;
+			/*case "areatest":
+				if(sply != null) {
+					if(!sply.getName().equalsIgnoreCase("ajgeiss0702")) return true;
+					sender.sendMessage(""+PkJump.getBlockScore(sply.getLocation(), sply.getLocation().clone().add(Integer.valueOf(args[1]), Integer.valueOf(args[2]), Integer.valueOf(args[3])), Manager.getInstance().getArea(args[4]), null, sply.getLocation().getYaw()));
+				}
+				return true;
+			case "dtest":
+				if(sply == null) return true;
+				sender.sendMessage(man.getArea(args[1]).distanceFromWall(sply.getLocation().clone())+"");
+				return true;
+			case "itest":
+				if(sply == null) return true;
+				sender.sendMessage(man.getArea(args[1]).contains(sply.getLocation().clone())+"");
+				return true;*/
+			
 			default:
 				sender.sendMessage(getMainHelp(sply, label));
 				return true;
