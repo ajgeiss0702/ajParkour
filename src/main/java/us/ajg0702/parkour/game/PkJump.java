@@ -32,7 +32,7 @@ public class PkJump {
 	boolean placed = false;
 
 	/**
-	 * Creating a jump for the payer. Will calculate best possible direction to place the block.
+	 * Creating a jump for the player. Will calculate best possible direction to place the block.
 	 * @param ply A {@link us.ajg0702.parkour.game.PkPlayer PkPlayer} that the block belongs to
 	 * @param from The 'from' location of the previous jump
 	 */
@@ -127,7 +127,7 @@ public class PkJump {
 		
 		HashMap<Object, Double> sc = new HashMap<>();
 		for(Location bk : bks) {
-			sc.put(bk, (double)getBlockScore(bk, from, ply.getPlayer().getLocation().getYaw()));
+			sc.put(bk, (double)getBlockScore(bk, from, ply.getArea(), ply, ply.getPlayer().getLocation().getYaw()));
 		}
 		
 		/*for(Object k : sc.keySet()) {
@@ -181,7 +181,7 @@ public class PkJump {
 	 * @param yaw a float with the player's yaw (left-right looking)
 	 * @return the score of a block. (usually 0-10)
 	 */
-	public int getBlockScore(Location block, Location from, float yaw) {
+	public static int getBlockScore(Location block, Location from, PkArea area, PkPlayer ply, float yaw) {
 		if(yaw < 0) {
 			yaw +=360;
 		}
@@ -213,9 +213,8 @@ public class PkJump {
 				||
 				!new Location(world, x, y+3, z).getBlock().getType().equals(Material.AIR)
 				) {
-			return -30;
+			return -50;
 		}
-		PkArea area = ply.getArea();
 		
 		int score = 10;
 		
@@ -337,9 +336,13 @@ public class PkJump {
 			Bukkit.getLogger().warning("[ajParkour] Could not find direction for jump score!");
 		}
 		
+		//Bukkit.broadcastMessage("After direction: "+score);
+		
 		List<Double> ds = new ArrayList<>();
-		for(PkPlayer p : man.getPlayersInArea(area)) {
-			if(p.equals(ply)) continue;
+		for(PkPlayer p : Manager.getInstance().getPlayersInArea(area)) {
+			if(ply != null) {
+				if(p.equals(ply)) continue;
+			}
 			List<Double> l = new ArrayList<>();
 			for(PkJump j : p.jumps) {
 				Location t = j.getFrom();
@@ -349,24 +352,33 @@ public class PkJump {
 			ds.add(l.get(0));
 		}
 		if(ds.size() > 0) {
-			score -= 7-Math.round(ds.get(0));
+			Collections.sort(ds);
+			long ch = 7-Math.round(ds.get(0));
+			score -= (ch > 0) ? ch : 0;
 		}
 		
+		//Bukkit.broadcastMessage("After players: "+score);
 		
 		
 		int d = (int) Math.round(area.distanceFromWall(block));
 		
 		if(!area.contains(block)) {
 			d = Math.abs(d) * -1;
+			score =- 10;
 		}
+		//Bukkit.broadcastMessage("d obounds: "+d);
 		
 		if(d <= 0) {
 			d -= 10;
 		}
+		//Bukkit.broadcastMessage("d ebounds: "+d);
 		
-		if(d < 7) {
+		if(d < 7 && d >= 0) {
 			score -= 7-d;
+		} else if(d < 0) {
+			score += d;
 		}
+		//Bukkit.broadcastMessage("After bounds: "+score);
 	
 		
 		return score;
@@ -456,17 +468,17 @@ public class PkJump {
 	}
 	
 	
-	private boolean pos(int x) {
+	private static boolean pos(int x) {
 		return x > 0;
 	}
 	
-	private boolean neg(int x) {
+	private static boolean neg(int x) {
 		return x < 0;
 	}
-	private boolean zero(int x) {
+	private static boolean zero(int x) {
 		return x == 0;
 	}
-	private boolean sfloatEquals(float o, float t) {
+	private static boolean sfloatEquals(float o, float t) {
 		float d = Math.abs(o - t);
 		if(floatEquals(t, 180f)) {
 			if(floatEquals(o, -180f)) {
@@ -475,7 +487,7 @@ public class PkJump {
 		}
 		return d < 0.001;
 	}
-	private boolean floatEquals(float o, float t) {
+	private static boolean floatEquals(float o, float t) {
 		return Math.abs(o - t) < 0.001;
 	}
 	
