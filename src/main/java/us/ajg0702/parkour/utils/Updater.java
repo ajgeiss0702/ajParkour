@@ -45,10 +45,8 @@ public class Updater implements Listener {
 	
 	private Updater(Main pl) {
 		instance = this;
-		if(!pl.config.getBoolean("enable-updater")) {
-			enabled = false;
-			return;
-		}
+		enabled = pl.config.getBoolean("enable-updater");
+		if(!enabled) return;
 		this.pl = pl;
 		msgs = Messages.getInstance();
 		lines = msgs.color("&7&m                                               &r");
