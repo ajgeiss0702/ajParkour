@@ -450,13 +450,28 @@ public class Commands implements CommandExecutor {
 					return true;
 				}
 				
-				pl.getAConfig().reload();
-				pl.areaStorage.reload();
-				pl.msgs.reload();
-				pl.selector.reloadTypes();
-				pl.rewards.reload();
+				if(args.length >= 2) {
+					if(args[1].equalsIgnoreCase("all")) {
+						for(String rl : pl.getReloadable()) {
+							if(rl.equalsIgnoreCase("all")) continue;
+							pl.reload(rl, sender);
+						}
+					} else {
+						pl.reload(args[1].toLowerCase(), sender);
+					}
+				} else {
+					String poss = "";
+					List<String> possl = pl.getReloadable();
+					possl.add("all");
+					for(String p : possl) {
+						poss += p;
+						if(possl.indexOf(p) != pl.getReloadable().size()-1) {
+							poss += ", ";
+						}
+					}
+					sender.sendMessage(msgs.get("reload.usage").replaceAll("\\{CMD\\}", label).replaceAll("\\{POSS\\}", poss));
+				}
 				
-				sender.sendMessage(msgs.get("reloaded"));
 				return true;
 			/*case "areatest":
 				if(sply != null) {

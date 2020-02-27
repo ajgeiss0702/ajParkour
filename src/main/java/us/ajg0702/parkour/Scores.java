@@ -634,6 +634,16 @@ public class Scores {
 	
 	
 	
+	
+	public void reload() {
+		if(method.equals("yaml")) {
+			
+			storageConfig = YamlConfiguration.loadConfiguration(storageConfigFile);
+		}
+	}
+	
+	
+	
 	private boolean isInt(String str) {
 	    try {
 	        Integer.parseInt(str);

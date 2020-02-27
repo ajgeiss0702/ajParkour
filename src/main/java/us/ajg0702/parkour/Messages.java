@@ -87,7 +87,7 @@ public class Messages {
 		msgDefaults.put("first-position", "&eFirst position set!");
 		msgDefaults.put("second-position", "&eSecond position set!");
 		msgDefaults.put("setup-done", "&aYou can now do &2/ajParjour start&a to do parkour!");
-		msgDefaults.put("reloaded", "&aConfig, messages, blocks, and areas reloaded!");
+		msgDefaults.put("reload.usage", "&cUsage: /{CMD} reload <file>&7 Files: {POSS}");
 		msgDefaults.put("fallpos.set", "&aFall position set!");
 		msgDefaults.put("fallpos.removed", "&aFall position removed!");
 		msgDefaults.put("top.header", "&9Top Scores:");

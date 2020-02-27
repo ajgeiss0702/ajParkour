@@ -1,14 +1,17 @@
 package us.ajg0702.parkour;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Random;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import net.md_5.bungee.api.ChatColor;
@@ -209,6 +212,42 @@ public class Main extends JavaPlugin {
 		} else {
 			return n.toString();
 		}
+	}
+	
+	
+	final private List<String> reloadable = new LinkedList<String>(Arrays.asList("config", "areas", "messages", "blocks", "rewards", "scores"));
+	public List<String> getReloadable() {
+		return reloadable;
+	}
+	public void reload(String key, CommandSender sender) {
+		if(sender == null) {
+			sender = Bukkit.getConsoleSender();
+		}
+		switch(key) {
+		case "config":
+			getAConfig().reload();
+			break;
+		case "areas":
+			areaStorage.reload();
+			break;
+		case "messages":
+			msgs.reload();
+			break;
+		case "blocks":
+			selector.reloadTypes();
+			break;
+		case "rewards":
+			rewards.reload();
+			break;
+		case "scores":
+			scores.reload();
+			break;
+		default:
+			sender.sendMessage("&cCould not find file for "+key+"!");
+			return;
+		}
+		
+		sender.sendMessage(msgs.color("&aReloaded "+key+"!"));
 	}
 	
 	
