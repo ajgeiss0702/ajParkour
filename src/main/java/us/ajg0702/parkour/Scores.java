@@ -396,7 +396,7 @@ public class Scores {
 					}
 				} else {
 					if(score == 0 && secs == 0) {
-						conn.createStatement().executeUpdate("delete from `"+tablename+"` where id="+uuid.toString());
+						conn.createStatement().executeUpdate("delete from `"+tablename+"` where id='"+uuid.toString()+"'");
 					} else {
 						conn.createStatement().executeUpdate("update "+tablename+" set score='"+out+"',time="+secs+" where id='"+uuid.toString()+"'");
 					}
