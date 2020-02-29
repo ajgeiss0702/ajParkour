@@ -35,6 +35,7 @@ public class Updater implements Listener {
 	
 	boolean ready = false;
 	boolean updateAvailable = false;
+	boolean alreadyDownloaded = false;
 	
 	String latestVersion = "";
 	String currentVersion = "";
@@ -49,7 +50,7 @@ public class Updater implements Listener {
 		if(!enabled) return;
 		this.pl = pl;
 		msgs = Messages.getInstance();
-		lines = msgs.color("&7&m                                               &r");
+		lines = msgs.color("&7&m                                                         &r");
 		pl.getServer().getPluginManager().registerEvents(this, pl);
 		
 		currentVersion = pl.getDescription().getVersion().split("-")[0];
@@ -63,7 +64,7 @@ public class Updater implements Listener {
 	}
 	
 	public void check() {
-		if(!enabled) return;
+		if(!enabled || alreadyDownloaded) return;
 		Bukkit.getScheduler().runTaskAsynchronously(pl, new Runnable() {
 			public void run() {
 				try {
@@ -176,7 +177,7 @@ public class Updater implements Listener {
 	
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
-		if(!enabled) return;
+		if(!enabled || alreadyDownloaded) return;
 		if(ready && updateAvailable && pl.config.getBoolean("notify-update")) {
 			if(!e.getPlayer().hasPermission("ajparkour.update")) return;
 			Bukkit.getScheduler().runTaskLater(pl, new Runnable() {
@@ -196,7 +197,7 @@ public class Updater implements Listener {
 			p.sendMessage(msgs.get("noperm"));
 			return;
 		}
-		if(!updateAvailable) {
+		if(!updateAvailable || alreadyDownloaded) {
 			p.sendMessage(msgs.color("&cThere is no update to download!"));
 			return;
 		}
@@ -287,6 +288,7 @@ public class Updater implements Listener {
 			oldjar.delete();
 			p.sendMessage(msgs.color("&aSuccess! &7Restart the server and the new version will be ready!"));
 			updateAvailable = false;
+			alreadyDownloaded = true;
 		} catch(Exception e) {
 			p.sendMessage(msgs.color("&cAn error occured while trying to download the newest version. Check console for more info"));
 			e.printStackTrace();
