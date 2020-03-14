@@ -15,6 +15,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -57,6 +58,7 @@ public class Scores {
 		} else {
 			initYaml();
 		}
+		getPlayers();
 	}
 	
 	/**
@@ -65,6 +67,18 @@ public class Scores {
 	 */
 	public HashMap<String, Double> getTopScores() {
 		return getTopScores(true, null);
+	}
+	
+	
+	HashMap<Player, String> cache = new HashMap<>();
+	
+	/**
+	 * Removes a player from the cache
+	 * @param p the player to remove
+	 */
+	public void removeCachedPlayer(Player p) {
+		cache.remove(p);
+		timeCache.remove(p.getUniqueId());
 	}
 	
 	
@@ -298,27 +312,44 @@ public class Scores {
 			
 		} else if(method.equals("mysql")) {
 			try {
-				ResultSet p = conn.createStatement().executeQuery("select score from "+tablename+" where id='"+uuid.toString()+"'");
-				int size = 0;
-				if(p != null) {
-					p.last();
-					size = p.getRow();
+				Player pl = Bukkit.getPlayer(uuid);
+				Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+					public void run() {
+						try {
+							ResultSet p = conn.createStatement().executeQuery("select score from "+tablename+" where id='"+uuid.toString()+"'");
+							int size = 0;
+							if(p != null) {
+								p.last();
+								size = p.getRow();
+							}
+							if(size == 0) {
+								cache.put(pl, "{}");
+								return;
+							}
+							p.first();
+							
+							
+							String raw = p.getString(1);
+							if(isInt(raw)) {
+								raw = "{\"null\":"+raw+"}";
+							}
+							
+							
+	
+							cache.put(pl, raw);
+							return;
+						} catch(Exception e) {
+							Bukkit.getLogger().severe("[ajParkour] An error occured when attempting get a player's score:");
+							e.printStackTrace();
+						}
+					}
+				});
+				
+				if(cache.containsKey(pl)) {
+					return (JSONObject) new JSONParser().parse(cache.get(pl));
+				} else {
+					return new JSONObject(); 
 				}
-				if(size == 0) {
-					return new JSONObject();
-				}
-				p.first();
-				
-				
-				String raw = p.getString(1);
-				if(isInt(raw)) {
-					raw = "{\"null\":"+raw+"}";
-				}
-				
-				
-
-				JSONObject o = (JSONObject) new JSONParser().parse(raw);
-				return o;
 			} catch (Exception e) {
 				Bukkit.getLogger().severe("[ajParkour] An error occured when attempting get a player's score:");
 				e.printStackTrace();
@@ -329,27 +360,37 @@ public class Scores {
 		return new JSONObject();
 	}
 	
+	HashMap<UUID, Integer> timeCache = new HashMap<>();
 	public int getTime(UUID uuid) {
 		if(method.equals("yaml")) {
 			
 			return scores.getInt(uuid.toString()+".time", -1);
 			
 		} else if(method.equals("mysql")) {
-			try {
-				ResultSet p = conn.createStatement().executeQuery("select time from "+tablename+" where id='"+uuid.toString()+"'");
-				int size = 0;
-				if(p != null) {
-					p.last();
-					size = p.getRow();
+			Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+				public void run() {
+					try {
+						ResultSet p = conn.createStatement().executeQuery("select time from "+tablename+" where id='"+uuid.toString()+"'");
+						int size = 0;
+						if(p != null) {
+							p.last();
+							size = p.getRow();
+						}
+						if(size == 0) {
+							return;
+						}
+						p.first();
+						timeCache.put(uuid, p.getInt(1));
+					} catch (SQLException e) {
+						Bukkit.getLogger().severe("[ajParkour] An error occured when attempting to read from database:");
+						e.printStackTrace();
+						return;
+					}
 				}
-				if(size == 0) {
-					return -1;
-				}
-				p.first();
-				return p.getInt(1);
-			} catch (SQLException e) {
-				Bukkit.getLogger().severe("[ajParkour] An error occured when attempting to read from database:");
-				e.printStackTrace();
+			});
+			if(timeCache.containsKey(uuid)) {
+				return timeCache.get(uuid);
+			} else {
 				return -1;
 			}
 		}
@@ -367,45 +408,50 @@ public class Scores {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void setScore(UUID uuid, int score, int secs, String area) {
-		if(area == null) {
-			area = "null";
-		}
-		JSONObject o = getJsonObject(uuid);
-		o.put(area, score);
-		String out = o.toJSONString();
-		if(method.equals("yaml")) {
-			scores.set(uuid.toString()+".score", out);
-			scores.set(uuid.toString()+".time", secs);
-			if(score == 0 && secs == 0) {
-				scores.set(uuid.toString(), null);
-			}
-			saveYaml();
-		} else if(method.equals("mysql")) {
-			try {
-				ResultSet r = conn.createStatement().executeQuery("select * from "+tablename+" where id='"+uuid.toString()+"'");
-				int size = 0;
-				if(r != null) {
-					r.last();
-					size = r.getRow();
+	public void setScore(UUID uuid, int score, int secs, final String area) {
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+			public void run() {
+				String ar = area;
+				if(ar == null) {
+					ar = "null";
 				}
-				if(size <= 0) {
-					if(!(score == 0 && secs == 0)) {
-						conn.createStatement().executeUpdate("insert into "+tablename+" (id, score, name, time) "
-								+ "values ('"+uuid+"', '"+out+"', '"+Bukkit.getOfflinePlayer(uuid).getName()+"', "+secs+")");
-					}
-				} else {
+				JSONObject o = getJsonObject(uuid);
+				o.put(ar, score);
+				String out = o.toJSONString();
+				if(method.equals("yaml")) {
+					scores.set(uuid.toString()+".score", out);
+					scores.set(uuid.toString()+".time", secs);
 					if(score == 0 && secs == 0) {
-						conn.createStatement().executeUpdate("delete from `"+tablename+"` where id='"+uuid.toString()+"'");
-					} else {
-						conn.createStatement().executeUpdate("update "+tablename+" set score='"+out+"',time="+secs+" where id='"+uuid.toString()+"'");
+						scores.set(uuid.toString(), null);
+					}
+					saveYaml();
+				} else if(method.equals("mysql")) {
+					try {
+						ResultSet r = conn.createStatement().executeQuery("select * from "+tablename+" where id='"+uuid.toString()+"'");
+						int size = 0;
+						if(r != null) {
+							r.last();
+							size = r.getRow();
+						}
+						if(size <= 0) {
+							if(!(score == 0 && secs == 0)) {
+								conn.createStatement().executeUpdate("insert into "+tablename+" (id, score, name, time) "
+										+ "values ('"+uuid+"', '"+out+"', '"+Bukkit.getOfflinePlayer(uuid).getName()+"', "+secs+")");
+							}
+						} else {
+							if(score == 0 && secs == 0) {
+								conn.createStatement().executeUpdate("delete from `"+tablename+"` where id='"+uuid.toString()+"'");
+							} else {
+								conn.createStatement().executeUpdate("update "+tablename+" set score='"+out+"',time="+secs+" where id='"+uuid.toString()+"'");
+							}
+						}
+					} catch (SQLException e) {
+						Bukkit.getLogger().severe("[ajParkour] Unable to set score for a player:");
+						e.printStackTrace();
 					}
 				}
-			} catch (SQLException e) {
-				Bukkit.getLogger().severe("[ajParkour] Unable to set score for a player:");
-				e.printStackTrace();
 			}
-		}
+		});
 	}
 	
 	public void setMaterial(UUID uuid, String mat) {
@@ -488,7 +534,7 @@ public class Scores {
 		return null;
 	}
 	
-	
+	List<UUID> uuidCache = new ArrayList<UUID>();
 	public List<UUID> getPlayers() {
 		return getPlayers(false);
 	}
@@ -500,37 +546,41 @@ public class Scores {
 			}
 			return uuids;
 		} else if(method.equals("mysql")) {
-			int size = 0;
-			try {
-				ResultSet r = null;
-				if(sort) {
-					r = conn.createStatement().executeQuery("select id, score from "+tablename+" order by score DESC;");
-				} else {
-					r = conn.createStatement().executeQuery("select id, score from "+tablename+";");
-				}
-				List<UUID> uuids = new ArrayList<UUID>();
-				if(r != null) {
-					r.last();
-					size = r.getRow();
-				}
-				if(size > 0) {
-					int i = size;
-					r.first();
-					while(i > 0) {
-						//Bukkit.getLogger().info(i+"");
-						uuids.add(UUID.fromString(r.getString(1)));
-						i--;
-						if(i > 0) {
-							r.next();
+			Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+				public void run() {
+					int size = 0;
+					try {
+						ResultSet r = null;
+						if(sort) {
+							r = conn.createStatement().executeQuery("select id, score from "+tablename+" order by score DESC;");
+						} else {
+							r = conn.createStatement().executeQuery("select id, score from "+tablename+";");
 						}
+						List<UUID> uuids = new ArrayList<UUID>();
+						if(r != null) {
+							r.last();
+							size = r.getRow();
+						}
+						if(size > 0) {
+							int i = size;
+							r.first();
+							while(i > 0) {
+								//Bukkit.getLogger().info(i+"");
+								uuids.add(UUID.fromString(r.getString(1)));
+								i--;
+								if(i > 0) {
+									r.next();
+								}
+							}
+						}
+						uuidCache = uuids;
+					} catch (SQLException e) {
+						Bukkit.getLogger().severe("[ajParkour] An error occured while trying to get list of ("+size+") scores:");
+						e.printStackTrace();
 					}
 				}
-				return uuids;
-			} catch (SQLException e) {
-				Bukkit.getLogger().severe("[ajParkour] An error occured while trying to get list of ("+size+") scores:");
-				e.printStackTrace();
-				return null;
-			}
+			});
+			return uuidCache;
 		}
 		Bukkit.getLogger().severe("[ajParkour] getPlayers() could not find a method!");
 		return null;

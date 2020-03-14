@@ -322,6 +322,12 @@ public class Manager implements Listener {
 	@EventHandler
 	public void onPlayerLeave(PlayerQuitEvent e) {
 		kickPlayer(e.getPlayer());
+		main.scores.removeCachedPlayer(e.getPlayer());
+	}
+	@EventHandler
+	public void onPlayerJoin(PlayerJoinEvent e) {
+		main.scores.getScore(e.getPlayer().getUniqueId(), null);
+		main.scores.getTime(e.getPlayer().getUniqueId());
 	}
 	
 	@EventHandler
