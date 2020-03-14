@@ -82,6 +82,7 @@ public class CommandComplete implements TabCompleter {
 					sc.add("difficulty");
 					sc.add("info");
 					sc.add("fallpos");
+					sc.add("max");
 					sc.add("save");
 					List<String> finalL = new ArrayList<>();
 		        	for(String command : sc) {

@@ -91,6 +91,7 @@ public class AreaStorage implements Listener {
 			Location p2 = parseLoc(s.getString(name+".pos2"));
 			Location fp = parseLoc(s.getString(name+".fallpos"));
 			String diffraw = s.getString(name+".difficulty");
+			int maxplayers = s.getInt(name+".max", -1);
 			if(diffraw == null) {
 				diffraw = "BALANCED";
 				Bukkit.getLogger().warning("[ajParkour] Could not load difficulty for area '"+name+"'! Defaulting to BALANCED. Please edit the area and set the difficulty!");
@@ -101,7 +102,7 @@ public class AreaStorage implements Listener {
 				Bukkit.getLogger().warning("[ajParkour] Could not load difficulty for area '"+name+"'! Defaulting to BALANCED. Please edit the area and fix the difficulty!");
 			}
 			//System.out.println(name+", "+nstring(p1)+", "+nstring(p2)+", "+nstring(fp));
-			list.add(new PkArea(name, p1, p2, fp, diff));
+			list.add(new PkArea(name, p1, p2, fp, diff, maxplayers));
 		}
 		return list;
 	}

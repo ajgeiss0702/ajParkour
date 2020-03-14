@@ -33,6 +33,8 @@ public class PkArea {
 	int highestZ;
 	int lowestZ;
 	
+	int maxPlayers;
+	
 	Difficulty difficulty;
 	
 	/**
@@ -79,6 +81,14 @@ public class PkArea {
 	public Difficulty getDifficulty() {
 		return difficulty;
 	}
+	
+	/**
+	 * Gets the max number of players allowed in this area
+	 * @return The max number of players allowed in the area (as an int)
+	 */
+	public int getMax() {
+		return maxPlayers < 0 ? Integer.MAX_VALUE : maxPlayers;
+	}
 
 	/**
 	 * Initializes an area.
@@ -87,12 +97,15 @@ public class PkArea {
 	 * @param p2 The {@link org.bukkit.Location Location} of pos2
 	 * @param fp The {@link org.bukkit.Location Location} of the fall posotion (can be null)
 	 * @param diff The {@link us.ajg0702.parkour.game.Difficulty Difficulty} of the area
+	 * @param maxPlayers The max number of players allowed on the area
 	 */
-	public PkArea(String name, Location p1, Location p2, Location fp, Difficulty diff) {
+	public PkArea(String name, Location p1, Location p2, Location fp, Difficulty diff, int maxPlayers) {
 		pos1 = p1;
 		pos2 = p2;
 		fallpos = fp;
 		this.name = name;
+		
+		this.maxPlayers = maxPlayers;
 		
 		this.difficulty = diff;
 		

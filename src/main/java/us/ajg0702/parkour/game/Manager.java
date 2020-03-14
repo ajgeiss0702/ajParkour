@@ -18,6 +18,7 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -217,6 +218,10 @@ public class Manager implements Listener {
 		if(s == null) {
 			Bukkit.getLogger().warning("[ajParkour] Something went wrong when selecting which area to use! Selecting first one.");
 			s = areas.get(0);
+		}
+		if(getPlayerCounts(s) >= s.getMax()) {
+			ply.sendMessage(msgs.get("areafull"));
+			return null;
 		}
 		//ply.sendMessage("Starting game in area '" + s.getName()+"'");
 		if(ply.getFoodLevel() <= 6) {

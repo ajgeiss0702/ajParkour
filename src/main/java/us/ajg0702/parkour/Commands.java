@@ -19,7 +19,6 @@ import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import us.ajg0702.parkour.game.Difficulty;
 import us.ajg0702.parkour.game.Manager;
 import us.ajg0702.parkour.game.PkArea;
-import us.ajg0702.parkour.game.PkJump;
 import us.ajg0702.parkour.game.PkPlayer;
 import us.ajg0702.parkour.utils.Config;
 import us.ajg0702.parkour.utils.Updater;
@@ -385,6 +384,25 @@ public class Commands implements CommandExecutor {
 								return true;
 							}
 							return WorldeditSelector.bruh((WorldEditPlugin) wep, sender, msgs, editing);
+						case "max":
+							if(editing.keySet().size() == 0) {
+								sender.sendMessage(msgs.get("setup.need-to-create", sply));
+								return true;
+							}
+							if(args.length > 2) {
+								String mr = args[2];
+								int m;
+								if(!isInt(mr)) {
+									sender.sendMessage(msgs.get("numberformatexception"));
+									return true;
+								}
+								m = Integer.parseInt(mr);
+								editing.put("max", m);
+								sender.sendMessage(msgs.get("setup.set.max", sply));
+							} else {
+								sender.sendMessage(msgs.get("setup.max.need-args", sply));
+							}
+							return true;
 						case "save":
 							if(editing.keySet().size() == 0) {
 								sender.sendMessage(msgs.get("setup.need-to-create", sply));
@@ -398,8 +416,9 @@ public class Commands implements CommandExecutor {
 							Location p1 = (Location) editing.get("pos1");
 							Location p2 = (Location) editing.get("pos2");
 							Location fp = n(editing.get("fallpos")) ? null : (Location) editing.get("fallpos");
+							int mp = !(editing.containsKey("max")) ? -1 : (int) editing.get("max");
 							Difficulty diff = (Difficulty) editing.get("diff");
-							pl.areaStorage.save(new PkArea(name, p1, p2, fp, diff));
+							pl.areaStorage.save(new PkArea(name, p1, p2, fp, diff, mp));
 							editing = new HashMap<>();
 							
 							final Player p = (Player) sender;
@@ -531,6 +550,7 @@ public class Commands implements CommandExecutor {
 		h.add(msgs.get("commands.setup.fallpos", p));
 		h.add(msgs.get("commands.setup.we", p));
 		h.add(msgs.get("commands.setup.diff", p));
+		h.add(msgs.get("commands.setup.max", p));
 		h.add(msgs.get("commands.setup.info", p));
 		h.add(msgs.get("commands.setup.save", p));
 		
@@ -543,6 +563,15 @@ public class Commands implements CommandExecutor {
 	
 	private boolean n(Object a) {
 		return a == null;
+	}
+	
+	private boolean isInt(String s) {
+		try {
+			Integer.parseInt(s);
+			return true;
+		} catch(NumberFormatException e) {
+			return false;
+		}
 	}
 
 }

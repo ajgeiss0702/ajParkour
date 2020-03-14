@@ -76,6 +76,8 @@ public class Messages {
 		msgDefaults.put("block.potion", "&cNope!");
 		msgDefaults.put("block.place", "&cNope!");
 		msgDefaults.put("block.break", "&cNope!");
+		msgDefaults.put("numberformatexception", "&cThat is not a valid number!");
+		msgDefaults.put("areafull", "&cCould not start parkour because the area is full! &7Try again later.");
 		
 		msgDefaults.put("must-be-ingame", "&cYou must be in-game to do that!");
 		msgDefaults.put("not-in-game", "&cYou must do this command from the console!");
@@ -142,6 +144,7 @@ public class Messages {
 		msgDefaults.put("commands.setup.edit", "&6 /{CMD} edit &7- &9Load an existing area into the editing queue.");
 		msgDefaults.put("commands.setup.info", "&6 /{CMD} setup info &7- &9Show which points you have set so far!");
 		msgDefaults.put("commands.setup.diff", "&6 /{CMD} setup difficulty &7- &9Set the area's difficulty!");
+		msgDefaults.put("commands.setup.max", "&6 /{CMD} setup max &7- &9Set the maximum number of people allowed in the area!");
 		msgDefaults.put("commands.setup.save", "&6 /{CMD} setup save &7- &9Saves and enabled the area. (This should be done last)");
 		
 		msgDefaults.put("commands.portals.header", "&aajParkour&2 portal commands");
@@ -170,6 +173,8 @@ public class Messages {
 		msgDefaults.put("setup.set.fallpos", "&aFall position set!");
 		msgDefaults.put("setup.set.we", "&aPositions set!");
 		msgDefaults.put("setup.set.diff", "&aDifficulty set!");
+		msgDefaults.put("setup.set.max", "&aMax players set!");
+		msgDefaults.put("setup.max.need-args", "&cPlease enter a number!");
 		msgDefaults.put("setup.diff.not-valid", "&cInvalid difficulty! &7Valid difficulties are &feasy&7, &fmedium&7, &fhard&7, &fexpert&7, and &fbalanced");
 		msgDefaults.put("setup.diff.need-args", "&cPlease enter a difficulty! &7Valid difficulties are &feasy&7, &fmedium&7, &fhard&7, &fexpert&7, and &fbalanced&7.\n&aBalanced difficulty will make the parkour get harder as the player gets higher scores.");
 		msgDefaults.put("setup.save.not-done", "&cYou have not set all of the required settings! &7Check &f/{CMD} setup info&7 to see what you have left.");
