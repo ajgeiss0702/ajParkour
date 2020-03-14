@@ -63,7 +63,7 @@ public class Manager implements Listener {
 	
 	/**
 	 * Gets the manager instance
-	 * @return the instance of manager;
+	 * @return the instance of the manager
 	 */
 	public static Manager getInstance() {
 		return instance;
