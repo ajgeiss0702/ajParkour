@@ -439,6 +439,7 @@ public class Commands implements CommandExecutor {
 							pr.add(msgs.color("&"+(editing.containsKey("pos1") ? "a" : "c")+"pos1"));
 							pr.add(msgs.color("&"+(editing.containsKey("pos2") ? "a" : "c")+"pos2"));
 							pr.add(msgs.color("&"+(editing.containsKey("diff") ? "a" : "c")+"difficulty"));
+							pr.add(msgs.color("&"+(editing.containsKey("max") ? "a" : "7")+"max"));
 							pr.add(msgs.color("&"+(editing.containsKey("fallpos") ? "a" : "7")+"fallpos"));
 							String str = "";
 							for(String t : pr) {
