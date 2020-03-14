@@ -58,7 +58,8 @@ public class Scores {
 		} else {
 			initYaml();
 		}
-		getPlayers();
+		getPlayers(false);
+		getPlayers(true);
 	}
 	
 	/**
@@ -70,15 +71,17 @@ public class Scores {
 	}
 	
 	
-	HashMap<Player, String> cache = new HashMap<>();
+	HashMap<UUID, String> cache = new HashMap<>();
 	
 	/**
 	 * Removes a player from the cache
 	 * @param p the player to remove
 	 */
 	public void removeCachedPlayer(Player p) {
-		cache.remove(p);
+		cache.remove(p.getUniqueId());
 		timeCache.remove(p.getUniqueId());
+		uuidCache.remove(p.getUniqueId());
+		usuuidCache.remove(p.getUniqueId());
 	}
 	
 	
@@ -312,7 +315,6 @@ public class Scores {
 			
 		} else if(method.equals("mysql")) {
 			try {
-				Player pl = Bukkit.getPlayer(uuid);
 				Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
 					public void run() {
 						try {
@@ -323,7 +325,7 @@ public class Scores {
 								size = p.getRow();
 							}
 							if(size == 0) {
-								cache.put(pl, "{}");
+								cache.put(uuid, "{}");
 								return;
 							}
 							p.first();
@@ -336,7 +338,7 @@ public class Scores {
 							
 							
 	
-							cache.put(pl, raw);
+							cache.put(uuid, raw);
 							return;
 						} catch(Exception e) {
 							Bukkit.getLogger().severe("[ajParkour] An error occured when attempting get a player's score:");
@@ -345,8 +347,8 @@ public class Scores {
 					}
 				});
 				
-				if(cache.containsKey(pl)) {
-					return (JSONObject) new JSONParser().parse(cache.get(pl));
+				if(cache.containsKey(uuid)) {
+					return (JSONObject) new JSONParser().parse(cache.get(uuid));
 				} else {
 					return new JSONObject(); 
 				}
@@ -479,27 +481,36 @@ public class Scores {
 		}
 	}
 	
+	HashMap<UUID, String> materialCache = new HashMap<>();
 	public String getMaterial(UUID uuid) {
 		if(method.equals("yaml")) {
 			
 			return scores.getString(uuid.toString()+".material", "RANDOM");
 			
 		} else if(method.equals("mysql")) {
-			try {
-				ResultSet p = conn.createStatement().executeQuery("select material from "+tablename+" where id='"+uuid.toString()+"'");
-				int size = 0;
-				if(p != null) {
-					p.last();
-					size = p.getRow();
+			Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+				public void run() {
+					try {
+						ResultSet p = conn.createStatement().executeQuery("select material from "+tablename+" where id='"+uuid.toString()+"'");
+						int size = 0;
+						if(p != null) {
+							p.last();
+							size = p.getRow();
+						}
+						if(size == 0) {
+							return;
+						}
+						p.first();
+						materialCache.put(uuid, p.getString(1));
+					} catch (SQLException e) {
+						Bukkit.getLogger().severe("[ajParkour] An error occured when attempting to read from database:");
+						e.printStackTrace();
+					}
 				}
-				if(size == 0) {
-					return "RANDOM";
-				}
-				p.first();
-				return p.getString(1);
-			} catch (SQLException e) {
-				Bukkit.getLogger().severe("[ajParkour] An error occured when attempting to read from database:");
-				e.printStackTrace();
+			});
+			if(materialCache.containsKey(uuid)) {
+				return materialCache.get(uuid);
+			} else {
 				return "RANDOM";
 			}
 		}
@@ -534,11 +545,12 @@ public class Scores {
 		return null;
 	}
 	
+	List<UUID> usuuidCache = new ArrayList<UUID>();
 	List<UUID> uuidCache = new ArrayList<UUID>();
 	public List<UUID> getPlayers() {
 		return getPlayers(false);
 	}
-	public List<UUID> getPlayers(boolean sort) {
+	public List<UUID> getPlayers(final boolean sort) {
 		if(method.equals("yaml")) {
 			List<UUID> uuids = new ArrayList<UUID>();
 			for(String key : scores.getKeys(false)) {
@@ -573,14 +585,26 @@ public class Scores {
 								}
 							}
 						}
-						uuidCache = uuids;
+						if(sort) {
+							//plugin.getLogger().info("putting in sorted");
+							uuidCache = uuids;
+						} else {
+							//plugin.getLogger().info("putting in unsorted");
+							usuuidCache = uuids;
+						}
 					} catch (SQLException e) {
 						Bukkit.getLogger().severe("[ajParkour] An error occured while trying to get list of ("+size+") scores:");
 						e.printStackTrace();
 					}
 				}
 			});
-			return uuidCache;
+			if(sort) {
+				//plugin.getLogger().info("sort!");
+				return uuidCache;
+			} else {
+				//plugin.getLogger().info("not sort!");
+				return usuuidCache;
+			}
 		}
 		Bukkit.getLogger().severe("[ajParkour] getPlayers() could not find a method!");
 		return null;
