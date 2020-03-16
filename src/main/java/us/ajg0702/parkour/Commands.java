@@ -187,11 +187,15 @@ public class Commands implements CommandExecutor {
 						return true;
 					}
 					pl.selector.openSelector(tp);
-					sender.sendMessage(msgs.get("blockselector.openedfor"));
+					sender.sendMessage(msgs.get("blockselector.openedfor", sply));
 					return true;
 				} else {
 					if(!(sender instanceof Player)) {
 						sender.sendMessage(msgs.get("not-from-console"));
+						return true;
+					}
+					if(!sender.hasPermission("ajparkour.selector")) {
+						sender.sendMessage(msgs.get("noperm", sply));
 						return true;
 					}
 					pl.selector.openSelector(sply);
