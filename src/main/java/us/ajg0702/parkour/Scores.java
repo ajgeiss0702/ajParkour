@@ -135,6 +135,7 @@ public class Scores {
 		return map;
 	}
 	
+	HashMap<UUID, String> playerNameCache = new HashMap<>();
 	public LinkedHashMap<String, Double> getSortedScores(boolean nameKeys, String area) {
 		LinkedHashMap<String, Double> map = new LinkedHashMap<String, Double>();
 		if(!nameKeys) {
@@ -157,8 +158,20 @@ public class Scores {
 			map = plugin.sortByValue(map);
 			return map;
 		}
+		int lps = 0;
 		for(UUID uuid : this.getPlayers(true)) {
-			String name = Bukkit.getOfflinePlayer(uuid).getName();
+			String name;
+			if(playerNameCache.containsKey(uuid)) {
+				name = playerNameCache.get(uuid);
+			} else {
+				lps++;
+				name = "LoadingPlayer#"+lps;
+			}
+			Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+				public void run() {
+					playerNameCache.put(uuid, Bukkit.getOfflinePlayer(uuid).getName());
+				}
+			});
 			JSONObject o = getJsonObject(uuid);
 			int highest = -1;
 			if(area == null || area.equals("null")) {
