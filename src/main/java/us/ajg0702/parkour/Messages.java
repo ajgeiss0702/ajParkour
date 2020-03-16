@@ -209,6 +209,8 @@ public class Messages {
 		msgDefaults.put("reset.usage", "&cUsage: /{CMD} reset <player>");
 		msgDefaults.put("reset.success", "&aReset score of {PLAYER} to 0");
 		
+		msgDefaults.put("blockselector.openedfor", "&aOpened block selector for {PLAYER}");
+		
 		for(String key : msgDefaults.keySet()) {
 			if(!msgs.isSet(key)) {
 				msgs.set(key, msgDefaults.get(key));

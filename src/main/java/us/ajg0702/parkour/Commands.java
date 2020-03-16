@@ -176,11 +176,26 @@ public class Commands implements CommandExecutor {
 				Updater.getInstance().downloadUpdate(sender);
 				return true;
 			case "blocks":
-				if(!(sender instanceof Player)) {
-					sender.sendMessage(msgs.get("not-from-console"));
+				if(args.length > 1) {
+					if(!sender.hasPermission("ajparkour.selector.openothers")) {
+						sender.sendMessage(msgs.get("noperm", sply));
+						return true;
+					}
+					Player tp = Bukkit.getPlayer(args[1]);
+					if(tp == null) {
+						sender.sendMessage(msgs.get("couldnt-find-player", sply).replaceAll("\\{PLAYER\\}", args[1]));
+						return true;
+					}
+					pl.selector.openSelector(tp);
+					sender.sendMessage(msgs.get("blockselector.openedfor"));
 					return true;
+				} else {
+					if(!(sender instanceof Player)) {
+						sender.sendMessage(msgs.get("not-from-console"));
+						return true;
+					}
+					pl.selector.openSelector(sply);
 				}
-				pl.selector.openSelector(sply);
 				return true;
 			case "reset":
 				if(sender instanceof Player) {
