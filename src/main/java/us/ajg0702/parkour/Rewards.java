@@ -108,26 +108,36 @@ public class Rewards {
 				}
 				
 				String areas = rw.getString("exceptions."+ec+".areas", "");
+				boolean skip = false;
 				if(!areas.isEmpty()) {
 					String[] parts = areas.split(",");
 					for(String a : parts) {
-						Bukkit.getLogger().info("Checking area "+a);
+						//p.getPlayer().sendMessage("Checking area "+a);
 						boolean not = a.indexOf("!") == 0;
+						//p.getPlayer().sendMessage("- not: "+not);
 						if(not) a = a.substring(1);
+						//p.getPlayer().sendMessage("- After substring: "+a);
 						PkArea ar = plugin.man.getArea(a);
 						if(ar != null) {
 							if(not) {
-								Bukkit.getLogger().info("area not");
-								if(ar.equals(area)) continue;
+								//p.getPlayer().sendMessage("- area not");
+								if(ar.getName().equals(area.getName())) {
+									skip = true;
+									continue;
+								}
 							} else {
-								Bukkit.getLogger().info("area must");
-								if(!ar.equals(area)) continue;
+								//p.getPlayer().sendMessage("- area must");
+								if(!ar.equals(area)) {
+									skip = true;
+									continue;
+								}
 							}
 						} else {
-							Bukkit.getLogger().info("Area not found");
+							//p.getPlayer().sendMessage("- Area not found: "+a);
 						}
 					}
 				}
+				if(skip) continue;
 				
 				int cooldown = rw.getInt("exceptions."+ec+".cooldown", 0);
 				if(cooldowns.containsKey(p.getPlayer())) {
