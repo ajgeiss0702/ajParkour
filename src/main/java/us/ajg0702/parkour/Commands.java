@@ -218,51 +218,55 @@ public class Commands implements CommandExecutor {
 				sender.sendMessage(msgs.color("&aajParkour &2v&a"+pl.getDescription().getVersion()+" &2by &6ajgeiss0702 &7(https://www.spigotmc.org/members/ajgeiss0702.49935?)"));
 				return true;
 			case "top":
-				
-				String area = null;
-				if(args.length > 1) {
-					area = args[1];
-				}
-				
-				List<UUID> list = scores.getPlayers();
-				if(list.size() < 1) {
-					sender.sendMessage(msgs.get("nobodys-played-yet", sply));
-					return true;
-				}
-				int maxs = config.getInt("top-shown");
-				HashMap<String, Double> map = new HashMap<String, Double>();
-				int i = 0;
-				for(UUID uuid : list) {
-					String name = scores.getName(uuid);
-					if(name == null || name.isEmpty() || name.equals("")) {
-						name = msgs.color("&7[Unknown]#"+i);
+				final Player fsply = sply;
+				Bukkit.getScheduler().runTaskAsynchronously(pl, new Runnable() {
+					public void run() {
+						String area = null;
+						if(args.length > 1) {
+							area = args[1];
+						}
+						
+						List<UUID> list = scores.getPlayers();
+						if(list.size() < 1) {
+							sender.sendMessage(msgs.get("nobodys-played-yet", fsply));
+							return;
+						}
+						int maxs = config.getInt("top-shown");
+						HashMap<String, Double> map = new HashMap<String, Double>();
+						int i = 0;
+						for(UUID uuid : list) {
+							String name = scores.getName(uuid);
+							if(name == null || name.isEmpty() || name.equals("")) {
+								name = msgs.color("&7[Unknown]#"+i);
+							}
+							map.put(name, Double.valueOf(scores.getScore(uuid, area)));
+							i++;
+						}
+						map = pl.sortByValue(map);
+						
+						i = 1;
+						String addList = "";
+						if(area == null) {
+							addList += msgs.get("top.header", fsply)+"\n";
+						} else {
+							addList += msgs.get("top.header-area", fsply).replaceAll("\\{AREA\\}", area)+"\n";
+						}
+						for( int ai = 0; ai < map.size(); ai++) {
+							String key = (String) map.keySet().toArray()[ai];
+							addList += msgs.get("top.format", fsply)
+									.replaceAll("\\{#\\}", i+"")
+									.replaceAll("\\{NAME\\}", key.split("#")[0])
+									.replaceAll("\\{SCORE\\}", ((int)Math.round(map.get(key)))+"") + "\n";
+							i++;
+							if(i > maxs) {
+								break;
+							} else {
+								addList += "\n";
+							}
+						}
+						sender.sendMessage(addList);
 					}
-					map.put(name, Double.valueOf(scores.getScore(uuid, area)));
-					i++;
-				}
-				map = pl.sortByValue(map);
-				
-				i = 1;
-				String addList = "";
-				if(area == null) {
-					addList += msgs.get("top.header", sply)+"\n";
-				} else {
-					addList += msgs.get("top.header-area", sply).replaceAll("\\{AREA\\}", area)+"\n";
-				}
-				for( int ai = 0; ai < map.size(); ai++) {
-					String key = (String) map.keySet().toArray()[ai];
-					addList += msgs.get("top.format", sply)
-							.replaceAll("\\{#\\}", i+"")
-							.replaceAll("\\{NAME\\}", key.split("#")[0])
-							.replaceAll("\\{SCORE\\}", ((int)Math.round(map.get(key)))+"") + "\n";
-					i++;
-					if(i > maxs) {
-						break;
-					} else {
-						addList += "\n";
-					}
-				}
-				sender.sendMessage(addList);
+				});
 				return true;
 			case "list":
 				List<PkPlayer> plys = man.getPlayers();
