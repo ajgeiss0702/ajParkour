@@ -1,9 +1,11 @@
 package us.ajg0702.parkour;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -90,6 +92,8 @@ class Placeholders extends PlaceholderExpansion {
     public String getVersion(){
         return plugin.getDescription().getVersion();
     }
+    
+    HashMap<Player, HashMap<String, String>> responseCache = new HashMap<>();
 
     /**
      * This is the method called when a placeholder with our identifier 
@@ -105,13 +109,50 @@ class Placeholders extends PlaceholderExpansion {
      * @return possibly-null String of the requested identifier.
      */
     @Override
-    public String onPlaceholderRequest(Player player, String identifier){
+    public String onPlaceholderRequest(Player player, final String identifier){
     	//Bukkit.getLogger().info("itentifier: "+identifier);
         
         
+    	String noc = "_nocache";
+    	int olen = identifier.length()-noc.length();
+    	if(identifier.indexOf(noc) == olen) {
+    		String idfr = identifier.substring(0, olen);
+    		return this.parsePlaceholder(player, idfr);
+    	}
+    	
+    	Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+    		public void run() {
+    			HashMap<String, String> playerCache;
+    			if(responseCache.containsKey(player)) {
+    				playerCache = responseCache.get(player);
+    			} else {
+    				playerCache = new HashMap<String, String>();
+    			}
+    			String resp = parsePlaceholder(player, identifier);
+    			playerCache.put(identifier, resp);
+    			responseCache.put(player, playerCache);
+    		}
+    	});
     	
     	
-        if(identifier.matches("stats_top_name_[1-9][0-9]*$")) {
+    	if(responseCache.containsKey(player)) {
+    		HashMap<String, String> playerCache = responseCache.get(player);
+    		if(playerCache.containsKey(identifier)) {
+    			return playerCache.get(identifier);
+    		}
+    	}
+    	
+    	
+    	
+        
+ 
+        // We return null if an invalid placeholder (f.e. %someplugin_placeholder3%) 
+        // was provided
+        return null;
+    }
+    
+    private String parsePlaceholder(Player player, String identifier) {
+    	if(identifier.matches("stats_top_name_[1-9][0-9]*$")) {
         	int number = Integer.valueOf(identifier.split("stats_top_name_")[1]);
         	Map<String, Double> scores = plugin.scores.getSortedScores(true, null);	
         	Set<String> names = scores.keySet();
@@ -270,9 +311,8 @@ class Placeholders extends PlaceholderExpansion {
         	}
         	return plugin.man.getPlayerCounts(area)+"";
         }
- 
-        // We return null if an invalid placeholder (f.e. %someplugin_placeholder3%) 
-        // was provided
+        
+        
         return null;
     }
 }
