@@ -16,9 +16,9 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -179,25 +179,24 @@ public class Manager implements Listener {
 	 * @param ply The {@link org.bukkit.entity.Player Player} to start parkour on.
 	 * @return The resulting {@link us.ajg0702.parkour.game.PkPlayer PkPlayer}.
 	 */
-	public PkPlayer startGame(Player ply) {
-		return startGame(ply, null);
+	public void startGame(Player ply) {
+		startGame(ply, null);
 	}
 	
 	/**
 	 * Start parkour for a player in a certain area.
 	 * @param ply The {@link org.bukkit.entity.Player Player} to start parkour on.
 	 * @param area The {@link us.ajg0702.parkour.game.PkArea PkArea} to start the parkour in.
-	 * @return The resulting {@link us.ajg0702.parkour.game.PkPlayer PkPlayer}.
 	 */
-	public PkPlayer startGame(Player ply, PkArea area) {
+	public void startGame(Player ply, PkArea area) {
 		if(areas.size() <= 0) {
-			return null;
+			return;
 		}
 		
 		if(getPlayer(ply) != null) {
-			return null;
+			return;
 		}
-		
+			
 		String fm = main.getAConfig().getString("area-selection");
 		//String fm = "lowest"; // TODO: fix config. apparently the get method doesnt exist
 		PkArea s = area;
@@ -221,15 +220,14 @@ public class Manager implements Listener {
 		}
 		if(getPlayerCounts(s) >= s.getMax()) {
 			ply.sendMessage(msgs.get("areafull"));
-			return null;
+			return;
 		}
 		//ply.sendMessage("Starting game in area '" + s.getName()+"'");
 		if(ply.getFoodLevel() <= 6) {
 			ply.setFoodLevel(7);
 		}
-		PkPlayer p = new PkPlayer(ply, this, s);
+		PkPlayer p = new PkPlayer(ply, Manager.getInstance(), s);
 		plys.add(p);
-		return p;
 	}
 	
 	/**
@@ -318,21 +316,12 @@ public class Manager implements Listener {
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent e) {
 		PkPlayer p = getPlayer(e.getPlayer());
-		if(p != null) {
-			if(!p.checkMadeIt()) {
-				p.checkFall();
-			}
-		}
+		if(p == null) return;
+		if(!p.checkMadeIt()) p.checkFall();
 	}
 	@EventHandler
 	public void onPlayerLeave(PlayerQuitEvent e) {
 		kickPlayer(e.getPlayer());
-		main.scores.removeCachedPlayer(e.getPlayer());
-	}
-	@EventHandler
-	public void onPlayerJoin(PlayerJoinEvent e) {
-		main.scores.getScore(e.getPlayer().getUniqueId(), null);
-		main.scores.getTime(e.getPlayer().getUniqueId());
 	}
 	
 	@EventHandler
@@ -342,7 +331,17 @@ public class Manager implements Listener {
 		
 		if(getPlayer(p) != null) {
 			e.setCancelled(true);
-			p.sendMessage(msgs.get("block.place"));
+			p.sendMessage(msgs.get("block.place", p));
+		}
+	}
+	@EventHandler
+	public void onEmptyBucket(PlayerBucketEmptyEvent e) {
+		Player p = e.getPlayer();
+		if(p == null) return;
+		
+		if(getPlayer(p) != null) {
+			e.setCancelled(true);
+			p.sendMessage(msgs.get("block.place", p));
 		}
 	}
 	@EventHandler
