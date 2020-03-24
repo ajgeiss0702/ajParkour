@@ -142,7 +142,9 @@ public class Scores {
 					Object raw = o.get(area);
 					highest = raw == null ? -1 : Math.round((long) raw);
 				}
-				map.put(uuid.toString(), Double.valueOf(highest));
+				if(highest > 0) {
+					map.put(uuid.toString(), Double.valueOf(highest));
+				}
 			}
 			map = plugin.sortByValue(map);
 			return map;
@@ -178,7 +180,9 @@ public class Scores {
 				Object raw = o.get(area);
 				highest = raw == null ? -1 : Math.round((long) raw);
 			}
-			map.put(name, Double.valueOf(highest));
+			if(highest > 0) {
+				map.put(name, Double.valueOf(highest));
+			}
 		}
 		//Bukkit.getLogger().info("Returned "+map.toString()+" scores");
 		map = plugin.sortByValue(map);
