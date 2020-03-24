@@ -18,6 +18,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import us.ajg0702.parkour.game.Manager;
+
 public class Scores {
 	
 	Main plugin;
@@ -121,6 +123,9 @@ public class Scores {
 	
 	HashMap<UUID, String> playerNameCache = new HashMap<>();
 	public LinkedHashMap<String, Double> getSortedScores(boolean nameKeys, String area) {
+		if(Manager.getInstance().getArea(area) == null) {
+			plugin.getLogger().warning("Could not find area '"+area+"'!");
+		}
 		LinkedHashMap<String, Double> map = new LinkedHashMap<String, Double>();
 		if(!nameKeys) {
 			for(UUID uuid : this.getPlayers(true)) {
