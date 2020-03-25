@@ -123,7 +123,10 @@ public class Scores {
 	
 	HashMap<UUID, String> playerNameCache = new HashMap<>();
 	public LinkedHashMap<String, Double> getSortedScores(boolean nameKeys, String area) {
-		if(Manager.getInstance().getArea(area) == null) {
+		if(area == null) {
+			area = "null";
+		}
+		if(Manager.getInstance().getArea(area) == null && !area.equalsIgnoreCase("null")) {
 			plugin.getLogger().warning("Could not find area '"+area+"'!");
 		}
 		LinkedHashMap<String, Double> map = new LinkedHashMap<String, Double>();
