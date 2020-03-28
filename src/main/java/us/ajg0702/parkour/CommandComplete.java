@@ -24,7 +24,7 @@ public class CommandComplete implements TabCompleter {
 		mainCommands.add("top");
 		if(sender.hasPermission("ajparkour.migrate")) mainCommands.add("migrate");
 		if(sender.hasPermission("ajparkour.update")) mainCommands.add("update");
-		if(sender.hasPermission("ajparkour.setup")) { mainCommands.add("setup"); mainCommands.add("edit"); mainCommands.add("areas");}
+		if(sender.hasPermission("ajparkour.setup")) { mainCommands.add("setup"); mainCommands.add("edit"); mainCommands.add("areas"); mainCommands.add("removearea"); }
 		if(sender.hasPermission("ajparkour.reload")) mainCommands.add("reload");
 		if(sender.hasPermission("ajparkour.setup") || sender.hasPermission("ajparkour.portals")) mainCommands.add("portals");
 		
@@ -62,6 +62,18 @@ public class CommandComplete implements TabCompleter {
 		            	}
 		            }
 		        	return finalList1;
+				case "removearea":
+					List<String> areas11 = new ArrayList<>();
+					for(PkArea p : plugin.man.getAreas()) {
+						areas11.add(p.getName().toLowerCase());
+					}
+					List<String> finalList11 = new ArrayList<>();
+		        	for(String command : areas11) {
+		            	if(command.startsWith(args[1].toLowerCase())) {
+		            		finalList11.add(command);
+		            	}
+		            }
+		        	return finalList11;
 				case "migrate":
 					List<String> ty = new ArrayList<>();
 					ty.add("yaml");

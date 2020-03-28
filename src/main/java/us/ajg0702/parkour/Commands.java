@@ -283,6 +283,22 @@ public class Commands implements CommandExecutor {
 				}
 				sender.sendMessage(add);
 				return true;
+			case "removearea":
+				if(!sender.hasPermission("ajparkour.setup")) {
+					sender.sendMessage(msgs.get("noperm", sply));
+					return true;
+				}
+				if(args.length < 2) {
+					sender.sendMessage(msgs.get("areas.remove.help", sply));
+					return true;
+				}
+				if(!pl.areaStorage.config.isSet("areas."+args[1])) {
+					sender.sendMessage(msgs.get("areas.remove.cannot-find", sply));
+					return true;
+				}
+				pl.areaStorage.removeArea(args[1]);
+				sender.sendMessage(msgs.get("areas.remove.success", sply).replaceAll("\\{NAME\\}", args[1]));
+				return true;
 			case "edit":
 				if(!(sender instanceof Player)) {
 					sender.sendMessage(msgs.get("not-from-console"));

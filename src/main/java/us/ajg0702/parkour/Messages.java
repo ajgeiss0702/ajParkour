@@ -211,6 +211,11 @@ public class Messages {
 		
 		msgDefaults.put("blockselector.openedfor", "&aOpened block selector for {PLAYER}");
 		
+		
+		msgDefaults.put("areas.remove.help", "&cPlease enter the name of the area to be removed!");
+		msgDefaults.put("areas.remove.cannot-find", "&cCannot find an area with that name! Make sure you spelled it correctly, and that you put the same caps too.");
+		msgDefaults.put("areas.remove.success", "&aRemoved area '{NAME}'!");
+		
 		for(String key : msgDefaults.keySet()) {
 			if(!msgs.isSet(key)) {
 				msgs.set(key, msgDefaults.get(key));
