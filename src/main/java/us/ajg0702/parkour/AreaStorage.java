@@ -74,6 +74,7 @@ public class AreaStorage implements Listener {
 	}
 	
 	public void reload() {
+		configfile = new File(plugin.getDataFolder(), "positions.yml");
 		config = YamlConfiguration.loadConfiguration(configfile);
 	}
 	
@@ -268,21 +269,10 @@ public class AreaStorage implements Listener {
 			Location loc = p.getLocation();
 			Portal newp = new Portal(name, loc, area);
 			save(newp);
-			Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-				public void run() {
-					reload();
-					if(getPortals().indexOf(newp) != -1) {
-						p.sendMessage(msgs.get("portals.create.success", p).replaceAll("\\{NAME\\}", name));
-					} else {
-						Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-							public void run() {
-								reload();
-								p.sendMessage(msgs.get("portals.create.success", p).replaceAll("\\{NAME\\}", name));	
-							}
-						}, 20);
-					}
-				}
-			}, 20);
+			reload();
+			Manager.getInstance().reloadPositions();
+			p.sendMessage(msgs.get("portals.create.success", p).replaceAll("\\{NAME\\}", name));
+			
 			break;
 		case "remove":
 			if(args.length < 3) {
@@ -295,6 +285,7 @@ public class AreaStorage implements Listener {
 				config.set("portals."+portalname, null);
 				p.sendMessage(msgs.get("portals.remove.success", p).replaceAll("\\{NAME\\}", portalname));
 				saveFile();
+				Manager.getInstance().reloadPositions();
 			} else {
 				p.sendMessage(msgs.get("portals.remove.cannot-find", p));
 			}
@@ -320,6 +311,17 @@ public class AreaStorage implements Listener {
 			s += "\n"+t;
 		}
 		p.sendMessage(s.replaceAll("\\{CMD\\}", label));
+	}
+	
+	
+	public void removeArea(String area) {
+		if(!config.isSet("areas."+area)) {
+			return;
+		}
+		config.set("areas."+area, null);
+		saveFile();
+		reload();
+		Manager.getInstance().reloadPositions();
 	}
 	
 	
