@@ -203,7 +203,7 @@ public class PkPlayer implements Listener {
 		Bukkit.getPluginManager().callEvent(new PlayerStartParkourEvent(this));
 	}
 	
-	private List<PotionEffectType> disallowedPots = Arrays.asList(PotionEffectType.SPEED, PotionEffectType.JUMP, PotionEffectType.LEVITATION);
+	private List<PotionEffectType> disallowedPots = Arrays.asList(PotionEffectType.SPEED, PotionEffectType.JUMP, PotionEffectType.getByName("LEVITATION"));
 	private void clearPots() {
 		for(PotionEffect effect : ply.getActivePotionEffects()) {
 	        if(disallowedPots.indexOf(effect.getType()) != -1) {
