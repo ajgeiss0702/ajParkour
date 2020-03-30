@@ -69,6 +69,7 @@ public class AreaStorage implements Listener {
 		d = add(d, "pos2", area.getPos2());
 		d = add(d, "fallpos", area.getFallPos());
 		d = add(d, "difficulty", area.getDifficulty().toString());
+		d = add(d, "max", area.getMax());
 		config.set("areas."+area.getName(), d);
 		saveFile();
 	}
