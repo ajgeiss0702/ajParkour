@@ -202,7 +202,7 @@ public class Messages {
 		msgDefaults.put("start.unknown-player", "&cCannot find that player!");
 		msgDefaults.put("start.unknown-area", "&cCannot find that area!");
 		msgDefaults.put("start.started-other", "&aStarted parkour for {PLY}!");
-		msgDefaults.put("start.started-other-area", "&aStarted parkour for &l{PLY}&r&a on area &l&{AREA}r&a!");
+		msgDefaults.put("start.started-other-area", "&aStarted parkour for &l&f{PLY}&r&a on area &l&f{AREA}&r&a!");
 		
 		msgDefaults.put("commands.not-on-whitelist", "&cYou cannot use this command while on parkour!");
 		
