@@ -286,13 +286,16 @@ public class PkPlayer implements Listener {
 	 * @return A boolean telling if they made the jump or not.
 	 */
 	public boolean checkMadeIt() {
-		int x = ply.getLocation().getBlockX();
-		int z = ply.getLocation().getBlockZ();
+		double x = ply.getLocation().getX();
+		double z = ply.getLocation().getZ();
 		
 		Location goal = jumps.get(1).getTo();
-		int xg = goal.getBlockX();
-		int zg = goal.getBlockZ();
-		if(x == xg && z == zg) {
+		double xg = goal.getX();
+		double zg = goal.getZ();
+		double xdist = Math.abs(x - xg);
+		double ydist = Math.abs(z - zg);
+		//ply.sendMessage("x: "+xdist+"\ny: "+ydist);
+		if(xdist < 0.3 && ydist < 0.3) {
 			madeIt();
 			return true;
 		}
