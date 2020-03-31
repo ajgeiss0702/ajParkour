@@ -655,9 +655,12 @@ public class Scores {
 			String url = "jdbc:mysql://"+ip+"/"+database+"?useSSL="+useSSL;
 			try {
 				Class.forName("org.gjt.mm.mysql.Driver");
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-				return 0;
+			} catch(Exception e) {
+				try {
+					Class.forName("com.mysql.jdbc.Driver");
+				} catch (ClassNotFoundException e1) {
+					e1.printStackTrace();
+				}
 			}
 			Connection con;
 			try {
@@ -676,6 +679,59 @@ public class Scores {
 						JSONObject o = getJsonObject(r.getString(2));
 						for(Object k : o.keySet()) {
 							setScore(uuid, Integer.valueOf(o.get(k)+""), r.getInt(3), k.toString());
+						}
+						//setScore(UUID.fromString(r.getString(1)), r.getString(2), r.getInt(3), null);
+						i--;
+						r.next();
+					}
+					
+				}
+				return size;
+			} catch (SQLException e) {
+				e.printStackTrace();
+				return 0;
+			}
+		} else if(from.equalsIgnoreCase("rogueparkour")) {
+			String ip = storageConfig.getString("mysql.ip");
+			String username = storageConfig.getString("mysql.username");
+			String password = storageConfig.getString("mysql.password");
+			String database = storageConfig.getString("mysql.database");
+			String table = "RPScore";
+			boolean useSSL = storageConfig.getBoolean("mysql.useSSL");
+			String url = "jdbc:mysql://"+ip+"/"+database+"?useSSL="+useSSL;
+			try {
+				Class.forName("org.gjt.mm.mysql.Driver");
+			} catch(Exception e) {
+				try {
+					Class.forName("com.mysql.jdbc.Driver");
+				} catch (ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+			Connection con;
+			try {
+				con = DriverManager.getConnection(url, username, password);
+				con.createStatement().executeUpdate("create table if not exists "+table+" (`id` int(11) NOT NULL AUTO_INCREMENT,`player` varchar(40) NOT NULL,`score` int(11) NOT NULL, PRIMARY KEY (`id`))");
+				
+				ResultSet r = con.createStatement().executeQuery("select * from "+table);
+				int size = 0;
+				//System.out.println("0");
+				if(r != null) {
+					//System.out.println("1");
+					r.last();
+					size = r.getRow();
+					//System.out.println("size: "+size);
+					r.first();
+					
+					int i = size;
+					while(i > 0) {
+						//System.out.println("2");
+						UUID uuid = UUID.fromString(r.getString(2));
+						JSONObject o = getJsonObject(r.getString(3));
+						for(Object k : o.keySet()) {
+							System.out.println("moving score");
+							setScore(uuid, Integer.valueOf(o.get(k)+""), -1, k.toString());
 						}
 						//setScore(UUID.fromString(r.getString(1)), r.getString(2), r.getInt(3), null);
 						i--;
