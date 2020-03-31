@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>us.ajg0702</groupId>
   <artifactId>ajParkour</artifactId>
-  <version>2.7.7</version>
+  <version>2.7.8</version>
   <name>ajParkour</name>
   <url>http://spigotmc.org/resources/60909/</url>
 
@@ -44,6 +44,11 @@
 		  <groupId>com.sk89q.worldedit</groupId>
 		  <artifactId>worldedit-bukkit</artifactId>
 		  <version>7.0.1</version>
+		</dependency>
+		<dependency>
+		  <groupId>ij</groupId>
+		  <artifactId>infinitejump</artifactId>
+		  <version>1.2.8</version>
 		</dependency>
     </dependencies>
 
