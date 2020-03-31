@@ -290,12 +290,12 @@ public class PkPlayer implements Listener {
 		double z = ply.getLocation().getZ();
 		
 		Location goal = jumps.get(1).getTo();
-		double xg = goal.getX();
-		double zg = goal.getZ();
+		double xg = goal.getX()+0.5;
+		double zg = goal.getZ()+0.5;
 		double xdist = Math.abs(x - xg);
 		double ydist = Math.abs(z - zg);
 		//ply.sendMessage("x: "+xdist+"\ny: "+ydist);
-		if(xdist < 0.3 && ydist < 0.3) {
+		if(xdist < 0.8 && ydist < 0.8) {
 			madeIt();
 			return true;
 		}
