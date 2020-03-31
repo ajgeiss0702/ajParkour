@@ -20,6 +20,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import fr.mrmicky.infinitejump.InfiniteJump;
 import us.ajg0702.parkour.Main;
 import us.ajg0702.parkour.Messages;
 import us.ajg0702.parkour.Rewards;
@@ -74,6 +75,11 @@ public class PkPlayer implements Listener {
 	int fastAfkCheckID;
 	
 	List<String> cmds = new ArrayList<>();
+	
+	
+	boolean infiniteJump = false;
+	InfiniteJump ij;
+	boolean ijenableAfter = false;
 
 	/**
 	 * Inits a parkour player
@@ -126,6 +132,11 @@ public class PkPlayer implements Listener {
 					onMove(new PlayerMoveEvent(ply, p.getLocation(), p.getLocation()));
 				}
 			}, 5, 5).getTaskId();
+		}
+		
+		infiniteJump = Bukkit.getPluginManager().getPlugin("InfiniteJump") != null;
+		if(infiniteJump) {
+			 ij = (InfiniteJump) Bukkit.getPluginManager().getPlugin("InfiniteJump");
 		}
 		
 		Location start = area.getRandomPosition();
@@ -201,6 +212,14 @@ public class PkPlayer implements Listener {
 		
 		
 		Bukkit.getPluginManager().callEvent(new PlayerStartParkourEvent(this));
+		
+		
+		if(infiniteJump) {
+			if(ij.getJumpManager().isActive(ply)) {
+				ij.getJumpManager().disable(ply);
+				ijenableAfter = true;
+			}
+		}
 	}
 	
 	private List<PotionEffectType> disallowedPots = Arrays.asList(PotionEffectType.SPEED, PotionEffectType.JUMP, PotionEffectType.getByName("LEVITATION"));
@@ -310,6 +329,7 @@ public class PkPlayer implements Listener {
 		int my = jumps.get(0).getTo().getBlockY();
 		if(ply.getLocation().getBlockY() < my-below || ply.isFlying()) {
 			end();
+			return;
 		}
 	}
 	
@@ -417,6 +437,10 @@ public class PkPlayer implements Listener {
 		Bukkit.getScheduler().cancelTask(fastAfkCheckID);
 		
 		playSound("end-sound", ply);
+		
+		if(infiniteJump && ijenableAfter) {
+			ij.getJumpManager().enable(ply);
+		}
 	}
 	
 	
