@@ -266,6 +266,7 @@ public class Manager implements Listener {
 	 * Function called when plugin is getting disabled. It kicks all players from the parkour.
 	 */
 	public void disable() {
+		main.getLogger().info("Removing all active players from parkour because the plugin is disabling.");
 		pluginDisabling = true;
 		for(PkPlayer p : plys) {
 			p.end();

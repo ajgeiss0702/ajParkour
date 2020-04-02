@@ -409,7 +409,7 @@ public class Scores {
 	
 	@SuppressWarnings("unchecked")
 	public void setScore(UUID uuid, int score, int secs, final String area) {
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+		Runnable r = new Runnable() {
 			public void run() {
 				String ar = area;
 				if(ar == null) {
@@ -451,7 +451,12 @@ public class Scores {
 					}
 				}
 			}
-		});
+		};
+		if(Manager.getInstance().pluginDisabling) {
+			r.run();
+		} else {
+			Bukkit.getScheduler().runTaskAsynchronously(plugin, r);
+		}
 	}
 	
 	public void setMaterial(UUID uuid, String mat) {
