@@ -103,7 +103,7 @@ public class PkPlayer implements Listener {
 		
 		block = plugin.selector.getBlock(p, area);
 		
-		prevhigh = scores.getScore(ply.getUniqueId(), config.getBoolean("begin-score-per-area") ? area.getName() : null);
+		
 		
 		started = System.currentTimeMillis();
 		
@@ -120,6 +120,17 @@ public class PkPlayer implements Listener {
 			}
 			return;
 		}
+		
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+			public void run() {
+				prevhigh = scores.getScore(ply.getUniqueId(), config.getBoolean("begin-score-per-area") ? area.getName() : null);
+				if(prevhigh > 0 && !(prevhigh+"").equalsIgnoreCase("-1")) {
+					p.sendMessage(msgs.get("start.score", p).replaceAll("\\{SCORE\\}", ""+prevhigh));
+				} else {
+					p.sendMessage(msgs.get("start.first", p).replaceAll("\\{SCORE\\}", ""+prevhigh));
+				}
+			}
+		});
 		
 		
 		if(!fasterAfkCheck) {
@@ -165,11 +176,7 @@ public class PkPlayer implements Listener {
 				teleporting = false;
 			}
 		}, 5);
-		if(prevhigh > 0 && !(prevhigh+"").equalsIgnoreCase("-1")) {
-			p.sendMessage(msgs.get("start.score", p).replaceAll("\\{SCORE\\}", ""+prevhigh));
-		} else {
-			p.sendMessage(msgs.get("start.first", p).replaceAll("\\{SCORE\\}", ""+prevhigh));
-		}
+		
 		playSound("start-sound", p);
 		
 		
