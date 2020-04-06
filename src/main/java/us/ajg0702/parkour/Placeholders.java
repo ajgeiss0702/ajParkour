@@ -114,10 +114,12 @@ class Placeholders extends PlaceholderExpansion {
         
         
     	String noc = "_nocache";
-    	int olen = identifier.length()-noc.length();
-    	if(identifier.indexOf(noc) == olen) {
-    		String idfr = identifier.substring(0, olen);
-    		return this.parsePlaceholder(player, idfr);
+    	if(identifier.length() > noc.length()) {
+    		int olen = identifier.length()-noc.length();
+        	if(identifier.indexOf(noc) == olen) {
+        		String idfr = identifier.substring(0, olen);
+        		return this.parsePlaceholder(player, idfr);
+        	}
     	}
     	
     	Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
