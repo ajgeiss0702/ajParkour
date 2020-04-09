@@ -25,7 +25,14 @@ public class Messages {
 		return get(key, null);
 	}
 	
-	List<String> noprefix = Arrays.asList("score", "placeholders.stats.no-data", "placeholders.current.no-data", "palceholders.stats.time-format");
+	List<String> noprefix = Arrays.asList(
+			"score",
+			"placeholders.stats.no-data",
+			"placeholders.current.no-data",
+			"palceholders.stats.time-format",
+			"fall.force.reasons.teleport",
+			"fall.force.afk"
+			);
 	
 	public String get(String key, Player p) {
 		String raw;
