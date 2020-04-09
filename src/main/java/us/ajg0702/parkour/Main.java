@@ -37,6 +37,8 @@ public class Main extends JavaPlugin {
 	
 	public Rewards rewards;
 	
+	public Placeholders placeholders;
+	
 	Updater updater;
 	
 	@Override
@@ -97,7 +99,8 @@ public class Main extends JavaPlugin {
 		getCommand("ajParkour").setTabCompleter(new CommandComplete(this));
 		
 		if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null){
-            new Placeholders(this).register(); //TODO: finish papi placeholders
+			placeholders = new Placeholders(this);
+            placeholders.register();
             this.papi = true;
 		}
 		

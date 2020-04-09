@@ -1,6 +1,7 @@
 package us.ajg0702.parkour;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -16,7 +17,7 @@ import us.ajg0702.parkour.game.PkPlayer;
  * This class will be registered through the register-method in the 
  * plugins onEnable-method.
  */
-class Placeholders extends PlaceholderExpansion {
+public class Placeholders extends PlaceholderExpansion {
 
     private Main plugin;
 
@@ -94,6 +95,16 @@ class Placeholders extends PlaceholderExpansion {
     }
     
     HashMap<Player, HashMap<String, String>> responseCache = new HashMap<>();
+    
+    public void cleanCache() {
+    	Iterator<Player> it = responseCache.keySet().iterator();
+    	while(it.hasNext()) {
+    		Player p = it.next();
+    		if(!p.isOnline()) {
+    			it.remove();
+    		}
+    	}
+    }
 
     /**
      * This is the method called when a placeholder with our identifier 
@@ -129,6 +140,9 @@ class Placeholders extends PlaceholderExpansion {
     				playerCache = responseCache.get(player);
     			} else {
     				playerCache = new HashMap<String, String>();
+    			}
+    			if(playerCache.size() > 75) {
+    				playerCache.remove(playerCache.keySet().toArray()[0]);
     			}
     			String resp = parsePlaceholder(player, identifier);
     			playerCache.put(identifier, resp);

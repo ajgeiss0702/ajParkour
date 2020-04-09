@@ -323,6 +323,7 @@ public class Manager implements Listener {
 	@EventHandler
 	public void onPlayerLeave(PlayerQuitEvent e) {
 		kickPlayer(e.getPlayer());
+		main.placeholders.cleanCache();
 	}
 	
 	@EventHandler
