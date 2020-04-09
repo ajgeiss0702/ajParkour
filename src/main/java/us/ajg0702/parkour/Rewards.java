@@ -26,7 +26,7 @@ public class Rewards {
 	
 	Messages msgs;
 	
-	Map<Player, Map<Integer, Long>> cooldowns = new HashMap<>();
+	Map<Player, Map<String, Long>> cooldowns = new HashMap<>();
 	
 	public Rewards(Main plugin) {
 		this.plugin = plugin;
@@ -92,16 +92,17 @@ public class Rewards {
 		
 		
 		
-		List<Integer> es = getExceptions();
-		for(int ec : es) {
+		List<String> es = getExceptions();
+		for(String ec : es) {
 			//p.getPlayer().sendMessage(ec+"");
-			if(ec == score) {
+			int n = Integer.decode(ec.split("-")[0]);
+			if(n == score) {
 				//p.getPlayer().sendMessage(ec+" good!");
 				boolean firstTimeOnly = rw.getBoolean("exceptions."+ec+".first-time-only", false);
 				//p.getPlayer().sendMessage(ec+".first-time-only: "+firstTimeOnly);
 				if(firstTimeOnly) {
 					int highscore = plugin.scores.getScore(p.getPlayer().getUniqueId(), null);
-					if(ec <= highscore) {
+					if(n <= highscore) {
 						//p.getPlayer().sendMessage(ec+" <= "+highscore);
 						continue;
 					}
@@ -141,7 +142,7 @@ public class Rewards {
 				
 				int cooldown = rw.getInt("exceptions."+ec+".cooldown", 0);
 				if(cooldowns.containsKey(p.getPlayer())) {
-					Map<Integer, Long> cds = cooldowns.get(p.getPlayer());
+					Map<String, Long> cds = cooldowns.get(p.getPlayer());
 					if(cds.containsKey(ec)) {
 						long last = cds.get(ec);
 						long now = System.currentTimeMillis();
@@ -173,10 +174,11 @@ public class Rewards {
 			}
 		}
 		
-		List<Integer> is = getIntervals();
-		for(int ic : is) {
-			if(ic <= 0) continue;
-			if(score % ic == 0) {
+		List<String> is = getIntervals();
+		for(String ic : is) {
+			int n = Integer.decode(ic.split("-")[0]);
+			if(n <= 0) continue;
+			if(score % n == 0) {
 				boolean skip = false;
 				
 				String areas = rw.getString("intervals."+ic+".areas", "");
@@ -273,30 +275,16 @@ public class Rewards {
 	}
 	
 	
-	private List<Integer> getIntervals() {
-		List<Integer> r = new ArrayList<>();
+	private List<String> getIntervals() {
+		List<String> r = new ArrayList<>();
 		Set<String> k = rw.getConfigurationSection("intervals").getKeys(false);
-		for(String s : k) {
-			int o = Integer.decode(s);
-			if(o > 0) {
-				r.add(o);
-			} else {
-				//Bukkit.getLogger().warning("[ajParkour] Skipping interval "+s + " because it was parsed as "+o);
-			}
-		}
+		r.addAll(k);
 		return r;
 	}
-	private List<Integer> getExceptions() {
-		List<Integer> r = new ArrayList<>();
+	private List<String> getExceptions() {
+		List<String> r = new ArrayList<>();
 		Set<String> k = rw.getConfigurationSection("exceptions").getKeys(false);
-		for(String s : k) {
-			int o = Integer.decode(s);
-			if(o > 0) {
-				r.add(o);
-			} else {
-				//Bukkit.getLogger().warning("[ajParkour] Skipping exception "+s + " because it was parsed as "+o);
-			}
-		}
+		r.addAll(k);
 		return r;
 	}
 
