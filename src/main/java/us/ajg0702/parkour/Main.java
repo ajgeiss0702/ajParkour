@@ -44,6 +44,15 @@ public class Main extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		
+		try {
+			Class.forName("net.md_5.bungee.api.ChatColor");
+		} catch(ClassNotFoundException e) {
+			getLogger().severe("Your server software is not supported!");
+			getLogger().severe("ajParkour requires spigot or a fork of spigot. Disabling.");
+			this.setEnabled(false);
+			return;
+		}
+		
 		String popSound = "ENTITY_CHICKEN_EGG";
 		//System.out.println("Minor Version: 1."+VersionSupport.getMinorVersion());
 		
