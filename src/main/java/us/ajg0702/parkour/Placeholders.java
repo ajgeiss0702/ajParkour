@@ -1,5 +1,6 @@
 package us.ajg0702.parkour;
 
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -142,7 +143,15 @@ public class Placeholders extends PlaceholderExpansion {
     				playerCache = new HashMap<String, String>();
     			}
     			if(playerCache.size() > 75) {
-    				playerCache.remove(playerCache.keySet().toArray()[0]);
+    				try {
+    					playerCache.remove(playerCache.keySet().toArray()[0]);
+    				} catch(ConcurrentModificationException e) {
+    					Bukkit.getScheduler().runTask(plugin, new Runnable() {
+    						public void run() {
+    							playerCache.remove(playerCache.keySet().toArray()[0]);
+    						}
+    					});
+    				}
     			}
     			String resp = parsePlaceholder(player, identifier);
     			playerCache.put(identifier, resp);
