@@ -229,7 +229,7 @@ public class Main extends JavaPlugin {
 	
 	final private List<String> reloadable = new LinkedList<String>(Arrays.asList("config", "areas", "messages", "blocks", "rewards", "scores"));
 	public List<String> getReloadable() {
-		return reloadable;
+		return new ArrayList<>(reloadable);
 	}
 	public void reload(String key, CommandSender sender) {
 		if(sender == null) {

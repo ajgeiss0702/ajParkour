@@ -523,11 +523,9 @@ public class Commands implements CommandExecutor {
 					List<String> possl = pl.getReloadable();
 					possl.add("all");
 					for(String p : possl) {
-						poss += p;
-						if(possl.indexOf(p) != pl.getReloadable().size()-1) {
-							poss += ", ";
-						}
+						poss += p+", ";
 					}
+					poss = poss.substring(0, poss.length()-2);
 					sender.sendMessage(msgs.get("reload.usage").replaceAll("\\{CMD\\}", label).replaceAll("\\{POSS\\}", poss));
 				}
 				
