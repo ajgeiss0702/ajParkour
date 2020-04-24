@@ -234,12 +234,17 @@ public class Commands implements CommandExecutor {
 						int maxs = config.getInt("top-shown");
 						HashMap<String, Double> map = new HashMap<String, Double>();
 						int i = 0;
+						boolean doTime = msgs.get("top.format", fsply).contains("{TIME}") && (area == null || area.equals("null"));
+						List<Integer> times = new ArrayList<>();
 						for(UUID uuid : list) {
 							String name = scores.getName(uuid);
 							if(name == null || name.isEmpty() || name.equals("")) {
 								name = msgs.color("&7[Unknown]#"+i);
 							}
 							map.put(name, Double.valueOf(scores.getScore(uuid, area)));
+							if(doTime) {
+								times.add(scores.getTime(uuid));
+							}
 							i++;
 						}
 						map = pl.sortByValue(map);
@@ -253,10 +258,24 @@ public class Commands implements CommandExecutor {
 						}
 						for( int ai = 0; ai < map.size(); ai++) {
 							String key = (String) map.keySet().toArray()[ai];
-							addList += msgs.get("top.format", fsply)
+							String replaced = msgs.get("top.format", fsply)
 									.replaceAll("\\{#\\}", i+"")
 									.replaceAll("\\{NAME\\}", key.split("#")[0])
 									.replaceAll("\\{SCORE\\}", ((int)Math.round(map.get(key)))+"") + "\n";
+							if(doTime) {
+								int time = times.get(ai);
+								int min = (int) Math.floor((time) / (60));
+					        	int sec = (int) Math.floor((time % (60)));
+					        	String timestr = msgs.get("placeholders.stats.time-format", fsply)
+					            		.replaceAll("\\{m\\}", min+"")
+					            		.replaceAll("\\{s\\}", sec+"");
+					        	if(time < 0) {
+					        		timestr = msgs.get("placeholders.stats.no-data", fsply);
+					        	}
+								replaced = replaced.replaceAll("\\{TIME\\}", timestr);
+							}
+							replaced = replaced.replaceAll("\\{TIME\\}", msgs.get("placeholders.stats.no-data", fsply));
+							addList += replaced;
 							i++;
 							if(i > maxs) {
 								break;
