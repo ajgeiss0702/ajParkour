@@ -229,7 +229,11 @@ public class PkPlayer implements Listener {
 		}
 	}
 	
-	private List<PotionEffectType> disallowedPots = Arrays.asList(PotionEffectType.SPEED, PotionEffectType.JUMP, PotionEffectType.getByName("LEVITATION"));
+	private List<PotionEffectType> disallowedPots = Arrays.asList(
+			PotionEffectType.SPEED,
+			PotionEffectType.JUMP,
+			PotionEffectType.getByName("LEVITATION"),
+			PotionEffectType.getByName("SLOW_FALLING"));
 	private void clearPots() {
 		for(PotionEffect effect : ply.getActivePotionEffects()) {
 	        if(disallowedPots.indexOf(effect.getType()) != -1) {
