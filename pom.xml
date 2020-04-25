@@ -46,9 +46,11 @@
 		  <version>7.0.1</version>
 		</dependency>
 		<dependency>
-		  <groupId>ij</groupId>
-		  <artifactId>infinitejump</artifactId>
-		  <version>1.2.8</version>
+  		  <groupId>ij</groupId>
+  		  <artifactId>infinitejump</artifactId>
+ 		  <version>1.2.8</version>
+  		  <scope>system</scope>
+		  <systemPath>${project.basedir}/libs/InfiniteJump.jar</systemPath>
 		</dependency>
     </dependencies>
 
