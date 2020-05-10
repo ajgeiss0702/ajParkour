@@ -316,7 +316,11 @@ public class BlockSelector implements Listener {
 			//String dbug = "";
 			//for(String ft : ftypes) { dbug += ft+", "; }
 			//System.out.println("max: "+max+" r: "+i+" dbug: "+dbug);
-			return ftypes.get(i).toString();
+			String r = ftypes.get(i).toString();
+			if(r.isEmpty()) {
+				r = ftypes.get(0);
+			}
+			return r;
 		} else {
 			return raw;
 		}

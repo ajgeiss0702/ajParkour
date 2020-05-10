@@ -133,6 +133,7 @@ public class Main extends JavaPlugin {
 	
 	
 	
+	
 	public LinkedHashMap<String, Double> sortByValue(HashMap<String, Double> passedMap) {
 	    List<String> mapKeys = new ArrayList<>(passedMap.keySet());
 	    List<Double> mapValues = new ArrayList<>(passedMap.values());
