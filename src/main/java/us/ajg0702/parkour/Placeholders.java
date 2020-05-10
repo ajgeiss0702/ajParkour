@@ -101,6 +101,10 @@ public class Placeholders extends PlaceholderExpansion {
     	Iterator<Player> it = responseCache.keySet().iterator();
     	while(it.hasNext()) {
     		Player p = it.next();
+    		if(p == null) {
+    			it.remove();
+    			continue;
+    		}
     		if(!p.isOnline()) {
     			it.remove();
     		}
