@@ -310,6 +310,23 @@ public class PkPlayer implements Listener {
 		this.cmds.addAll(cmds);
 	}
 	
+	/**
+	 * Gets the highest (y-level) block
+	 * @return The PkJump with the highest y-level
+	 */
+	public PkJump getHighestBlock() {
+		PkJump highest = null;
+		int y = 0;
+		for(PkJump j : jumps) {
+			int jy = j.getTo().getBlockY();
+			if(jy > y) {
+				y = jy;
+				highest = j;
+			}
+		}
+		return highest;
+	}
+	
 	
 	/**
 	 * Check if the player made the jump
@@ -337,8 +354,13 @@ public class PkPlayer implements Listener {
 	 */
 	public void checkFall() {
 		int below = 1;
+		Location plyloc = ply.getLocation();
 		int my = jumps.get(0).getTo().getBlockY();
-		if(ply.getLocation().getBlockY() < my-below || ply.isFlying()) {
+		if(
+				plyloc.getBlockY() < my-below ||
+				ply.isFlying() ||
+				plyloc.getBlockY() > getHighestBlock().getTo().getBlockY()+3
+			) {
 			end();
 			return;
 		}
