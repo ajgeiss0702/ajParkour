@@ -252,11 +252,11 @@ public class PkJump {
 		//ply.getPlayer().sendMessage(ply.msgs.color("&eClosest: " + closest+"\n&9-----------------"));
 		
 		if(pos(zc) && zero(xc)) {
-			if(floatEquals(closest, 0f)) {
+			if(sfloatEquals(closest, 180f)) {
 				score += 1;
-			} else if(sfloatEquals(closest, 45f) || sfloatEquals(closest, -45f)) {
+			} else if(sfloatEquals(closest, 135f) || sfloatEquals(closest, -135f)) {
 				score -= 1;
-			} else if(sfloatEquals(closest, 90f) || sfloatEquals(closest, -90f)) {
+			} else if(sfloatEquals(closest, -90f) || sfloatEquals(closest, 90f)) {
 				score -= 3;
 			} else {
 				score -= 7;
@@ -293,11 +293,11 @@ public class PkJump {
 				score -= 7;
 			}
 		} else if(neg(zc) && zero(xc)) {
-			if(floatEquals(closest, 180f)) {
+			if(floatEquals(closest, 0f)) {
 				score += 1;
-			} else if(sfloatEquals(closest, 135f) || sfloatEquals(closest, -135f)) {
+			} else if(sfloatEquals(closest, 45f) || sfloatEquals(closest, -45f)) {
 				score -= 1;
-			} else if(sfloatEquals(closest, -90f) || sfloatEquals(closest, 90f)) {
+			} else if(sfloatEquals(closest, 90f) || sfloatEquals(closest, -90f)) {
 				score -= 3;
 			} else {
 				score -= 7;
