@@ -18,6 +18,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
 import us.ajg0702.parkour.game.Manager;
 
 public class Scores {
@@ -28,10 +31,12 @@ public class Scores {
 	
 	File scoresFile;
 	YamlConfiguration scores;
-	Connection conn;
 	String tablename;
 	
 	String method;
+	
+	private HikariConfig hconfig = new HikariConfig();
+	HikariDataSource ds;
 	
 
 	public Scores(Main pl) {
@@ -49,8 +54,10 @@ public class Scores {
 			String database = storageConfig.getString("mysql.database");
 			String table = storageConfig.getString("mysql.table");
 			boolean useSSL = storageConfig.getBoolean("mysql.useSSL");
+			int mincount = storageConfig.getInt("mysql.minConnections");
+			int maxcount = storageConfig.getInt("mysql.maxConnections");
 			try {
-				initDatabase(ip, username, password, database, table, useSSL);
+				initDatabase(ip, username, password, database, table, useSSL, mincount, maxcount);
 			} catch (Exception e) {
 				System.err.println("Could not connect to database! Switching to file storage. Error: ");
 				e.printStackTrace();
@@ -201,6 +208,8 @@ public class Scores {
 		v.put("mysql.database", "");
 		v.put("mysql.table", "ajparkour_scores");
 		v.put("mysql.useSSL", false);
+		v.put("mysql.minConnections", 1);
+		v.put("mysql.maxConnections", 10);
 		
 		boolean save = false;
 		
@@ -248,16 +257,29 @@ public class Scores {
 		}
 	}
 	
-	private void initDatabase(String ip, String username, String password, String database, String table, boolean useSSL) throws Exception {
-		String url = "jdbc:mysql://"+ip+"/"+database+"?useSSL="+useSSL+"&autoReconnect=true";
+	public Connection getConnection() {
+		if(ds == null) return null;
 		try {
-			Class.forName("org.gjt.mm.mysql.Driver");
-		} catch(Exception e) {
-			Class.forName("com.mysql.jdbc.Driver");
+			return ds.getConnection();
+		} catch (SQLException e) {
+			plugin.getLogger().warning("Unable to get sql connection:");
+			e.printStackTrace();
+			return null;
 		}
-		
+	}
+	
+	private void initDatabase(String ip, String username, String password, String database, String table, boolean useSSL, int minConnections, int maxConnections) throws Exception {
+		String url = "jdbc:mysql://"+ip+"/"+database+"?useSSL="+useSSL+"";
+		hconfig.setJdbcUrl(url);
+		hconfig.setDriverClassName("com.mysql.jdbc.Driver");
+		hconfig.setUsername(username);
+		hconfig.setPassword(password);
+		hconfig.setMaximumPoolSize(maxConnections);
+		hconfig.setMinimumIdle(minConnections);
 		tablename = table;
-		conn = DriverManager.getConnection(url, username, password);
+		ds = new HikariDataSource(hconfig);
+		ds.setLeakDetectionThreshold(60 * 1000);
+		Connection conn = getConnection();
 		conn.createStatement().executeUpdate("create table if not exists "+tablename+" (id VARCHAR(36), score MEDIUMTEXT, name VARCHAR(17))");
 		method = "mysql";
 		try {
@@ -269,6 +291,7 @@ public class Scores {
 		try {
 			conn.createStatement().executeUpdate("alter table "+tablename+" modify score score MEDIUMTEXT");
 		} catch(Exception e) {}
+		conn.close();
 	}
 	
 	public int getScore(UUID uuid, String area) {
@@ -328,6 +351,7 @@ public class Scores {
 			
 		} else if(method.equals("mysql")) {
 			try {
+				Connection conn = getConnection();
 						try {
 							ResultSet p = conn.createStatement().executeQuery("select score from "+tablename+" where id='"+uuid.toString()+"'");
 							int size = 0;
@@ -336,6 +360,7 @@ public class Scores {
 								size = p.getRow();
 							}
 							if(size == 0) {
+								conn.close();
 								return new JSONObject();
 							}
 							p.first();
@@ -347,13 +372,13 @@ public class Scores {
 							}
 							
 							
-	
+							conn.close();
 							return (JSONObject) new JSONParser().parse(raw);
 						} catch(Exception e) {
 							Bukkit.getLogger().severe("[ajParkour] An error occured when attempting get a player's score:");
 							e.printStackTrace();
 						}
-				
+						conn.close();
 				/*if(cache.containsKey(uuid)) {
 					return (JSONObject) new JSONParser().parse(cache.get(uuid));
 				} else {
@@ -377,6 +402,7 @@ public class Scores {
 			
 		} else if(method.equals("mysql")) {
 					try {
+						Connection conn = getConnection();
 						ResultSet p = conn.createStatement().executeQuery("select time from "+tablename+" where id='"+uuid.toString()+"'");
 						int size = 0;
 						if(p != null) {
@@ -387,7 +413,9 @@ public class Scores {
 							return -1;
 						}
 						p.first();
-						return p.getInt(1);
+						int r = p.getInt(1);
+						conn.close();
+						return r;
 					} catch (SQLException e) {
 						Bukkit.getLogger().severe("[ajParkour] An error occured when attempting to read from database:");
 						e.printStackTrace();
@@ -427,6 +455,7 @@ public class Scores {
 					saveYaml();
 				} else if(method.equals("mysql")) {
 					try {
+						Connection conn = getConnection();
 						ResultSet r = conn.createStatement().executeQuery("select * from "+tablename+" where id='"+uuid.toString()+"'");
 						int size = 0;
 						if(r != null) {
@@ -445,6 +474,7 @@ public class Scores {
 								conn.createStatement().executeUpdate("update "+tablename+" set score='"+out+"',time="+secs+" where id='"+uuid.toString()+"'");
 							}
 						}
+						conn.close();
 					} catch (SQLException e) {
 						Bukkit.getLogger().severe("[ajParkour] Unable to set score for a player:");
 						e.printStackTrace();
@@ -465,6 +495,7 @@ public class Scores {
 			saveYaml();
 		} else if(method.equals("mysql")) {
 			try {
+				Connection conn = getConnection();
 				ResultSet r = conn.createStatement().executeQuery("select * from "+tablename+" where id='"+uuid.toString()+"'");
 				int size = 0;
 				if(r != null) {
@@ -477,6 +508,7 @@ public class Scores {
 				} else {
 					conn.createStatement().executeUpdate("update "+tablename+" set material=\"" + mat + "\" where id='"+uuid.toString()+"'");
 				}
+				conn.close();
 			} catch (SQLException e) {
 				Bukkit.getLogger().severe("[ajParkour] Unable to set material for a player:");
 				e.printStackTrace();
@@ -492,6 +524,7 @@ public class Scores {
 			
 		} else if(method.equals("mysql")) {
 					try {
+						Connection conn = getConnection();
 						ResultSet p = conn.createStatement().executeQuery("select material from "+tablename+" where id='"+uuid.toString()+"'");
 						int size = 0;
 						if(p != null) {
@@ -499,10 +532,13 @@ public class Scores {
 							size = p.getRow();
 						}
 						if(size == 0) {
+							conn.close();
 							return "RANDOM";
 						}
 						p.first();
-						return p.getString(1);
+						String r = p.getString(1);
+						conn.close();
+						return r;
 					} catch (SQLException e) {
 						Bukkit.getLogger().severe("[ajParkour] An error occured when attempting to read from database:");
 						e.printStackTrace();
@@ -524,6 +560,7 @@ public class Scores {
 			
 		} else if(method.equals("mysql")) {
 			try {
+				Connection conn = getConnection();
 				ResultSet r = conn.createStatement().executeQuery("select name from "+tablename+" where id='"+uuid.toString()+"'");
 				int size = 0;
 				if(r != null) {
@@ -533,7 +570,9 @@ public class Scores {
 				if(size <= 0) {
 					return null;
 				}
-				return r.getString("name");
+				String re = r.getString("name");
+				conn.close();
+				return re;
 			} catch (SQLException e) {
 				Bukkit.getLogger().severe("[ajParkour] An error occured when attempting to read from database:");
 				e.printStackTrace();
@@ -557,6 +596,7 @@ public class Scores {
 		} else if(method.equals("mysql")) {
 					int size = 0;
 					try {
+						Connection conn = getConnection();
 						ResultSet r = null;
 						if(sort) {
 							r = conn.createStatement().executeQuery("select id, score from "+tablename+" order by score DESC;");
@@ -580,6 +620,7 @@ public class Scores {
 								}
 							}
 						}
+						conn.close();
 						return uuids;
 					} catch (SQLException e) {
 						Bukkit.getLogger().severe("[ajParkour] An error occured while trying to get list of ("+size+") scores:");
@@ -607,6 +648,7 @@ public class Scores {
 					saveYaml();
 				} else if(method.equals("mysql")) {
 					try {
+						Connection conn = getConnection();
 						ResultSet r = conn.createStatement().executeQuery("select id from "+tablename+" where id='"+uuid.toString()+"'");
 						int size = 0;
 						if(r != null) {
@@ -619,6 +661,7 @@ public class Scores {
 						} else {
 							//System.out.println("No name to update for " + newname);
 						}
+						conn.close();
 					} catch (SQLException e) {
 						Bukkit.getLogger().severe("[ajParkour] An error occured while trying to update name for player " + newname+":");
 						e.printStackTrace();
