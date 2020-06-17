@@ -454,10 +454,6 @@ public class PkPlayer implements Listener {
 		
 		
 		
-		if(cmds.size() > 0) {
-			Rewards.staticExecuteCommands(cmds, this);
-		}
-		
 		for(PkJump jump : jumps) {
 			jump.remove();
 		}
@@ -473,6 +469,10 @@ public class PkPlayer implements Listener {
 		
 		if(infiniteJump && ijenableAfter) {
 			ij.getJumpManager().enable(ply);
+		}
+		
+		if(cmds.size() > 0) {
+			Rewards.staticExecuteCommands(cmds, this);
 		}
 	}
 	
