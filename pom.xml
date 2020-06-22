@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>us.ajg0702</groupId>
   <artifactId>ajParkour</artifactId>
-  <version>2.9.0</version>
+  <version>2.9.2</version>
   <name>ajParkour</name>
   <url>http://spigotmc.org/resources/60909/</url>
 
@@ -98,6 +98,48 @@
 				</execution>
 			</executions>
 		</plugin>
+		<plugin>
+		      <groupId>org.apache.maven.plugins</groupId>
+		      <artifactId>maven-shade-plugin</artifactId>
+		      <version>3.2.0</version>
+		      <configuration>
+		        <relocations>
+		          <relocation>
+		            <pattern>com.zaxxer.hikari</pattern>
+		            <shadedPattern>us.ajg0702.parkour.hikari</shadedPattern>
+		          </relocation>
+		        </relocations>
+		      </configuration>
+		      <executions>
+		        <execution>
+		          <phase>package</phase>
+		          <goals>
+		            <goal>shade</goal>
+		          </goals>
+		        </execution>
+		      </executions>
+		    </plugin>
+		<!-- <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.2.4</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <relocations>
+                <relocation>
+                  <pattern>com.zaxxer.hikari.</pattern>
+                  <shadedPattern>us.ajg0702.hikari.</shadedPattern>
+                </relocation>
+              </relocations>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>-->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
@@ -113,7 +155,7 @@
                     </descriptorRefs>
                 </configuration>
             </plugin>
-            <plugin>
+            <!-- <plugin>
 			    <groupId>org.codehaus.mojo</groupId>
 			    <artifactId>exec-maven-plugin</artifactId>
 			    <version>1.5.0</version>
@@ -131,7 +173,7 @@
 			             <argument>${project.version}</argument>
 			          </arguments>
 			        </configuration>
-			  </plugin>
+			  </plugin>-->
 	  </plugins>
 	</build>
 </project>
