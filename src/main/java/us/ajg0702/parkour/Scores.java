@@ -280,7 +280,7 @@ public class Scores {
 		ds = new HikariDataSource(hconfig);
 		ds.setLeakDetectionThreshold(60 * 1000);
 		Connection conn = getConnection();
-		conn.createStatement().executeUpdate("create table if not exists "+tablename+" (id VARCHAR(36), score MEDIUMTEXT, name VARCHAR(17))");
+		conn.createStatement().executeUpdate("create table if not exists "+tablename+" (id VARCHAR(36) PRIMARY KEY, score MEDIUMTEXT, name VARCHAR(17))");
 		method = "mysql";
 		try {
 			conn.createStatement().executeUpdate("alter table "+tablename+" add column time INT(255) after name");
@@ -290,6 +290,9 @@ public class Scores {
 		} catch(Exception e) {}
 		try {
 			conn.createStatement().executeUpdate("alter table "+tablename+" modify score score MEDIUMTEXT");
+		} catch(Exception e) {}
+		try {
+			conn.createStatement().executeUpdate("alter table "+tablename+" add PRIMARY KEY (`id`)");
 		} catch(Exception e) {}
 		conn.close();
 	}
