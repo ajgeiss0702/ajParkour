@@ -72,6 +72,7 @@ public class Main extends JavaPlugin {
 		config.addEntry("jumps-ahead", 1, "The number of extra blocks to place ahead of the next jump.\n Default: 1");
 		config.addEntry("start-sound", "NONE", "The sound to play when a player starts parkour. See jump-sound for more info.\n Default: NONE");
 		config.addEntry("end-sound", "NONE", "The sound to play when a player falls. See jump-sound for more info.\n Default: NONE");
+		config.addEntry("new-block-particle", "CLOUD", "The particle to use when a new block is placed.\nSee the list of particles here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Particle.html\n Default: CLOUD");
 		config.addEntry("particle-count", 25, "The number of particles to spawn when a new block is placed.\n Default: 25");
 		config.addEntry("execute-reward-commands", "earned", "When to execute the reward commands.\n Options: 'earned', 'after'\n Default: 'earned'");
 		config.addEntry("parkour-inventory", false, "If this is true, the player's inventory will be cleared while on the parkour, and reset after.\nNOTICE: If one of your reward commands gives items, you need to set execute-reward-commands to 'after' or else they will lose the items.\n Default: false");
