@@ -202,11 +202,11 @@ public class Updater implements Listener {
 			return;
 		}
 		String curjarname = "ajParkour-"+currentVersion+".jar";
-		String[] slashparts = pl.getDataFolder().toString().split("/");
+		String[] slashparts = pl.getDataFolder().toString().split(File.separator);
 		String pluginspath = "";
 		int i = 0;
 		for(String part : slashparts) {
-			pluginspath += part+"/";
+			pluginspath += part+File.separator;
 			i++;
 			if(i+1 >= slashparts.length) break;
 		}
