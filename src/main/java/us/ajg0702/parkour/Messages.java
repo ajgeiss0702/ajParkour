@@ -192,7 +192,7 @@ public class Messages {
 		msgDefaults.put("portals.list.format.area", "&2{NAME} &7- &a{COORDS} &7- &a{AREA}");
 		msgDefaults.put("portals.list.format.no-area", "&2{NAME} &7- &a{COORDS}");
 		msgDefaults.put("portals.create.help", "&cUsage: /{CMD} portals create <name> [area]");
-		msgDefaults.put("portals.create.success", "&aCreated a portal named '{NAME}' at your current location!");
+		msgDefaults.put("portals.create.success", "&aCreated a portal named '{NAME}' at your current location! &7You might have to restart the server for the portal to start working.");
 		msgDefaults.put("portals.remove.help", "&cPlease enter the name of the portal to be removed!");
 		msgDefaults.put("portals.remove.cannot-find", "&cCannot find a portal with that name! Make sure you spelled it correctly, and that you put the same caps too.");
 		msgDefaults.put("portals.remove.success", "&aRemoved portal '{NAME}'!");
