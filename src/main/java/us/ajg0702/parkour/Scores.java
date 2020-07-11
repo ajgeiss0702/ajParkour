@@ -134,7 +134,7 @@ public class Scores {
 			area = "null";
 		}
 		if(Manager.getInstance().getArea(area) == null && !area.equalsIgnoreCase("null")) {
-			plugin.getLogger().warning("Could not find area '"+area+"'!");
+			plugin.getLogger().warning("[scores] Could not find area '"+area+"'!");
 		}
 		LinkedHashMap<String, Double> map = new LinkedHashMap<String, Double>();
 		if(!nameKeys) {
