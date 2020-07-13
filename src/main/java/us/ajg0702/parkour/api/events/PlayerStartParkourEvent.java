@@ -6,6 +6,9 @@ import org.bukkit.event.HandlerList;
 
 import us.ajg0702.parkour.game.PkPlayer;
 
+/**
+ * Event that is called when a player starts parkour
+ */
 public class PlayerStartParkourEvent extends Event {
 
 	private static final HandlerList HANDLERS = new HandlerList();
