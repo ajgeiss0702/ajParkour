@@ -25,6 +25,8 @@ import us.ajg0702.parkour.Main;
 import us.ajg0702.parkour.Messages;
 import us.ajg0702.parkour.Rewards;
 import us.ajg0702.parkour.Scores;
+import us.ajg0702.parkour.api.events.PlayerEndParkourEvent;
+import us.ajg0702.parkour.api.events.PlayerJumpEvent;
 import us.ajg0702.parkour.api.events.PlayerStartParkourEvent;
 import us.ajg0702.parkour.api.events.PrePlayerStartParkourEvent;
 import us.ajg0702.parkour.game.Manager;
@@ -269,6 +271,9 @@ public class PkPlayer implements Listener {
 		playSound("jump-sound", ply, nj.getFrom());
 		
 		plugin.rewards.checkRewards(this, score, area);
+		
+		PlayerJumpEvent je = new PlayerJumpEvent(this);
+		Bukkit.getPluginManager().callEvent(je);
 	}
 	
 	
@@ -474,6 +479,9 @@ public class PkPlayer implements Listener {
 		if(cmds.size() > 0) {
 			Rewards.staticExecuteCommands(cmds, this);
 		}
+		
+		PlayerEndParkourEvent ee = new PlayerEndParkourEvent(ply, score);
+		Bukkit.getPluginManager().callEvent(ee);
 	}
 	
 	
