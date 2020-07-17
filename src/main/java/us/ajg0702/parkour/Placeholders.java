@@ -1,8 +1,10 @@
 package us.ajg0702.parkour;
 
+import java.util.Arrays;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -111,6 +113,8 @@ public class Placeholders extends PlaceholderExpansion {
     	}
     }
 
+    List<String> syncPlaceholders = Arrays.asList("current", "jumping", "jumping_.+");
+
     /**
      * This is the method called when a placeholder with our identifier 
      * is found and needs a value.
@@ -127,6 +131,10 @@ public class Placeholders extends PlaceholderExpansion {
     @Override
     public String onPlaceholderRequest(Player player, final String identifier){
     	//Bukkit.getLogger().info("itentifier: "+identifier);
+    	
+    	if(regexContains(syncPlaceholders, identifier)) {
+    		return this.parsePlaceholder(player, identifier);
+    	}
         
         
     	String noc = "_nocache";
@@ -231,6 +239,12 @@ public class Placeholders extends PlaceholderExpansion {
         	String playername = plys.toArray()[number-1].toString();
         	int score = Integer.valueOf((int) Math.round(scores.get(playername)));
         	return score+"";
+        }
+        
+        
+        
+        if(identifier.matches("stats_gamesplayed")) {
+        	return plugin.scores.getGamesPlayed(player.getUniqueId())+"";
         }
         
         
@@ -343,5 +357,12 @@ public class Placeholders extends PlaceholderExpansion {
         
         
         return null;
+    }
+    
+    public boolean regexContains(List<String> list, String regex) {
+    	for(String s : list) {
+    		if(s.matches(regex)) return true;
+    	}
+    	return false;
     }
 }

@@ -289,6 +289,9 @@ public class Scores {
 			conn.createStatement().executeUpdate("alter table "+tablename+" add column material TINYTEXT after time");
 		} catch(Exception e) {}
 		try {
+			conn.createStatement().executeUpdate("alter table "+tablename+" add column gamesplayed INT(255) after material");
+		} catch(Exception e) {}
+		try {
 			conn.createStatement().executeUpdate("alter table "+tablename+" modify score score MEDIUMTEXT");
 		} catch(Exception e) {}
 		try {
@@ -673,6 +676,66 @@ public class Scores {
 				}
 			}
 		});
+	}
+	
+	public int getGamesPlayed(UUID uuid) {
+		if(method.equals("yaml")) {
+			return scores.getInt(uuid.toString()+".gamesplayed", 0);
+		}
+		if(method.equals("mysql")) {
+			try {
+				Connection conn = getConnection();
+				ResultSet r = conn.createStatement().executeQuery("select gamesplayed from "+tablename+" where id='"+uuid.toString()+"'");
+				int size = 0;
+				if(r != null) {
+					r.last();
+					size = r.getRow();
+				}
+				if(size <= 0) {
+					return -1;
+				}
+				int re = r.getInt("gamesplayed");
+				conn.close();
+				return re;
+			} catch (SQLException e) {
+				Bukkit.getLogger().severe("[ajParkour] An error occured when attempting to read from database:");
+				e.printStackTrace();
+				return -1;
+			}
+		}
+		
+		plugin.getLogger().warning("getGamesPlayed() could not find a method!");
+		return -1;
+	}
+	public void addToGamesPlayed(UUID uuid) {
+		if(method.equals("yaml")) {
+			scores.set(uuid.toString()+".gamesplayed", getGamesPlayed(uuid)+1);
+		}
+		if(method.equals("mysql")) {
+			int newgp = getGamesPlayed(uuid)+1;
+			try {
+				Connection conn = getConnection();
+				ResultSet r = conn.createStatement().executeQuery("select id from "+tablename+" where id='"+uuid.toString()+"'");
+				int size = 0;
+				if(r != null) {
+					r.last();
+					size = r.getRow();
+				}
+				
+				if(size > 0) {
+					conn.createStatement().executeUpdate("update "+tablename+" set gamesplayed='"+newgp+"' where id='"+uuid.toString()+"'");
+				} else {
+					//System.out.println("No name to update for " + newname);
+				}
+				conn.close();
+			} catch (SQLException e) {
+				Bukkit.getLogger().severe("[ajParkour] An error occured while trying to update gamesplayed for uuid " + uuid +":");
+				e.printStackTrace();
+			}
+		}
+		
+		plugin.getLogger().warning("addToGamesPlayed() could not find a method!");
+		return;
 	}
 	
 	public int migrate(String from) {
