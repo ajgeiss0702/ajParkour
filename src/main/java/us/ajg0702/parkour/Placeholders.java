@@ -1,5 +1,6 @@
 package us.ajg0702.parkour;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
@@ -188,7 +189,7 @@ public class Placeholders extends PlaceholderExpansion {
         return null;
     }
     
-    private String parsePlaceholder(Player player, String identifier) {
+    protected String parsePlaceholder(Player player, String identifier) {
     	if(identifier.matches("stats_top_name_[1-9][0-9]*$")) {
         	int number = Integer.valueOf(identifier.split("stats_top_name_")[1]);
         	Map<String, Double> scores = plugin.scores.getSortedScores(true, null);	
@@ -245,6 +246,27 @@ public class Placeholders extends PlaceholderExpansion {
         
         if(identifier.matches("stats_gamesplayed")) {
         	return plugin.scores.getGamesPlayed(player.getUniqueId())+"";
+        }
+        
+        
+        if(identifier.matches("stats_currentposition")) {
+        	Map<String, Double> scores = plugin.scores.getSortedScores(true, null);
+        	List<String> plys = new ArrayList<>(scores.keySet());
+        	int pos = plys.indexOf(player.getName())+1;
+        	if(pos == 0) {
+        		return plugin.msgs.get("placeholders.stats.no-data");
+        	}
+        	return pos+"";
+        }
+        if(identifier.matches("stats_currentposition_.+$")) {
+        	String area = identifier.split("_")[2];
+        	Map<String, Double> scores = plugin.scores.getSortedScores(true, area);
+        	List<String> plys = new ArrayList<>(scores.keySet());
+        	int pos = plys.indexOf(player.getName())+1;
+        	if(pos == 0) {
+        		return plugin.msgs.get("placeholders.stats.no-data");
+        	}
+        	return pos+"";
         }
         
         
