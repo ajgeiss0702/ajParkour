@@ -75,6 +75,10 @@ public class Rewards {
 				rw.set("exceptions.1.first-time-only", true);
 			}
 		}
+		if(!rw.isSet("specials")) {
+			rw.set("specials.beat-server-record.message", "&a&lCongrats!&r&7 You reached the server high score!");
+			rw.set("specials.beat-server-record.command", "give {PLAYER} emerald 1");
+		}
 		save();
 	}
 	
@@ -88,7 +92,25 @@ public class Rewards {
 	}
 	
 	
-	public void checkRewards(PkPlayer p, int score, PkArea area) {
+	public void checkRewards(PkPlayer p, final int score, PkArea area) {
+		
+		final Player player = p.getPlayer();
+		
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+			public void run() {
+				int topscore = Integer.valueOf(plugin.placeholders.parsePlaceholder(p.getPlayer(), "stats_top_score_1"));
+				if(score >= topscore) {
+					String message = msgs.color(rw.getString("specials.beat-server-record.message", ""));
+					if(!message.isEmpty()) {
+						player.sendMessage(message);
+					}
+					String command = rw.getString("specials.beat-server-record.command", "");
+					if(!command.isEmpty()) {
+						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replaceAll("\\{PLAYER\\}", player.getName()));
+					}
+				}
+			}
+		});
 		
 		
 		
@@ -139,6 +161,19 @@ public class Rewards {
 					}
 				}
 				if(skip) continue;
+				
+				
+				String permission = rw.getString("exceptions."+ec+".permission", "");
+				if(!permission.isEmpty()) {
+					boolean notperm = permission.indexOf('!') == 0;
+					if(notperm) {
+						permission = permission.substring(1);
+						if(p.getPlayer().hasPermission(permission)) continue;
+					} else {
+						if(!p.getPlayer().hasPermission(permission)) continue;
+					}
+				}
+				
 				
 				int cooldown = rw.getInt("exceptions."+ec+".cooldown", 0);
 				if(cooldowns.containsKey(p.getPlayer())) {
@@ -213,8 +248,18 @@ public class Rewards {
 					//p.getPlayer().sendMessage("areas is empty for "+ic+": "+areas);
 				}
 				
-				if(skip) {
-					continue;
+				if(skip) continue;
+				
+				
+				String permission = rw.getString("intervals."+ic+".permission", "");
+				if(!permission.isEmpty()) {
+					boolean notperm = permission.indexOf('!') == 0;
+					if(notperm) {
+						permission = permission.substring(1);
+						if(p.getPlayer().hasPermission(permission)) continue;
+					} else {
+						if(!p.getPlayer().hasPermission(permission)) continue;
+					}
 				}
 				
 				String message = rw.getString("intervals."+ic+".message", "").replaceAll("\\{SCORE\\}", score+"");
