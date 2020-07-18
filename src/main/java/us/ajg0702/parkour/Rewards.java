@@ -77,7 +77,7 @@ public class Rewards {
 		}
 		if(!rw.isSet("specials")) {
 			rw.set("specials.beat-server-record.message", "&a&lCongrats!&r&7 You reached the server high score!");
-			rw.set("specials.beat-server-record.command", "give {PLAYER} emerald 1");
+			rw.set("specials.beat-server-record.commands", Arrays.asList("give {PLAYER} emerald 1"));
 		}
 		save();
 	}
@@ -96,21 +96,33 @@ public class Rewards {
 		
 		final Player player = p.getPlayer();
 		
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-			public void run() {
-				int topscore = Integer.valueOf(plugin.placeholders.parsePlaceholder(p.getPlayer(), "stats_top_score_1"));
-				if(score >= topscore) {
-					String message = msgs.color(rw.getString("specials.beat-server-record.message", ""));
-					if(!message.isEmpty()) {
-						player.sendMessage(message);
-					}
-					String command = rw.getString("specials.beat-server-record.command", "");
-					if(!command.isEmpty()) {
-						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replaceAll("\\{PLAYER\\}", player.getName()));
+		if(!p.beatServerHighscore) {
+			Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+				public void run() {
+					int topscore;
+					try {
+						topscore = Integer.valueOf(plugin.placeholders.parsePlaceholder(p.getPlayer(), "stats_top_score_1"));
+					} catch(Exception e) {return;}
+					if(score >= topscore) {
+						String message = msgs.color(rw.getString("specials.beat-server-record.message", ""));
+						if(!message.isEmpty()) {
+							player.sendMessage(message);
+						}
+						@SuppressWarnings("unchecked")
+						List<String> cmds = (List<String>) rw.getList("specials.beat-server-record.commands", new ArrayList<String>());
+						if(cmds.size() != 0) {
+							Bukkit.getScheduler().runTask(plugin, new Runnable() {
+								public void run() {
+									executeCommands(cmds, p);
+									//Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replaceAll("\\{PLAYER\\}", player.getName()));
+								}
+							});
+						}
+						p.beatServerHighscore = true;
 					}
 				}
-			}
-		});
+			});
+		}
 		
 		
 		

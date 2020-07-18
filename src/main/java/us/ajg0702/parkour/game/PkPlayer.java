@@ -76,6 +76,8 @@ public class PkPlayer implements Listener {
 	boolean fasterAfkCheck = false;
 	int fastAfkCheckID;
 	
+	public boolean beatServerHighscore = false;
+	
 	List<String> cmds = new ArrayList<>();
 	
 	
@@ -131,6 +133,13 @@ public class PkPlayer implements Listener {
 				} else {
 					p.sendMessage(msgs.get("start.first", p).replaceAll("\\{SCORE\\}", ""+prevhigh));
 				}
+			}
+		});
+		
+		
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+			public void run() {
+				plugin.scores.addToGamesPlayed(p.getUniqueId());
 			}
 		});
 		

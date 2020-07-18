@@ -692,6 +692,7 @@ public class Scores {
 					size = r.getRow();
 				}
 				if(size <= 0) {
+					conn.close();
 					return -1;
 				}
 				int re = r.getInt("gamesplayed");
@@ -710,6 +711,7 @@ public class Scores {
 	public void addToGamesPlayed(UUID uuid) {
 		if(method.equals("yaml")) {
 			scores.set(uuid.toString()+".gamesplayed", getGamesPlayed(uuid)+1);
+			return;
 		}
 		if(method.equals("mysql")) {
 			int newgp = getGamesPlayed(uuid)+1;
@@ -732,6 +734,7 @@ public class Scores {
 				Bukkit.getLogger().severe("[ajParkour] An error occured while trying to update gamesplayed for uuid " + uuid +":");
 				e.printStackTrace();
 			}
+			return;
 		}
 		
 		plugin.getLogger().warning("addToGamesPlayed() could not find a method!");
