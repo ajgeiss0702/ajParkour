@@ -110,10 +110,12 @@ public class Updater implements Listener {
 						int curver = Integer.valueOf(curparts[i]);
 						if(newver > curver) {
 							if(i != 0) {
-								//int newverlast = Integer.valueOf(parts[i-1]);
-								//int currentverlast = Integer.valueOf(curparts[i-1]);
-								updateAvailable = true;
-								break;
+								int newverlast = Integer.valueOf(parts[i-1]);
+								int currentverlast = Integer.valueOf(curparts[i-1]);
+								if(newverlast >= currentverlast) {
+									updateAvailable = true;
+									break;
+								}
 							} else {
 								updateAvailable = true;
 								break;
