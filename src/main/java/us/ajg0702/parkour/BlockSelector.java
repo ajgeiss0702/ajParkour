@@ -161,12 +161,12 @@ public class BlockSelector implements Listener {
 		
 		ply.openInventory(inv);
 		plys.put(ply, inv);
-		inv = addBlocks(inv);
+		inv = addBlocks(inv, 0);
 		return inv;
 	}
 	
 	@SuppressWarnings("deprecation")
-	private Inventory addBlocks(Inventory inv) {
+	private Inventory addBlocks(Inventory inv, int pageIndex) {
 		Material randomMat = Material.valueOf(plugin.config.getString("random-item"));
 		String rawselected = plugin.scores.getMaterial(((Player)inv.getViewers().get(0)).getUniqueId());
 		if(rawselected == null) {
@@ -183,6 +183,8 @@ public class BlockSelector implements Listener {
 			}
 		}
 		
+		
+		
 		ItemStack randomI = new ItemStack(randomMat, 1);
 		ItemMeta randomImeta = randomI.getItemMeta();
 		randomImeta.setDisplayName(msgs.get("gui.selector.items.random.title"));
@@ -198,7 +200,17 @@ public class BlockSelector implements Listener {
 		inv.setItem(4, randomI);
 		
 		int s = 0;
-		for(String rm : types) {
+		int i = 0;
+		for(String rm : types) { // 45 per page
+			if(i < 45 * pageIndex) {
+				plugin.getLogger().info("[blocks] Skipping "+i);
+				i++;
+				continue;
+			}
+			if(i >= (pageIndex+1)*45) {
+				plugin.getLogger().info("[blocks] Breaking "+i);
+				break;
+			}
 			String m = rm;
 			int d = -1;
 			if(rm.indexOf("FLOWER_POT") != -1) {
@@ -207,28 +219,28 @@ public class BlockSelector implements Listener {
 			if(m.equals(randomMat.toString())) continue;
 			s++;
 			int slot = 8+s;
-			ItemStack i;
+			ItemStack it;
 			if(VersionSupport.getMinorVersion() > 12) {
-				i = new ItemStack(Material.valueOf(m.split(":")[0]), 1);
+				it = new ItemStack(Material.valueOf(m.split(":")[0]), 1);
 			} else {
 				
 				String[] parts = m.split(":");
 				if(parts.length > 1 && !parts[1].equalsIgnoreCase("true")) {
 					d = Integer.valueOf(parts[1]);
 				}
-				i = new ItemStack(Material.valueOf(m.split(":")[0]), 1, (short)d, (byte)((d == -1) ? 0 : d));
+				it = new ItemStack(Material.valueOf(m.split(":")[0]), 1, (short)d, (byte)((d == -1) ? 0 : d));
 			}
 			//Bukkit.getLogger().info(m+" == "+selected+"    &&    "+d+" == "+selectedd);
 			if(m.split(":")[0].equals(selected.toString()) && d == selectedd) {
-				ItemMeta iMeta = i.getItemMeta();
+				ItemMeta iMeta = it.getItemMeta();
 				iMeta.addEnchant(Enchantment.DAMAGE_ALL, 1, false);
 				if(VersionSupport.getMinorVersion() >= 8) {
 					iMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 				}
 				iMeta.setLore(Arrays.asList(msgs.get("gui.selector.items.selected.lore").split("\n")));
-				i.setItemMeta(iMeta);
+				it.setItemMeta(iMeta);
 			}
-			inv.setItem(slot, i);
+			inv.setItem(slot, it);
 		}
 		
 		return inv;
@@ -259,7 +271,7 @@ public class BlockSelector implements Listener {
 		}
 		scores.setMaterial(p.getUniqueId(), matname);
 		inv.clear();
-		plys.put(p, addBlocks(inv));
+		plys.put(p, addBlocks(inv, 0));
 		e.setCancelled(true);
 	}
 	

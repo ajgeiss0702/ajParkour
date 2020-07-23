@@ -202,6 +202,8 @@ public class Messages {
 		msgDefaults.put("gui.selector.items.random.title", "&rRandom Blocks");
 		msgDefaults.put("gui.selector.items.random.lore", "&7Will pick a random block.");
 		msgDefaults.put("gui.selector.items.selected.lore", "&aCurrently Selected");
+		msgDefaults.put("gui.selector.items.nextpage.name", "&a&lNext Page");
+		msgDefaults.put("gui.selector.items.prevpage.name", "&a&lPrevious Page");
 		
 		msgDefaults.put("items.blockselector.name", "&aBlock Selector");
 		
