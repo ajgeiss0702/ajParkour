@@ -156,12 +156,15 @@ public class BlockSelector implements Listener {
 		}
 	}
 	
+	HashMap<Player, Integer> pages = new HashMap<>();
+	
 	public Inventory openSelector(Player ply) {
 		Inventory inv = Bukkit.createInventory(ply, 54, msgs.get("gui.selector.title", ply));
 		
 		ply.openInventory(inv);
 		plys.put(ply, inv);
 		inv = addBlocks(inv, 0);
+		pages.put(ply, 0);
 		return inv;
 	}
 	
@@ -184,6 +187,18 @@ public class BlockSelector implements Listener {
 		}
 		
 		
+		ItemStack prevI = new ItemStack(Material.ARROW, 1);
+		ItemMeta prevImeta = prevI.getItemMeta();
+		prevImeta.setDisplayName(msgs.get("gui.selector.items.prevpage.name"));
+		prevI.setItemMeta(prevImeta);
+		inv.setItem(0, prevI);
+		
+		ItemStack nextI = new ItemStack(Material.ARROW, 1);
+		ItemMeta nextImeta = nextI.getItemMeta();
+		nextImeta.setDisplayName(msgs.get("gui.selector.items.nextpage.name"));
+		nextI.setItemMeta(nextImeta);
+		inv.setItem(8, nextI);
+		
 		
 		ItemStack randomI = new ItemStack(randomMat, 1);
 		ItemMeta randomImeta = randomI.getItemMeta();
@@ -203,14 +218,16 @@ public class BlockSelector implements Listener {
 		int i = 0;
 		for(String rm : types) { // 45 per page
 			if(i < 45 * pageIndex) {
-				plugin.getLogger().info("[blocks] Skipping "+i);
+				//plugin.getLogger().info("[blocks] Skipping "+i);
 				i++;
 				continue;
 			}
+			//plugin.getLogger().info(i + " -> "+((pageIndex+1)*45));
 			if(i >= (pageIndex+1)*45) {
-				plugin.getLogger().info("[blocks] Breaking "+i);
+				//plugin.getLogger().info("[blocks] Breaking "+i);
 				break;
 			}
+			i++;
 			String m = rm;
 			int d = -1;
 			if(rm.indexOf("FLOWER_POT") != -1) {
@@ -265,13 +282,26 @@ public class BlockSelector implements Listener {
 		}
 		String matname = null; 
 		if(e.getSlot() >= 9) {
-			matname = types.get(e.getSlot()-9);
+			matname = types.get(((e.getSlot())-9)-((pages.get(p)*-45)));
 		} else {
+			if(e.getSlot() == 8) {
+				pages.put(p, pages.get(p)+1);
+				inv.clear();
+				plys.put(p, addBlocks(inv, pages.get(p)));
+				return;
+			}
+			if(e.getSlot() == 0) {
+				if(pages.get(p) <= 0) return;
+				pages.put(p, pages.get(p)-1);
+				inv.clear();
+				plys.put(p, addBlocks(inv, pages.get(p)));
+				return;
+			}
 			matname = "random";
 		}
 		scores.setMaterial(p.getUniqueId(), matname);
 		inv.clear();
-		plys.put(p, addBlocks(inv, 0));
+		plys.put(p, addBlocks(inv, pages.get(p)));
 		e.setCancelled(true);
 	}
 	
