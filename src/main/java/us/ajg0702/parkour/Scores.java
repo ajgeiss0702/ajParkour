@@ -87,49 +87,6 @@ public class Scores {
      * @return map with a list of all scores.
      */
 	public HashMap<String, Double> getTopScores(boolean nameKeys, String area) {
-		HashMap<String, Double> map = new HashMap<String, Double>();
-		if(!nameKeys) {
-			for(UUID uuid : this.getPlayers()) {
-				JSONObject o = getJsonObject(uuid);
-				int highest = -1;
-				if(area == null || area.equals("null")) {
-					for(Object kr : o.keySet()) {
-						int value = (int) Math.round((long) o.get(kr));
-						if(value > highest) {
-							highest = value;
-						}
-					}
-				} else {
-					Object raw = o.get(area);
-					highest = raw == null ? -1 : Math.round((long) raw);
-				}
-				map.put(uuid.toString(), Double.valueOf(highest));
-			}
-			return map;
-		}
-		for(UUID uuid : this.getPlayers()) {
-			String name = Bukkit.getOfflinePlayer(uuid).getName();
-			JSONObject o = getJsonObject(uuid);
-			int highest = -1;
-			if(area == null || area.equals("null")) {
-				for(Object kr : o.keySet()) {
-					int value = (int) Math.round((long) o.get(kr));
-					if(value > highest) {
-						highest = value;
-					}
-				}
-			} else {
-				Object raw = o.get(area);
-				highest = raw == null ? -1 : Math.round((long) raw);
-			}
-			map.put(name, Double.valueOf(highest));
-		}
-		//Bukkit.getLogger().info("Returned "+map.toString()+" scores");
-		return map;
-	}
-	
-	HashMap<UUID, String> playerNameCache = new HashMap<>();
-	public LinkedHashMap<String, Double> getSortedScores(boolean nameKeys, String area) {
 		if(area == null) {
 			area = "null";
 		}
@@ -137,8 +94,95 @@ public class Scores {
 			plugin.getLogger().warning("[scores] Could not find area '"+area+"'!");
 		}
 		LinkedHashMap<String, Double> map = new LinkedHashMap<String, Double>();
-		if(!nameKeys) {
-			for(UUID uuid : this.getPlayers(true)) {
+		
+		if(method.equals("mysql")) {
+			try {
+				Connection conn = getConnection();
+						try {
+							ResultSet p = conn.createStatement().executeQuery("select id,score,name from "+tablename);
+							int size = 0;
+							if(p != null) {
+								p.last();
+								size = p.getRow();
+							}
+							if(size == 0) {
+								conn.close();
+								return new LinkedHashMap<String, Double>();
+							}
+							p.first();
+							
+							
+							while(p.getRow() <= size) {
+								String key;
+								if(nameKeys) {
+									key = p.getString(3);
+									if(key.equals("SQL NULL")) {
+										key = "-Unknown Name-";
+									}
+								} else {
+									key = p.getString(1);
+								}
+								JSONObject o = getJsonObject(p.getString(2));
+								int highest = -1;
+								if(area == null || area.equals("null")) {
+									for(Object kr : o.keySet()) {
+										int value = (int) Math.round((long) o.get(kr));
+										if(value > highest) {
+											highest = value;
+										}
+									}
+								} else {
+									Object raw = o.get(area);
+									highest = raw == null ? -1 : Math.round((long) raw);
+								}
+								map.put(key, Double.valueOf(highest));
+								
+								p.next();
+							}
+							
+							
+							
+						} catch(Exception e) {
+							Bukkit.getLogger().severe("[ajParkour] An error occured when attempting get all players' scores:");
+							e.printStackTrace();
+							conn.close();
+							return new LinkedHashMap<String, Double>();
+						}
+						conn.close();
+				/*if(cache.containsKey(uuid)) {
+					return (JSONObject) new JSONParser().parse(cache.get(uuid));
+				} else {
+					return new JSONObject(); 
+				}*/
+			} catch (Exception e) {
+				Bukkit.getLogger().severe("[ajParkour] An error occured when attempting get all players' scores:");
+				e.printStackTrace();
+				return new LinkedHashMap<String, Double>();
+			}
+		}
+		if(method.equals("yaml")) {
+			int lps = 0;
+			for(UUID uuid : this.getPlayers()) {
+				String key;
+				if(nameKeys) {
+					if(playerNameCache.containsKey(uuid)) {
+						key = playerNameCache.get(uuid);
+					} else {
+						lps++;
+						key = "LoadingPlayer#"+lps;
+					}
+					Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+						public void run() {
+							String nt = Bukkit.getOfflinePlayer(uuid).getName();
+							if(nt == null) {
+								nt = "-Unknown UUID-";
+							}
+							playerNameCache.put(uuid, nt);
+						}
+					});
+				} else {
+					key = uuid.toString();
+				}
 				JSONObject o = getJsonObject(uuid);
 				int highest = -1;
 				if(area == null || area.equals("null")) {
@@ -152,51 +196,17 @@ public class Scores {
 					Object raw = o.get(area);
 					highest = raw == null ? -1 : Math.round((long) raw);
 				}
-				if(highest > 0) {
-					map.put(uuid.toString(), Double.valueOf(highest));
-				}
-			}
-			map = plugin.sortByValue(map);
-			return map;
-		}
-		int lps = 0;
-		for(UUID uuid : this.getPlayers(true)) {
-			String name;
-			if(playerNameCache.containsKey(uuid)) {
-				name = playerNameCache.get(uuid);
-			} else {
-				lps++;
-				name = "LoadingPlayer#"+lps;
-			}
-			Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-				public void run() {
-					String nt = Bukkit.getOfflinePlayer(uuid).getName();
-					if(nt == null) {
-						nt = "-Unknown-";
-					}
-					playerNameCache.put(uuid, nt);
-				}
-			});
-			JSONObject o = getJsonObject(uuid);
-			int highest = -1;
-			if(area == null || area.equals("null")) {
-				for(Object kr : o.keySet()) {
-					int value = (int) Math.round((long) o.get(kr));
-					if(value > highest) {
-						highest = value;
-					}
-				}
-			} else {
-				Object raw = o.get(area);
-				highest = raw == null ? -1 : Math.round((long) raw);
-			}
-			if(highest > 0) {
-				map.put(name, Double.valueOf(highest));
+				map.put(key, Double.valueOf(highest));
 			}
 		}
-		//Bukkit.getLogger().info("Returned "+map.toString()+" scores");
-		map = plugin.sortByValue(map);
+		
+		//map = plugin.sortByValue(map);
 		return map;
+	}
+	
+	HashMap<UUID, String> playerNameCache = new HashMap<>();
+	public LinkedHashMap<String, Double> getSortedScores(boolean nameKeys, String area) {
+		return plugin.sortByValue(getTopScores(nameKeys, area));
 	}
 	
 	private void checkStorageConfig() {
