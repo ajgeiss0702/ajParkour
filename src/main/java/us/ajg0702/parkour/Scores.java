@@ -72,7 +72,7 @@ public class Scores {
 	
 	/**
 	 * For getting all players and their names in a sorted map
-	 * @return A sorted HashMap<String player, Double score>
+	 * @return A sorted HashMap&lt;String player, Double score&gt;
 	 */
 	public HashMap<String, Double> getTopScores() {
 		return getTopScores(true, null);
@@ -83,6 +83,7 @@ public class Scores {
      *
      * @param  nameKeys
      *         Whether or not to return player names instead of uuids
+     * @param  area The area to get top scores from. null for top from all areas.
      *
      * @return map with a list of all scores.
      */

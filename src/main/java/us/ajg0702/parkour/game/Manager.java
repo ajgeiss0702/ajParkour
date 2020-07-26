@@ -73,7 +73,7 @@ public class Manager implements Listener {
 	
 	/**
 	 * Gets all (loaded) arenas
-	 * @return A {@link java.util.List List} of {@link us.ajg0702.parkour.game.PkArea PkArea}s
+	 * @return A list of PkAreas
 	 */
 	public List<PkArea> getAreas() {
 		return areas;
@@ -103,9 +103,9 @@ public class Manager implements Listener {
 	}
 	
 	/**
-	 * Gets a {@link us.ajg0702.game.PkPlayer PkPlayer}.
+	 * Gets a PkPlayer.
 	 * @param ply The {@link org.bukkit.entity.Player Player} to find.
-	 * @return The found {@link us.ajg0702.game.PkPlayer PkPlayer}. Null if none is found.
+	 * @return The found PkPlayer. Null if none is found.
 	 */
 	public PkPlayer getPlayer(Player ply) {
 		PkPlayer f = null;
@@ -177,7 +177,6 @@ public class Manager implements Listener {
 	/**
 	 * Start parkour for a player
 	 * @param ply The {@link org.bukkit.entity.Player Player} to start parkour on.
-	 * @return The resulting {@link us.ajg0702.parkour.game.PkPlayer PkPlayer}.
 	 */
 	public void startGame(Player ply) {
 		startGame(ply, null);

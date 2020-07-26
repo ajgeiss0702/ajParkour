@@ -178,6 +178,8 @@ public class PkJump {
 	 * Calculates the score for a particular block location
 	 * @param block a {@link org.bukkit.Location Location} of the block to get the score of
 	 * @param from a {@link org.bukkit.Location Location} of the 'from' position of the previous jump
+	 * @param area The PkArea the block would be in
+	 * @param ply The player the block would belong to.
 	 * @param yaw a float with the player's yaw (left-right looking)
 	 * @return the score of a block. (usually 0-10)
 	 */
