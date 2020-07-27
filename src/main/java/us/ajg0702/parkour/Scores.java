@@ -66,8 +66,7 @@ public class Scores {
 		} else {
 			initYaml();
 		}
-		getPlayers(false);
-		getPlayers(true);
+		getPlayers();
 	}
 	
 	/**
@@ -138,7 +137,13 @@ public class Scores {
 								}
 								map.put(key, Double.valueOf(highest));
 								
-								p.next();
+								//plugin.getLogger().info(p.getRow() + " " + size);
+								
+								if(p.getRow() != size) {
+									p.next();
+								} else {
+									break;
+								}
 							}
 							
 							
@@ -601,9 +606,6 @@ public class Scores {
 	}
 	
 	public List<UUID> getPlayers() {
-		return getPlayers(false);
-	}
-	public List<UUID> getPlayers(final boolean sort) {
 		if(method.equals("yaml")) {
 			List<UUID> uuids = new ArrayList<UUID>();
 			for(String key : scores.getKeys(false)) {
@@ -614,12 +616,7 @@ public class Scores {
 					int size = 0;
 					try {
 						Connection conn = getConnection();
-						ResultSet r = null;
-						if(sort) {
-							r = conn.createStatement().executeQuery("select id, score from "+tablename+" order by score DESC;");
-						} else {
-							r = conn.createStatement().executeQuery("select id, score from "+tablename+";");
-						}
+						ResultSet r = conn.createStatement().executeQuery("select id, score from "+tablename+";");
 						List<UUID> uuids = new ArrayList<UUID>();
 						if(r != null) {
 							r.last();
