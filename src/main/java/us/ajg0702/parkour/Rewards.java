@@ -101,7 +101,15 @@ public class Rewards {
 				public void run() {
 					int topscore;
 					try {
-						topscore = Integer.valueOf(plugin.placeholders.parsePlaceholder(p.getPlayer(), "stats_top_score_1"));
+						int number = 1;
+			        	Map<String, Double> scores = plugin.scores.getSortedScores(true, null);
+			        	Set<String> plys = scores.keySet();
+			        	
+			        	if(scores.keySet().size() < number || plys.toArray()[number-1] == null) return;
+			        	
+			        	String playername = plys.toArray()[number-1].toString();
+			        	topscore = Integer.valueOf((int) Math.round(scores.get(playername)));
+			        	
 					} catch(Exception e) {return;}
 					if(score >= topscore) {
 						String message = msgs.color(rw.getString("specials.beat-server-record.message", ""));

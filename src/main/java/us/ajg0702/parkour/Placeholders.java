@@ -194,6 +194,7 @@ public class Placeholders extends PlaceholderExpansion {
         	int number = Integer.valueOf(identifier.split("stats_top_name_")[1]);
         	Map<String, Double> scores = plugin.scores.getSortedScores(true, null);	
         	Set<String> names = scores.keySet();
+
         	if(scores.keySet().size() < number || names.toArray()[number-1] == null) {
         		return plugin.msgs.get("placeholders.stats.no-data", player);
         	}
