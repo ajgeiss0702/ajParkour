@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.util.regex.Matcher;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -197,7 +198,7 @@ public class Updater implements Listener {
 			return;
 		}
 		String curjarname = "ajParkour-"+currentVersion+".jar";
-		String[] slashparts = pl.getDataFolder().toString().split(File.separator);
+		String[] slashparts = pl.getDataFolder().toString().split(Matcher.quoteReplacement(File.separator));
 		String pluginspath = "";
 		int i = 0;
 		for(String part : slashparts) {
