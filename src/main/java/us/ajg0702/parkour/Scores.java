@@ -77,6 +77,10 @@ public class Scores {
 		return getTopScores(true, null);
 	}
 	
+	HashMap<Boolean, Long> scoresGotten = new HashMap<>();
+	HashMap<Boolean, HashMap<String, Double>> scoresCache = new HashMap<>();
+	HashMap<Boolean, Boolean> scoresGetting = new HashMap<>();
+	
 	/**
      * For getting all players scores for sorting.
      *
@@ -87,6 +91,27 @@ public class Scores {
      * @return map with a list of all scores.
      */
 	public HashMap<String, Double> getTopScores(boolean nameKeys, String area) {
+		
+		if(scoresGetting.containsKey(nameKeys) && scoresGetting.get(nameKeys)) {
+			int i = 0;
+			HashMap<String, Double> map = null;
+			while(map == null) {
+				if(i > 100) {
+					return new HashMap<String, Double>();
+				}
+				try {
+					Thread.sleep(5);
+				} catch (InterruptedException e) {
+					return new HashMap<String, Double>();
+				}
+				map = scoresCache.get(nameKeys);
+				i++;
+			}
+			return map;
+		}
+		if(scoresCache.containsKey(nameKeys) && scoresGotten.get(nameKeys)+1000 < System.currentTimeMillis()) {
+			return scoresCache.get(nameKeys);
+		}
 		if(area == null) {
 			area = "null";
 		}
@@ -96,6 +121,8 @@ public class Scores {
 		LinkedHashMap<String, Double> map = new LinkedHashMap<String, Double>();
 		
 		if(method.equals("mysql")) {
+			scoresGetting.put(nameKeys, true);
+			scoresCache.put(nameKeys, null);
 			try {
 				Connection conn = getConnection();
 						try {
@@ -146,6 +173,10 @@ public class Scores {
 								}
 							}
 							
+							
+							scoresGetting.put(nameKeys, false);
+							scoresCache.put(nameKeys, map);
+							scoresGotten.put(nameKeys, System.currentTimeMillis());
 							
 							
 						} catch(Exception e) {
