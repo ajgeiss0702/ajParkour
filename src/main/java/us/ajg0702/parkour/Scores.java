@@ -557,7 +557,7 @@ public class Scores {
 				}
 				if(size <= 0) {
 					conn.createStatement().executeUpdate("insert into "+tablename+" (id, score, name, material) "
-						+ "values ('"+uuid+"', 0, "+Bukkit.getOfflinePlayer(uuid)+", "+mat.toString()+")");
+						+ "values ('"+uuid+"', {}, "+Bukkit.getOfflinePlayer(uuid).getName()+", "+mat.toString()+")");
 				} else {
 					conn.createStatement().executeUpdate("update "+tablename+" set material=\"" + mat + "\" where id='"+uuid.toString()+"'");
 				}
