@@ -101,17 +101,21 @@ public class Placeholders extends PlaceholderExpansion {
     HashMap<Player, HashMap<String, String>> responseCache = new HashMap<>();
     
     public void cleanCache() {
-    	Iterator<Player> it = responseCache.keySet().iterator();
-    	while(it.hasNext()) {
-    		Player p = it.next();
-    		if(p == null) {
-    			it.remove();
-    			continue;
+    	Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+    		public void run() {
+    			Iterator<Player> it = responseCache.keySet().iterator();
+    	    	while(it.hasNext()) {
+    	    		Player p = it.next();
+    	    		if(p == null) {
+    	    			it.remove();
+    	    			continue;
+    	    		}
+    	    		if(!p.isOnline()) {
+    	    			it.remove();
+    	    		}
+    	    	}
     		}
-    		if(!p.isOnline()) {
-    			it.remove();
-    		}
-    	}
+    	});
     }
 
     List<String> syncPlaceholders = Arrays.asList("current", "jumping", "jumping_.+");
