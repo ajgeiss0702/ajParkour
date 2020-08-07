@@ -93,14 +93,17 @@ public class Scores {
 	public HashMap<String, Double> getTopScores(boolean nameKeys, String area) {
 		
 		if(scoresGetting.containsKey(nameKeys) && scoresGetting.get(nameKeys)) {
+			plugin.getLogger().info("getting");
 			int i = 0;
 			HashMap<String, Double> map = null;
+			//plugin.getLogger().info("[DEBUG] Waiting for data to be available");
 			while(map == null) {
 				if(i > 100) {
+					//plugin.getLogger().warning("Waiting for scores timed out! (this is not an issue with mysql. please report to aj!)");
 					return new HashMap<String, Double>();
 				}
 				try {
-					Thread.sleep(5);
+					Thread.sleep(10);
 				} catch (InterruptedException e) {
 					return new HashMap<String, Double>();
 				}
@@ -109,9 +112,11 @@ public class Scores {
 			}
 			return map;
 		}
-		if(scoresCache.containsKey(nameKeys) && scoresGotten.get(nameKeys)+1000 < System.currentTimeMillis()) {
+		if(scoresCache.containsKey(nameKeys) && (scoresGotten.get(nameKeys) - System.currentTimeMillis()) >= ((long)-1500)) {
+			//plugin.getLogger().info("cached "+(scoresGotten.get(nameKeys) - System.currentTimeMillis()));
 			return scoresCache.get(nameKeys);
 		}
+		//plugin.getLogger().info("not cached");
 		if(area == null) {
 			area = "null";
 		}
@@ -175,7 +180,7 @@ public class Scores {
 							
 							
 							scoresGetting.put(nameKeys, false);
-							scoresCache.put(nameKeys, map);
+							scoresCache.put(nameKeys, map == null ? new HashMap<>() : map);
 							scoresGotten.put(nameKeys, System.currentTimeMillis());
 							
 							
