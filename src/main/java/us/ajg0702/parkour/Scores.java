@@ -93,7 +93,7 @@ public class Scores {
 	public HashMap<String, Double> getTopScores(boolean nameKeys, String area) {
 		
 		if(scoresGetting.containsKey(nameKeys) && scoresGetting.get(nameKeys)) {
-			plugin.getLogger().info("getting");
+			//plugin.getLogger().info("getting");
 			int i = 0;
 			HashMap<String, Double> map = null;
 			//plugin.getLogger().info("[DEBUG] Waiting for data to be available");
