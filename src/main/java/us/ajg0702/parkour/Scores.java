@@ -77,9 +77,9 @@ public class Scores {
 		return getTopScores(true, null);
 	}
 	
-	HashMap<Boolean, Long> scoresGotten = new HashMap<>();
-	HashMap<Boolean, HashMap<String, Double>> scoresCache = new HashMap<>();
-	HashMap<Boolean, Boolean> scoresGetting = new HashMap<>();
+	HashMap<String, Long> scoresGotten = new HashMap<>();
+	HashMap<String, HashMap<String, Double>> scoresCache = new HashMap<>();
+	HashMap<String, Boolean> scoresGetting = new HashMap<>();
 	
 	/**
      * For getting all players scores for sorting.
@@ -92,7 +92,7 @@ public class Scores {
      */
 	public HashMap<String, Double> getTopScores(boolean nameKeys, String area) {
 		
-		if(scoresGetting.containsKey(nameKeys) && scoresGetting.get(nameKeys)) {
+		if(scoresGetting.containsKey(nameKeys+area) && scoresGetting.get(nameKeys+area)) {
 			//plugin.getLogger().info("getting");
 			int i = 0;
 			HashMap<String, Double> map = null;
@@ -107,14 +107,14 @@ public class Scores {
 				} catch (InterruptedException e) {
 					return new HashMap<String, Double>();
 				}
-				map = scoresCache.get(nameKeys);
+				map = scoresCache.get(nameKeys+area);
 				i++;
 			}
 			return map;
 		}
-		if(scoresCache.containsKey(nameKeys) && (scoresGotten.get(nameKeys) - System.currentTimeMillis()) >= ((long)-1500)) {
+		if(scoresCache.containsKey(nameKeys+area) && (scoresGotten.get(nameKeys+area) - System.currentTimeMillis()) >= ((long)-1500)) {
 			//plugin.getLogger().info("cached "+(scoresGotten.get(nameKeys) - System.currentTimeMillis()));
-			return scoresCache.get(nameKeys);
+			return scoresCache.get(nameKeys+area);
 		}
 		//plugin.getLogger().info("not cached");
 		if(area == null) {
@@ -126,8 +126,8 @@ public class Scores {
 		LinkedHashMap<String, Double> map = new LinkedHashMap<String, Double>();
 		
 		if(method.equals("mysql")) {
-			scoresGetting.put(nameKeys, true);
-			scoresCache.put(nameKeys, null);
+			scoresGetting.put(nameKeys+area, true);
+			scoresCache.put(nameKeys+area, null);
 			try {
 				Connection conn = getConnection();
 						try {
@@ -179,9 +179,9 @@ public class Scores {
 							}
 							
 							
-							scoresGetting.put(nameKeys, false);
-							scoresCache.put(nameKeys, map == null ? new HashMap<>() : map);
-							scoresGotten.put(nameKeys, System.currentTimeMillis());
+							scoresGetting.put(nameKeys+area, false);
+							scoresCache.put(nameKeys+area, map == null ? new HashMap<>() : map);
+							scoresGotten.put(nameKeys+area, System.currentTimeMillis());
 							
 							
 						} catch(Exception e) {
@@ -562,9 +562,9 @@ public class Scores {
 				}
 				if(size <= 0) {
 					conn.createStatement().executeUpdate("insert into "+tablename+" (id, score, name, material) "
-						+ "values ('"+uuid+"', {}, "+Bukkit.getOfflinePlayer(uuid).getName()+", "+mat.toString()+")");
+						+ "values ('"+uuid+"', '{}', '"+Bukkit.getOfflinePlayer(uuid).getName()+"', '"+mat.toString()+"')");
 				} else {
-					conn.createStatement().executeUpdate("update "+tablename+" set material=\"" + mat + "\" where id='"+uuid.toString()+"'");
+					conn.createStatement().executeUpdate("update "+tablename+" set material='" + mat + "' where id='"+uuid.toString()+"'");
 				}
 				conn.close();
 			} catch (SQLException e) {
