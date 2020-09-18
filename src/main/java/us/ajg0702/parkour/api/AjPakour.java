@@ -3,6 +3,7 @@ package us.ajg0702.parkour.api;
 import org.bukkit.entity.Player;
 
 import us.ajg0702.parkour.game.Manager;
+import us.ajg0702.parkour.Main;
 
 public class AjPakour {
 	
@@ -22,6 +23,10 @@ public class AjPakour {
 	 */
 	public static boolean playerInParkour(Player ply) {
 		return Manager.getInstance().getPlayer(ply) != null;
+	}
+
+	public static Scores getScoreManager() {
+		return ((Main)Bukkit.getPluginManager().getPlugin("ajParkour")).scores;
 	}
 	
 }
