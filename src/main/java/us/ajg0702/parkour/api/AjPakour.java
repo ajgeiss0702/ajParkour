@@ -25,6 +25,10 @@ public class AjPakour {
 		return Manager.getInstance().getPlayer(ply) != null;
 	}
 
+	/**
+	* Gets the score manager
+	* @return The score manager. Can be used to get/set player scores.
+	*/
 	public static Scores getScoreManager() {
 		return ((Main)Bukkit.getPluginManager().getPlugin("ajParkour")).scores;
 	}
