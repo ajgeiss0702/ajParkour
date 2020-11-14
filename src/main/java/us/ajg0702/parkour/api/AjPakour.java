@@ -1,9 +1,11 @@
 package us.ajg0702.parkour.api;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import us.ajg0702.parkour.game.Manager;
 import us.ajg0702.parkour.Main;
+import us.ajg0702.parkour.Scores;
 
 public class AjPakour {
 	
