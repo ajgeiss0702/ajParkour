@@ -65,6 +65,12 @@
             <version>1.6.4</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>us.ajg0702</groupId>
+            <artifactId>ajUtils</artifactId>
+            <version>1.0.0</version>
+            <scope>compile</scope>
+        </dependency>
 
     </dependencies>
 
@@ -107,6 +113,10 @@
 		          <relocation>
 		            <pattern>com.zaxxer.hikari</pattern>
 		            <shadedPattern>us.ajg0702.parkour.hikari</shadedPattern>
+		          </relocation>
+		          <relocation>
+		            <pattern>us.ajg0702.utils</pattern>
+		            <shadedPattern>us.ajg0702.parkour.utils</shadedPattern>
 		          </relocation>
 		        </relocations>
 		      </configuration>

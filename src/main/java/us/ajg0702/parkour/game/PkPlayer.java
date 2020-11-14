@@ -30,7 +30,7 @@ import us.ajg0702.parkour.api.events.PlayerJumpEvent;
 import us.ajg0702.parkour.api.events.PlayerStartParkourEvent;
 import us.ajg0702.parkour.api.events.PrePlayerStartParkourEvent;
 import us.ajg0702.parkour.game.Manager;
-import us.ajg0702.parkour.utils.Config;
+import us.ajg0702.utils.spigot.Config;
 import us.ajg0702.parkour.utils.InvManager;
 import us.ajg0702.parkour.utils.VersionSupport;
 
@@ -195,11 +195,14 @@ public class PkPlayer implements Listener {
 			try {
 				InvManager.saveInventory(ply);
 				ply.getInventory().clear();
-				ItemStack bsItem = new ItemStack(Material.CHEST, 1); // bs = block selector
-				ItemMeta bsMeta = bsItem.getItemMeta();
-				bsMeta.setDisplayName(msgs.get("items.blockselector.name"));
-				bsItem.setItemMeta(bsMeta);
-				ply.getInventory().setItem(4, bsItem);
+				if(config.getBoolean("enable-block-selector-item")) {
+					ItemStack bsItem = new ItemStack(Material.CHEST, 1); // bs = block selector
+					ItemMeta bsMeta = bsItem.getItemMeta();
+					bsMeta.setDisplayName(msgs.get("items.blockselector.name"));
+					bsItem.setItemMeta(bsMeta);
+					ply.getInventory().setItem(4, bsItem);
+				}
+				
 			} catch (IOException e) {
 				ply.sendMessage("&cAn error occured while trying to save your inventory!");
 				Bukkit.getLogger().severe("[ajParkour] An error occured while trying to save player's inventory:");
@@ -291,6 +294,9 @@ public class PkPlayer implements Listener {
 	}
 	private void playSound(String configkey, Player ply, Location loc) {
 		String soundraw = plugin.getAConfig().getString(configkey);
+		if(VersionSupport.getMinorVersion() <= 8 && soundraw.equalsIgnoreCase("ENTITY_CHICKEN_EGG")) {
+			soundraw = "CHICKEN_EGG_POP";
+		}
 		if(soundraw == null) return;
 		if(!soundraw.equalsIgnoreCase("none")) {
 			Sound sound = null;

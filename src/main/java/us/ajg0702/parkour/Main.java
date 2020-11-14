@@ -16,9 +16,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import net.md_5.bungee.api.ChatColor;
 import us.ajg0702.parkour.game.Manager;
-import us.ajg0702.parkour.utils.Config;
 import us.ajg0702.parkour.utils.Updater;
 import us.ajg0702.parkour.utils.VersionSupport;
+import us.ajg0702.utils.spigot.Config;
 
 public class Main extends JavaPlugin {
 	
@@ -53,7 +53,9 @@ public class Main extends JavaPlugin {
 			return;
 		}
 		
-		String popSound = "ENTITY_CHICKEN_EGG";
+		config = new Config(this);
+		
+		/*String popSound = "ENTITY_CHICKEN_EGG";
 		//System.out.println("Minor Version: 1."+VersionSupport.getMinorVersion());
 		
 		if(VersionSupport.getMinorVersion() <= 8) {
@@ -84,7 +86,7 @@ public class Main extends JavaPlugin {
 		config.addEntry("faster-portals", false, "Shoud we use a more optimized method to look if players are at a portal?\nIt may require the player to be in the block for a little longer\nEnable this if you have a lot of people on your server and are experiencing lag.\n Default: false");
 		config.addEntry("enable-updater", true, "Should the updater be enabled?\nIf this is disabled, the plugin will not attempt to check for updates, and you will have to download new updates manually\nRequires a restart\n Default: true");
 		config.addEntry("faster-afk-detection", false, "Should we apply faster-portals to the afk detections?\n Default: false");
-		config.setEntries();
+		config.setEntries();*/
 		
 		
 		msgs = new Messages(this);

@@ -20,7 +20,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import us.ajg0702.parkour.game.Difficulty;
 import us.ajg0702.parkour.game.Manager;
 import us.ajg0702.parkour.game.PkArea;
-import us.ajg0702.parkour.utils.Config;
+import us.ajg0702.utils.spigot.Config;
 
 public class AreaStorage implements Listener {
 

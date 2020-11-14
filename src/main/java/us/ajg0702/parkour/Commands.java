@@ -1,6 +1,7 @@
 package us.ajg0702.parkour;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -20,7 +21,7 @@ import us.ajg0702.parkour.game.Difficulty;
 import us.ajg0702.parkour.game.Manager;
 import us.ajg0702.parkour.game.PkArea;
 import us.ajg0702.parkour.game.PkPlayer;
-import us.ajg0702.parkour.utils.Config;
+import us.ajg0702.utils.spigot.Config;
 import us.ajg0702.parkour.utils.Updater;
 
 public class Commands implements CommandExecutor {
@@ -73,7 +74,7 @@ public class Commands implements CommandExecutor {
 				}
 				
 				if(sply != null) {
-					if(config.inCommaList("start-disabled-worlds", sply.getWorld().getName())) {
+					if(Arrays.asList(config.getString("start-disabled-worlds").split(",")).contains(sply.getWorld().getName())) {
 						sply.sendMessage(msgs.get("disabledworld"));
 						return true;
 					}
