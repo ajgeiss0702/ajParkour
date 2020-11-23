@@ -195,7 +195,9 @@ public class PkPlayer implements Listener {
 			try {
 				InvManager.saveInventory(ply);
 				ply.getInventory().clear();
-				if(config.getBoolean("enable-block-selector-item")) {
+				boolean requirePerm = config.getBoolean("require-permission-for-block-selector-item");
+				if(config.getBoolean("enable-block-selector-item") &&
+						(!requirePerm || (requirePerm && ply.getPlayer().hasPermission("ajparkour.selector")))) {
 					ItemStack bsItem = new ItemStack(Material.CHEST, 1); // bs = block selector
 					ItemMeta bsMeta = bsItem.getItemMeta();
 					bsMeta.setDisplayName(msgs.get("items.blockselector.name"));
@@ -266,7 +268,11 @@ public class PkPlayer implements Listener {
 		PkJump nj = new PkJump(this, prevJump);
 		nj.place();
 		jumps.add(nj);
-		VersionSupport.sendActionBar(ply, msgs.get("score").replaceAll("\\{SCORE\\}", score+""));
+		VersionSupport.sendActionBar(ply, 
+				msgs.get("score")
+				.replaceAll("\\{SCORE\\}", score+"")
+				.replaceAll("\\{HIGHSCORE\\}", prevhigh < 0 ? "0" : prevhigh+"")
+				);
 		
 		if(score == prevhigh && prevhigh > 0) {
 			ply.sendMessage(msgs.get("beatrecord-ingame", ply).replaceAll("\\{SCORE\\}", prevhigh+""));

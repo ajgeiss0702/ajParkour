@@ -1,5 +1,5 @@
 # Dont change this please
-config-version: 1
+config-version: 2
 
 # The method to fill multiple multiple parkour areas.
 # If you only have one, this option is ignored.
@@ -101,3 +101,8 @@ new-block-particle: CLOUD
 # If this is disabled, the parkour inventory will just be blank
 #  Default: true
 enable-block-selector-item: true
+
+# Should we require the player to have the ajparkour.selector permission to get the block selector item?
+# (for the parkour inventory)
+#  Default: false
+require-permission-for-block-selector-item: false
