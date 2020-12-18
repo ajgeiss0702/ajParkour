@@ -54,10 +54,11 @@ public class Scores {
 			String database = storageConfig.getString("mysql.database");
 			String table = storageConfig.getString("mysql.table");
 			boolean useSSL = storageConfig.getBoolean("mysql.useSSL");
+			boolean allowPublicKeyRetrieval = storageConfig.getBoolean("mysql.allowPublicKeyRetrieval");
 			int mincount = storageConfig.getInt("mysql.minConnections");
 			int maxcount = storageConfig.getInt("mysql.maxConnections");
 			try {
-				initDatabase(ip, username, password, database, table, useSSL, mincount, maxcount);
+				initDatabase(ip, username, password, database, table, useSSL, allowPublicKeyRetrieval, mincount, maxcount);
 			} catch (Exception e) {
 				System.err.println("Could not connect to database! Switching to file storage. Error: ");
 				e.printStackTrace();
@@ -320,8 +321,8 @@ public class Scores {
 		}
 	}
 	
-	private void initDatabase(String ip, String username, String password, String database, String table, boolean useSSL, int minConnections, int maxConnections) throws Exception {
-		String url = "jdbc:mysql://"+ip+"/"+database+"?useSSL="+useSSL+"";
+	private void initDatabase(String ip, String username, String password, String database, String table, boolean useSSL, boolean allowPublicKeyRetrieval, int minConnections, int maxConnections) throws Exception {
+		String url = "jdbc:mysql://"+ip+"/"+database+"?useSSL="+useSSL+"&allowPublicKeyRetrieval="+allowPublicKeyRetrieval+"";
 		hconfig.setJdbcUrl(url);
 		hconfig.setDriverClassName("com.mysql.jdbc.Driver");
 		hconfig.setUsername(username);
