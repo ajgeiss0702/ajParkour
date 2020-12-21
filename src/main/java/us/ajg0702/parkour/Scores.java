@@ -24,29 +24,29 @@ import com.zaxxer.hikari.HikariDataSource;
 import us.ajg0702.parkour.game.Manager;
 
 public class Scores {
-	
+
 	Main plugin;
 	File storageConfigFile;
 	YamlConfiguration storageConfig;
-	
+
 	File scoresFile;
 	YamlConfiguration scores;
 	String tablename;
-	
+
 	String method;
-	
+
 	private HikariConfig hconfig = new HikariConfig();
 	HikariDataSource ds;
-	
+
 
 	public Scores(Main pl) {
 		plugin = pl;
 		storageConfigFile = new File(pl.getDataFolder(), "storage.yml");
 		storageConfig = YamlConfiguration.loadConfiguration(storageConfigFile);
-		
+
 		checkStorageConfig();
-		
-		
+
+
 		if(storageConfig.getString("method").equalsIgnoreCase("mysql")) {
 			String ip = storageConfig.getString("mysql.ip");
 			String username = storageConfig.getString("mysql.username");
@@ -69,7 +69,7 @@ public class Scores {
 		}
 		getPlayers();
 	}
-	
+
 	/**
 	 * For getting all players and their names in a sorted map
 	 * @return A sorted HashMap&lt;String player, Double score&gt;
@@ -77,11 +77,11 @@ public class Scores {
 	public HashMap<String, Double> getTopScores() {
 		return getTopScores(true, null);
 	}
-	
+
 	HashMap<String, Long> scoresGotten = new HashMap<>();
 	HashMap<String, HashMap<String, Double>> scoresCache = new HashMap<>();
 	HashMap<String, Boolean> scoresGetting = new HashMap<>();
-	
+
 	/**
      * For getting all players scores for sorting.
      *
@@ -92,7 +92,7 @@ public class Scores {
      * @return map with a list of all scores.
      */
 	public HashMap<String, Double> getTopScores(boolean nameKeys, String area) {
-		
+
 		if(scoresGetting.containsKey(nameKeys+area) && scoresGetting.get(nameKeys+area)) {
 			//plugin.getLogger().info("getting");
 			int i = 0;
@@ -125,7 +125,7 @@ public class Scores {
 			plugin.getLogger().warning("[scores] Could not find area '"+area+"'!");
 		}
 		LinkedHashMap<String, Double> map = new LinkedHashMap<String, Double>();
-		
+
 		if(method.equals("mysql")) {
 			scoresGetting.put(nameKeys+area, true);
 			scoresCache.put(nameKeys+area, null);
@@ -143,8 +143,8 @@ public class Scores {
 								return new LinkedHashMap<String, Double>();
 							}
 							p.first();
-							
-							
+
+
 							while(p.getRow() <= size) {
 								String key;
 								if(nameKeys) {
@@ -169,22 +169,22 @@ public class Scores {
 									highest = raw == null ? -1 : Math.round((long) raw);
 								}
 								map.put(key, Double.valueOf(highest));
-								
+
 								//plugin.getLogger().info(p.getRow() + " " + size);
-								
+
 								if(p.getRow() != size) {
 									p.next();
 								} else {
 									break;
 								}
 							}
-							
-							
+
+
 							scoresGetting.put(nameKeys+area, false);
 							scoresCache.put(nameKeys+area, map == null ? new HashMap<>() : map);
 							scoresGotten.put(nameKeys+area, System.currentTimeMillis());
-							
-							
+
+
 						} catch(Exception e) {
 							Bukkit.getLogger().severe("[ajParkour] An error occured when attempting get all players' scores:");
 							e.printStackTrace();
@@ -195,7 +195,7 @@ public class Scores {
 				/*if(cache.containsKey(uuid)) {
 					return (JSONObject) new JSONParser().parse(cache.get(uuid));
 				} else {
-					return new JSONObject(); 
+					return new JSONObject();
 				}*/
 			} catch (Exception e) {
 				Bukkit.getLogger().severe("[ajParkour] An error occured when attempting get all players' scores:");
@@ -242,16 +242,16 @@ public class Scores {
 				map.put(key, Double.valueOf(highest));
 			}
 		}
-		
+
 		//map = plugin.sortByValue(map);
 		return map;
 	}
-	
+
 	HashMap<UUID, String> playerNameCache = new HashMap<>();
 	public LinkedHashMap<String, Double> getSortedScores(boolean nameKeys, String area) {
 		return plugin.sortByValue(getTopScores(nameKeys, area));
 	}
-	
+
 	private void checkStorageConfig() {
 		Map<String, Object> v = new HashMap<String, Object>();
 		v.put("method", "yaml");
@@ -263,9 +263,9 @@ public class Scores {
 		v.put("mysql.useSSL", false);
 		v.put("mysql.minConnections", 1);
 		v.put("mysql.maxConnections", 10);
-		
+
 		boolean save = false;
-		
+
 		storageConfig.options().header("\n\nThis file tells the plugin where it\n"
 				+ "should store player high scores.\n\n"
 				+ "The method option can either be 'yaml' or 'mysql'.\n"
@@ -283,15 +283,15 @@ public class Scores {
 				e.printStackTrace();
 			}
 		}
-		
+
 	}
-	
+
 	private void initYaml() {
 		method = "yaml";
 		scoresFile = new File(plugin.getDataFolder(), "scores.yml");
 		scores = YamlConfiguration.loadConfiguration(scoresFile);
 		scores.options().header("\n\nThis is the scores file.\nEveryone's high scores are stored here.\n\nTheres not really any reason to edit this file.\n \n ");
-		
+
 		boolean save = false;
 		for(String key : scores.getKeys(false)) {
 			Object value = scores.get(key);
@@ -309,7 +309,7 @@ public class Scores {
 			}
 		}
 	}
-	
+
 	public Connection getConnection() {
 		if(ds == null) return null;
 		try {
@@ -320,7 +320,7 @@ public class Scores {
 			return null;
 		}
 	}
-	
+
 	private void initDatabase(String ip, String username, String password, String database, String table, boolean useSSL, boolean allowPublicKeyRetrieval, int minConnections, int maxConnections) throws Exception {
 		String url = "jdbc:mysql://"+ip+"/"+database+"?useSSL="+useSSL+"&allowPublicKeyRetrieval="+allowPublicKeyRetrieval+"";
 		hconfig.setJdbcUrl(url);
@@ -352,7 +352,7 @@ public class Scores {
 		} catch(Exception e) {}
 		conn.close();
 	}
-	
+
 	public int getScore(UUID uuid, String area) {
 		if(area == null) {
 			area = "null";
@@ -374,7 +374,7 @@ public class Scores {
 		}
 		return highest;
 	}
-	
+
 	public JSONObject getJsonObject(String raw) {
 		if(raw == null) {
 			raw = "{}";
@@ -393,12 +393,12 @@ public class Scores {
 	}
 	public JSONObject getJsonObject(UUID uuid) {
 		if(method.equals("yaml")) {
-			
+
 			String raw = scores.getString(uuid.toString()+".score", "{}");
 			if(isInt(raw)) {
 				raw = "{\"null\":"+raw+"}";
 			}
-			
+
 			try {
 				JSONObject o = (JSONObject) new JSONParser().parse(raw);
 				return o;
@@ -407,7 +407,7 @@ public class Scores {
 				e.printStackTrace();
 				return new JSONObject();
 			}
-			
+
 		} else if(method.equals("mysql")) {
 			try {
 				Connection conn = getConnection();
@@ -423,14 +423,14 @@ public class Scores {
 								return new JSONObject();
 							}
 							p.first();
-							
-							
+
+
 							String raw = p.getString(1);
 							if(isInt(raw)) {
 								raw = "{\"null\":"+raw+"}";
 							}
-							
-							
+
+
 							conn.close();
 							return (JSONObject) new JSONParser().parse(raw);
 						} catch(Exception e) {
@@ -441,7 +441,7 @@ public class Scores {
 				/*if(cache.containsKey(uuid)) {
 					return (JSONObject) new JSONParser().parse(cache.get(uuid));
 				} else {
-					return new JSONObject(); 
+					return new JSONObject();
 				}*/
 			} catch (Exception e) {
 				Bukkit.getLogger().severe("[ajParkour] An error occured when attempting get a player's score:");
@@ -452,13 +452,13 @@ public class Scores {
 		Bukkit.getLogger().severe("[ajParkour] getJsonObject() could not find a method!");
 		return new JSONObject();
 	}
-	
+
 	HashMap<UUID, Integer> timeCache = new HashMap<>();
 	public int getTime(UUID uuid) {
 		if(method.equals("yaml")) {
-			
+
 			return scores.getInt(uuid.toString()+".time", -1);
-			
+
 		} else if(method.equals("mysql")) {
 					try {
 						Connection conn = getConnection();
@@ -484,7 +484,7 @@ public class Scores {
 		Bukkit.getLogger().severe("[ajParkour] getTime() could not find a method!");
 		return -1;
 	}
-	
+
 	private void saveYaml() {
 		try {
 			scores.save(scoresFile);
@@ -493,7 +493,7 @@ public class Scores {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public void setScore(UUID uuid, int score, int secs, final String area) {
 		Runnable r = new Runnable() {
@@ -547,7 +547,7 @@ public class Scores {
 			Bukkit.getScheduler().runTaskAsynchronously(plugin, r);
 		}
 	}
-	
+
 	public void setMaterial(UUID uuid, String mat) {
 		if(method.equals("yaml")) {
 			scores.set(uuid.toString()+".material", mat.toString());
@@ -574,13 +574,13 @@ public class Scores {
 			}
 		}
 	}
-	
+
 	//HashMap<UUID, String> materialCache = new HashMap<>();
 	public String getMaterial(UUID uuid) {
 		if(method.equals("yaml")) {
-			
+
 			return scores.getString(uuid.toString()+".material", "RANDOM");
-			
+
 		} else if(method.equals("mysql")) {
 					try {
 						Connection conn = getConnection();
@@ -611,12 +611,12 @@ public class Scores {
 		Bukkit.getLogger().severe("[ajParkour] getMaterial() could not find a method!");
 		return "RANDOM";
 	}
-	
+
 	public String getName(UUID uuid) {
 		if(method.equals("yaml")) {
-			
+
 			return scores.getString(uuid.toString()+".name", Bukkit.getOfflinePlayer(uuid).getName());
-			
+
 		} else if(method.equals("mysql")) {
 			try {
 				Connection conn = getConnection();
@@ -641,7 +641,7 @@ public class Scores {
 		Bukkit.getLogger().severe("[ajParkour] getName() could not find a method!");
 		return null;
 	}
-	
+
 	public List<UUID> getPlayers() {
 		if(method.equals("yaml")) {
 			List<UUID> uuids = new ArrayList<UUID>();
@@ -688,7 +688,7 @@ public class Scores {
 		Bukkit.getLogger().severe("[ajParkour] getPlayers() could not find a method!");
 		return null;
 	}
-	
+
 	public void updateName(UUID uuid) {
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
 			public void run() {
@@ -706,7 +706,7 @@ public class Scores {
 							r.last();
 							size = r.getRow();
 						}
-						
+
 						if(size > 0) {
 							conn.createStatement().executeUpdate("update "+tablename+" set name='"+newname+"' where id='"+uuid.toString()+"'");
 						} else {
@@ -717,12 +717,12 @@ public class Scores {
 						Bukkit.getLogger().severe("[ajParkour] An error occured while trying to update name for player " + newname+":");
 						e.printStackTrace();
 					}
-					
+
 				}
 			}
 		});
 	}
-	
+
 	public int getGamesPlayed(UUID uuid) {
 		if(method.equals("yaml")) {
 			return scores.getInt(uuid.toString()+".gamesplayed", 0);
@@ -749,7 +749,7 @@ public class Scores {
 				return -1;
 			}
 		}
-		
+
 		plugin.getLogger().warning("getGamesPlayed() could not find a method!");
 		return -1;
 	}
@@ -768,7 +768,7 @@ public class Scores {
 					r.last();
 					size = r.getRow();
 				}
-				
+
 				if(size > 0) {
 					conn.createStatement().executeUpdate("update "+tablename+" set gamesplayed='"+newgp+"' where id='"+uuid.toString()+"'");
 				} else {
@@ -781,11 +781,11 @@ public class Scores {
 			}
 			return;
 		}
-		
+
 		plugin.getLogger().warning("addToGamesPlayed() could not find a method!");
 		return;
 	}
-	
+
 	public int migrate(String from) {
 		if(method.equalsIgnoreCase(from)) {
 			return 0;
@@ -793,7 +793,7 @@ public class Scores {
 		if(from.equalsIgnoreCase("yaml")) {
 			File sc = new File(plugin.getDataFolder(), "scores.yml");
 			YamlConfiguration s = YamlConfiguration.loadConfiguration(sc);
-			
+
 			int count = 0;
 			for(String key : s.getKeys(false)) {
 				UUID uuid = UUID.fromString(key);
@@ -828,13 +828,13 @@ public class Scores {
 			try {
 				con = DriverManager.getConnection(url, username, password);
 				con.createStatement().executeUpdate("create table if not exists "+table+" (id VARCHAR(36), score BIGINT(255), name VARCHAR(17))");
-				
+
 				ResultSet r = con.createStatement().executeQuery("select id,score,time from "+tablename);
 				int size = 0;
 				if(r != null) {
 					r.last();
 					size = r.getRow();
-					
+
 					int i = size;
 					while(i > 0) {
 						UUID uuid = UUID.fromString(r.getString(1));
@@ -846,7 +846,7 @@ public class Scores {
 						i--;
 						r.next();
 					}
-					
+
 				}
 				return size;
 			} catch (SQLException e) {
@@ -875,7 +875,7 @@ public class Scores {
 			try {
 				con = DriverManager.getConnection(url, username, password);
 				con.createStatement().executeUpdate("create table if not exists "+table+" (`id` int(11) NOT NULL AUTO_INCREMENT,`player` varchar(40) NOT NULL,`score` int(11) NOT NULL, PRIMARY KEY (`id`))");
-				
+
 				ResultSet r = con.createStatement().executeQuery("select * from "+table);
 				int size = 0;
 				//System.out.println("0");
@@ -885,7 +885,7 @@ public class Scores {
 					size = r.getRow();
 					//System.out.println("size: "+size);
 					r.first();
-					
+
 					int i = size;
 					while(i > 0) {
 						//System.out.println("2");
@@ -899,7 +899,7 @@ public class Scores {
 						i--;
 						r.next();
 					}
-					
+
 				}
 				return size;
 			} catch (SQLException e) {
@@ -909,19 +909,19 @@ public class Scores {
 		}
 		return -1;
 	}
-	
-	
-	
-	
+
+
+
+
 	public void reload() {
 		if(method.equals("yaml")) {
-			
+
 			storageConfig = YamlConfiguration.loadConfiguration(storageConfigFile);
 		}
 	}
-	
-	
-	
+
+
+
 	private boolean isInt(String str) {
 	    try {
 	        Integer.parseInt(str);
@@ -930,7 +930,7 @@ public class Scores {
 	        return false;
 	    }
 	}
-	
-	
+
+
 
 }
