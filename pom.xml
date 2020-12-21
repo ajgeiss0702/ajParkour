@@ -25,6 +25,10 @@
 		  <id>enginehub-maven</id>
 		  <url>http://maven.enginehub.org/repo/</url>
 		</repository>
+		<repository>
+		    <id>gitlab-maven</id>
+			<url>https://gitlab.com/api/v4/projects/19978391/packages/maven</url>
+		</repository>
     </repositories>
 
     <dependencies>
