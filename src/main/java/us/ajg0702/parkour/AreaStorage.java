@@ -359,7 +359,6 @@ public class AreaStorage implements Listener {
 			World playerworld = l.getWorld();
 			
 			if(!playerworld.equals(loc.getWorld())) continue;
-			if(!loc.getBlock().getChunk().isLoaded()) continue;
 			
 			int tx = loc.getBlockX();
 			int ty = loc.getBlockY();
