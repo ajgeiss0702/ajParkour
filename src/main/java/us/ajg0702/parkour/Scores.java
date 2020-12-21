@@ -260,6 +260,7 @@ public class Scores {
 		v.put("mysql.password", "");
 		v.put("mysql.database", "");
 		v.put("mysql.table", "ajparkour_scores");
+		v.put("mysql.allowPublicKeyRetrieval", false);
 		v.put("mysql.useSSL", false);
 		v.put("mysql.minConnections", 1);
 		v.put("mysql.maxConnections", 10);
