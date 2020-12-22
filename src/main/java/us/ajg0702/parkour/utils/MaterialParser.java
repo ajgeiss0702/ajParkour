@@ -25,6 +25,7 @@ public class MaterialParser {
 			mat = Material.valueOf(blockname.split(":")[0]);
 		} catch(Exception e) {
 			Bukkit.getLogger().warning("[ajParkour] Could not find block '"+blockname+"'!");
+			loc.getBlock().setType(Material.STONE);
 			return;
 		}
 		loc.getBlock().setType(mat);
