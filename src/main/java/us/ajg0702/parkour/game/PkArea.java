@@ -8,6 +8,8 @@ import java.util.Random;
 import org.bukkit.Location;
 import org.bukkit.World;
 
+import us.ajg0702.parkour.utils.ParticleRect;
+
 public class PkArea {
 	
 	Location pos1;
@@ -187,6 +189,14 @@ public class PkArea {
 		boolean zg = (z >= lowestZ) && (z <= highestZ);
 		
 		return xg && yg && zg;
+	}
+	
+	public void draw() {
+		int width = highestZ - lowestZ;
+		int length = highestX - lowestX;
+		int height = highestY - lowestY;
+		
+		new ParticleRect(new Location(pos1.getWorld(), lowestX, lowestY, lowestZ), width, length, height).draw();;
 	}
 	
 	
