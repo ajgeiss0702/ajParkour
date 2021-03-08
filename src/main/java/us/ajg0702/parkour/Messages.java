@@ -31,7 +31,13 @@ public class Messages {
 			"placeholders.current.no-data",
 			"palceholders.stats.time-format",
 			"fall.force.reasons.teleport",
-			"fall.force.afk"
+			"fall.force.afk",
+			"gui.selector.title",
+			"gui.selector.items.random.title",
+			"gui.selector.items.random.lore",
+			"gui.selector.items.selected.lore",
+			"gui.selector.items.nextpage.name",
+			"gui.selector.items.prevpage.name"
 			);
 	
 	public String get(String key, Player p) {
