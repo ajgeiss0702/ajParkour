@@ -252,10 +252,12 @@ public class PkJump {
 		}
 		closest = dirs[idx];
 		//ply.getPlayer().sendMessage(ply.msgs.color("&eClosest: " + closest+"\n&9-----------------"));
+
+		int goodr = Main.random(-10, 1);
 		
 		if(pos(zc) && zero(xc)) {
 			if(sfloatEquals(closest, 180f)) {
-				score += Main.random(0, 1);
+				score += goodr;
 			} else if(sfloatEquals(closest, 135f) || sfloatEquals(closest, -135f)) {
 				score += 1;
 			} else if(sfloatEquals(closest, -90f) || sfloatEquals(closest, 90f)) {
@@ -266,7 +268,7 @@ public class PkJump {
 			
 		} else if(pos(zc) && neg(xc)) {
 			if(floatEquals(closest, 45f)) {
-				score += Main.random(0, 1);
+				score += goodr;
 			} else if(sfloatEquals(closest, 90f) || sfloatEquals(closest, 0f)) {
 				score += 1;
 			} else if(sfloatEquals(closest, 135f) || sfloatEquals(closest, -45f)) {
@@ -276,7 +278,7 @@ public class PkJump {
 			}
 		} else if(neg(xc) && zero(zc)) {
 			if(floatEquals(closest, 90f)) {
-				score += Main.random(0, 1);
+				score += goodr;
 			} else if(sfloatEquals(closest, 45f) || sfloatEquals(closest, 135f)) {
 				score += 1;
 			} else if(sfloatEquals(closest, 0f) || sfloatEquals(closest, 180f)) {
@@ -286,7 +288,7 @@ public class PkJump {
 			}
 		} else if(neg(xc) && neg(zc)) {
 			if(floatEquals(closest, 135f)) {
-				score += Main.random(0, 1);
+				score += goodr;
 			} else if(sfloatEquals(closest, 90f) || sfloatEquals(closest, 180f)) {
 				score += 1;
 			} else if(sfloatEquals(closest, -135f) || sfloatEquals(closest, 45f)) {
@@ -296,7 +298,7 @@ public class PkJump {
 			}
 		} else if(neg(zc) && zero(xc)) {
 			if(floatEquals(closest, 0f)) {
-				score += Main.random(0, 1);
+				score += goodr;
 			} else if(sfloatEquals(closest, 45f) || sfloatEquals(closest, -45f)) {
 				score += 1;
 			} else if(sfloatEquals(closest, 90f) || sfloatEquals(closest, -90f)) {
@@ -306,7 +308,7 @@ public class PkJump {
 			}
 		} else if(pos(xc) && neg(zc)) {
 			if(floatEquals(closest, -135f)) {
-				score += Main.random(0, 1);
+				score += goodr;
 			} else if(sfloatEquals(closest, 180f) || sfloatEquals(closest, -90f)) {
 				score += 1;
 			} else if(sfloatEquals(closest, 135f) || sfloatEquals(closest, -45f)) {
@@ -316,7 +318,7 @@ public class PkJump {
 			}
 		} else if(pos(xc) && zero(zc)) {
 			if(floatEquals(closest, -90f)) {
-				score += Main.random(0, 1);
+				score += goodr;
 			} else if(sfloatEquals(closest, -45f) || sfloatEquals(closest, -135f)) {
 				score += 1;
 			} else if(sfloatEquals(closest, 0f) || sfloatEquals(closest, 180f)) {
@@ -326,7 +328,7 @@ public class PkJump {
 			}
 		} else if(pos(xc) && pos(zc)) {
 			if(floatEquals(closest, -45f)) {
-				score += Main.random(0, 1);
+				score += goodr;
 			} else if(sfloatEquals(closest, 0f) || sfloatEquals(closest, -90f)) {
 				score += 1;
 			} else if(sfloatEquals(closest, -135f) || sfloatEquals(closest, 45f)) {
