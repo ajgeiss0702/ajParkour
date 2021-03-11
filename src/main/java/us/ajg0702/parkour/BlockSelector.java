@@ -176,11 +176,13 @@ public class BlockSelector implements Listener {
 			rawselected = "random";
 		}
 		int selectedd = -1;
-		Material selected;
+		Material selected = null;
 		if(rawselected.equalsIgnoreCase("random")) {
 			selected = randomMat;
 		} else {
-			selected = Material.valueOf(rawselected.split(":")[0]);
+			try {
+				selected = Material.valueOf(rawselected.split(":")[0]);
+			} catch(IllegalArgumentException e) {}
 			if(rawselected.split(":").length > 1) {
 				selectedd = (!rawselected.split(":")[1].equalsIgnoreCase("true")) ? Integer.valueOf(rawselected.split(":")[1]) : -1;
 			}
@@ -204,7 +206,7 @@ public class BlockSelector implements Listener {
 		ItemMeta randomImeta = randomI.getItemMeta();
 		randomImeta.setDisplayName(msgs.get("gui.selector.items.random.title"));
 		randomImeta.setLore(Arrays.asList(msgs.get("gui.selector.items.random.lore").split("\n")));
-		if(selected.equals(randomMat)) {
+		if(selected != null && selected.equals(randomMat)) {
 			randomImeta.addEnchant(Enchantment.DAMAGE_ALL, 1, false);
 			if(VersionSupport.getMinorVersion() >= 8) {
 				randomImeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
@@ -248,7 +250,7 @@ public class BlockSelector implements Listener {
 				it = new ItemStack(Material.valueOf(m.split(":")[0]), 1, (short)d, (byte)((d == -1) ? 0 : d));
 			}
 			//Bukkit.getLogger().info(m+" == "+selected+"    &&    "+d+" == "+selectedd);
-			if(m.split(":")[0].equals(selected.toString()) && d == selectedd) {
+			if(m.split(":")[0].equals(selected+"") && d == selectedd) {
 				ItemMeta iMeta = it.getItemMeta();
 				iMeta.addEnchant(Enchantment.DAMAGE_ALL, 1, false);
 				if(VersionSupport.getMinorVersion() >= 8) {

@@ -60,6 +60,15 @@ public class Manager implements Listener {
 				checkActive();
 			}
 		}, 15*20, 60*20);
+		Bukkit.getScheduler().runTaskTimer(pl, new Runnable() {
+			public void run() {
+				if(main.config.getBoolean("debug")) {
+					for(PkArea a : getAreas()) {
+						a.draw();
+					}
+				}
+			}
+		}, 10, 20);
 	}
 	
 	/**
