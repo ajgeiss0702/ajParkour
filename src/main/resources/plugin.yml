@@ -1,5 +1,5 @@
 name: ajParkour
-version: ${project.version}
+version: "@VERSION@"
 author: ajgeiss0702
 description: Randomly generated parkour!
 website: https://www.spigotmc.org/resources/ajparkour.60909/
