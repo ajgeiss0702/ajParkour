@@ -5,3 +5,5 @@ dependency-reduced-pom.xml
 ajParkour.iml
 .settings
 build
+.gradle
+.DS_Store
