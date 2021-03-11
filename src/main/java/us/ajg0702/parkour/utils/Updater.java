@@ -94,6 +94,8 @@ public class Updater implements Listener {
                     }
                     
                     latestVersion = string;
+
+                    if(latestVersion.isEmpty()) return;
 					
 					
 					
