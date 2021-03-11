@@ -37,7 +37,7 @@ public class Rewards {
 	
 	public void reload() {
 		rw = YamlConfiguration.loadConfiguration(rwFile);
-		rw.options().header("This is the rewards file.\nHere is a guide for this: https://ajgeiss72.gitbook.io/ajparkour/rewards");
+		rw.options().header("This is the rewards file.\nHere is a guide for this: https://wiki.ajg0702.us/ajparkour/configs/Rewards");
 		YamlConfiguration oldconfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "config.yml"));
 		if(!rw.isSet("intervals")) {
 			if(oldconfig.isSet("rewards.interval")) {

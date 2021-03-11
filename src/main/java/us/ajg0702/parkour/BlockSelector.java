@@ -97,7 +97,7 @@ public class BlockSelector implements Listener {
 		}
 		blocksFile = new File(plugin.getDataFolder(), "blocks.yml");
 		blocks = YamlConfiguration.loadConfiguration(blocksFile);
-		blocks.options().header("This is where you can set what blocks to use.\nHere is a guide for the special things you can do in this file: https://ajgeiss72.gitbook.io/ajparkour/blocks\nHere is a list of block types for each version made by brc: https://wiki.brcdev.net/Materials\n Make sure to only use blocks (not items) or it will break!");
+		blocks.options().header("This is where you can set what blocks to use.\nHere is a guide for the special things you can do in this file: https://wiki.ajg0702.us/ajparkour/configs/Blocks\nHere is a list of block types for each version made by brc: https://wiki.brcdev.net/Materials\n Make sure to only use blocks (not items) or it will break!");
 		if(!blocks.isSet("blocks")) {
 			YamlConfiguration oldconfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "config.yml"));
 			if(oldconfig.isSet("blocks")) {

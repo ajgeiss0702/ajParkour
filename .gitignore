@@ -1,3 +1,9 @@
 target
 doc
 dependency-reduced-pom.xml
+.idea
+ajParkour.iml
+.settings
+build
+.gradle
+.DS_Store
