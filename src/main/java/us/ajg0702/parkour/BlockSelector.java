@@ -240,14 +240,14 @@ public class BlockSelector implements Listener {
 			int slot = 8+s;
 			ItemStack it;
 			if(VersionSupport.getMinorVersion() > 12) {
-				it = new ItemStack(Material.valueOf(m.split(":")[0]), 1);
+				it = new ItemStack(Material.valueOf(m.split(";")[0].split(":")[0]), 1);
 			} else {
 				
 				String[] parts = m.split(":");
 				if(parts.length > 1 && !parts[1].equalsIgnoreCase("true")) {
 					d = Integer.valueOf(parts[1]);
 				}
-				it = new ItemStack(Material.valueOf(m.split(":")[0]), 1, (short)d, (byte)((d == -1) ? 0 : d));
+				it = new ItemStack(Material.valueOf(m.split(";")[0].split(":")[0]), 1, (short)d, (byte)((d == -1) ? 0 : d));
 			}
 			//Bukkit.getLogger().info(m+" == "+selected+"    &&    "+d+" == "+selectedd);
 			if(m.split(":")[0].equals(selected+"") && d == selectedd) {
