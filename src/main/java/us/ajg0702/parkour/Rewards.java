@@ -9,15 +9,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import us.ajg0702.parkour.api.events.PlayerEndParkourEvent;
+import us.ajg0702.parkour.api.events.PlayerStartParkourEvent;
 import us.ajg0702.parkour.game.PkArea;
 import us.ajg0702.parkour.game.PkPlayer;
 
-public class Rewards {
+public class Rewards implements Listener {
 
 	Main plugin;
 	
@@ -31,6 +36,9 @@ public class Rewards {
 	public Rewards(Main plugin) {
 		this.plugin = plugin;
 		msgs = plugin.msgs;
+
+		Bukkit.getPluginManager().registerEvents(this, plugin);
+
 		rwFile = new File(plugin.getDataFolder(), "rewards.yml");
 		reload();
 	}
@@ -78,6 +86,14 @@ public class Rewards {
 		if(!rw.isSet("specials")) {
 			rw.set("specials.beat-server-record.message", "&a&lCongrats!&r&7 You reached the server high score!");
 			rw.set("specials.beat-server-record.commands", Arrays.asList("give {PLAYER} emerald 1"));
+		}
+		if(!rw.isSet("specials.start")) {
+			rw.set("specials.start.message", "");
+			rw.set("specials.start.commands", Arrays.asList());
+		}
+		if(!rw.isSet("specials.end")) {
+			rw.set("specials.end.message", "");
+			rw.set("specials.end.commands", Arrays.asList());
 		}
 		save();
 	}
@@ -304,7 +320,7 @@ public class Rewards {
 		//Bukkit.getLogger().info("First execute commands");
 		if(dontSkip) {
 			//Bukkit.getLogger().info("Going straight to executing commands");
-			staticExecuteCommands(cmds, p);
+			staticExecuteCommands(cmds, p.getPlayer());
 			return;
 		}
 		if(!plugin.config.getString("execute-reward-commands").equalsIgnoreCase("earned")) {
@@ -312,10 +328,36 @@ public class Rewards {
 			p.addCommands(cmds);
 			return;
 		}
-		staticExecuteCommands(cmds, p);
+		staticExecuteCommands(cmds, p.getPlayer());
+	}
+
+	@EventHandler
+	public void onStart(PlayerStartParkourEvent e) {
+		PkPlayer p = e.getParkourPlayer();
+		String m = rw.getString("specials.start.message");
+		if(!m.isEmpty()) {
+			if(plugin.papi) {
+				m = PlaceholderAPI.setPlaceholders(p.getPlayer(), m);
+			}
+			p.getPlayer().sendMessage(m);
+		}
+		staticExecuteCommands(rw.getStringList("specials.start.commands"), p.getPlayer());
+	}
+
+	@EventHandler
+	public void onFall(PlayerEndParkourEvent e) {
+		Player p = e.getPlayer();
+		String m = rw.getString("specials.end.message");
+		if(!m.isEmpty()) {
+			if(plugin.papi) {
+				m = PlaceholderAPI.setPlaceholders(p, m);
+			}
+			p.getPlayer().sendMessage(m);
+		}
+		staticExecuteCommands(rw.getStringList("specials.end.commands"), p);
 	}
 	
-	public static void staticExecuteCommands(List<String> cmds, PkPlayer p) {
+	public static void staticExecuteCommands(List<String> cmds, Player p) {
 		//Bukkit.getLogger().info("staticExecuteRewards is getting executed");
 		for(String cmdr : cmds) {
 			//Bukkit.getLogger().info("staticExecuteRewards: "+cmdr);

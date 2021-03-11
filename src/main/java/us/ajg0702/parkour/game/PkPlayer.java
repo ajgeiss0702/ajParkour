@@ -498,7 +498,7 @@ public class PkPlayer implements Listener {
 		}
 		
 		if(cmds.size() > 0) {
-			Rewards.staticExecuteCommands(cmds, this);
+			Rewards.staticExecuteCommands(cmds, getPlayer());
 		}
 		
 		PlayerEndParkourEvent ee = new PlayerEndParkourEvent(ply, score);
