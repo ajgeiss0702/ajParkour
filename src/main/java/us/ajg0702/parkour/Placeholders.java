@@ -181,16 +181,20 @@ public class Placeholders extends PlaceholderExpansion {
     		HashMap<String, String> playerCache = responseCache.get(player);
     		if(playerCache.containsKey(identifier)) {
     			return playerCache.get(identifier);
-    		}
-    	}
+    		} else {
+				if(plugin.config.getBoolean("debug")) {
+					plugin.getLogger().info("Cache does not have placeholder for player "+player.getName()+"! Returning "+identifier+" sync!");
+				}
+				return parsePlaceholder(player, identifier);
+			}
+    	} else {
+    		if(plugin.config.getBoolean("debug")) {
+				plugin.getLogger().info("Cache does not have player "+player.getName()+"! Returning "+identifier+" sync!");
+			}
+    		return parsePlaceholder(player, identifier);
+		}
     	
-    	
-    	
-        
- 
-        // We return null if an invalid placeholder (f.e. %someplugin_placeholder3%) 
-        // was provided
-        return null;
+
     }
     
     protected String parsePlaceholder(Player player, String identifier) {
