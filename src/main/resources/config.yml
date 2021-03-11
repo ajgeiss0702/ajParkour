@@ -1,5 +1,5 @@
 # Dont change this please
-config-version: 2
+config-version: 3
 
 # The method to fill multiple multiple parkour areas.
 # If you only have one, this option is ignored.
@@ -106,3 +106,7 @@ enable-block-selector-item: true
 # (for the parkour inventory)
 #  Default: false
 require-permission-for-block-selector-item: false
+
+# Some things that can help look for issues in the plugin
+#  Default: false
+debug: false
