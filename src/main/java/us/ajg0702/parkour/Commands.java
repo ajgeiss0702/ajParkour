@@ -395,6 +395,7 @@ public class Commands implements CommandExecutor {
 							}
 							editing.put("pos1", sply.getLocation());
 							sender.sendMessage(msgs.get("setup.set.pos1", sply));
+							checkAreaSize(sply, editing);
 							return true;
 						case "pos2":
 							if(editing.keySet().size() == 0) {
@@ -403,6 +404,7 @@ public class Commands implements CommandExecutor {
 							}
 							editing.put("pos2", sply.getLocation());
 							sender.sendMessage(msgs.get("setup.set.pos2", sply));
+							checkAreaSize(sply, editing);
 							return true;
 						case "fallpos":
 							if(editing.keySet().size() == 0) {
@@ -568,6 +570,39 @@ public class Commands implements CommandExecutor {
 			default:
 				sender.sendMessage(getMainHelp(sply, label));
 				return true;
+		}
+	}
+
+	public void checkAreaSize(Player p, HashMap<String, Object> editing) {
+		if(editing.containsKey("pos1") && editing.containsKey("pos2")) {
+			Location pos1 = (Location) editing.get("pos1");
+			Location pos2 = (Location) editing.get("pos2");
+
+			int x1 = pos1.getBlockX();
+			int y1 = pos1.getBlockY();
+			int z1 = pos1.getBlockZ();
+			int x2 = pos2.getBlockX();
+			int y2 = pos2.getBlockY();
+			int z2 = pos2.getBlockZ();
+
+			int highestX = (x1 < x2) ? x2 : x1;
+			int lowestX = (x1 > x2) ? x2 : x1;
+			int highestY = (y1 < y2) ? y2 : y1;
+			int lowestY = (y1 > y2) ? y2 : y1;
+			int highestZ = (z1 < z2) ? z2 : z1;
+			int lowestZ = (z1 > z2) ? z2 : z1;
+
+			int l = Math.abs(highestX - lowestX);
+			int h = Math.abs(highestY - lowestY);
+			int w = Math.abs(highestZ - lowestZ);
+
+			if(l < 20 || h < 20 || w < 20) {
+				p.sendMessage(msgs.get("setup.area.too-small")
+						.replaceAll("\\{w\\}", w+"")
+						.replaceAll("\\{h\\}", h+"")
+						.replaceAll("\\{l\\}", l+"")
+				);
+			}
 		}
 	}
 	

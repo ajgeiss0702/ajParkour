@@ -192,6 +192,7 @@ public class Messages {
 		msgDefaults.put("setup.diff.need-args", "&cPlease enter a difficulty! &7Valid difficulties are &feasy&7, &fmedium&7, &fhard&7, &fexpert&7, and &fbalanced&7.\n&aBalanced difficulty will make the parkour get harder as the player gets higher scores.");
 		msgDefaults.put("setup.save.not-done", "&cYou have not set all of the required settings! &7Check &f/{CMD} setup info&7 to see what you have left.");
 		msgDefaults.put("setup.save.success", "&aArena {NAME} saved and loaded!");
+		msgDefaults.put("setup.area.too-small", "&cThe area you just created does not meet the minimum reccomended size of 20x20x20!\n&7You can continue creating the area, but know you may run into issues with players running into each other, and possibly parkour going outside the area!\n&7Your area: {l}x{w}x{h} (XxZxY)");
 		
 		
 		msgDefaults.put("portals.list.header", "&2Parkour Portals");
