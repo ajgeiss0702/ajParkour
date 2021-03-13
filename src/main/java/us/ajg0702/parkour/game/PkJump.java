@@ -181,7 +181,7 @@ public class PkJump {
 	 * @param area The PkArea the block would be in
 	 * @param ply The player the block would belong to.
 	 * @param yaw a float with the player's yaw (left-right looking)
-	 * @return the score of a block. (usually 0-10)
+	 * @return the score of a block. (usually 0-10, but can be higher or lower)
 	 */
 	public static int getBlockScore(Location block, Location from, PkArea area, PkPlayer ply, float yaw) {
 		if(yaw < 0) {
