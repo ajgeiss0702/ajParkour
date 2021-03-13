@@ -40,49 +40,27 @@ public class PkJump {
 		int z = from.getBlockZ();
 		
 		List<Location> bks = new ArrayList<>();
-		
-		int max = 2;
-		int min = 2;
+
 		int maxy = 1;
 		
 		Difficulty d = ply.getArea().getDifficulty();
+
+		JumpManager jm = JumpManager.getInstance();
 		
 		if(d.equals(Difficulty.BALANCED)) {
 			d = Difficulty.EASY;
-			if(ply.getScore() >= 10) {
+			if(ply.getScore() >= jm.getBalancedStart(Difficulty.MEDIUM)) {
 				d = Difficulty.MEDIUM;
 			}
-			if(ply.getScore() >= 30) {
+			if(ply.getScore() >= jm.getBalancedStart(Difficulty.HARD)) {
 				d = Difficulty.HARD;
 			}
-			if(ply.getScore() >= 70) {
+			if(ply.getScore() >= jm.getBalancedStart(Difficulty.EXPERT)) {
 				d = Difficulty.EXPERT;
 			}
 		}
 		
-		switch(d) {
-			case EASY:
-				max = 2;
-				break;
-			case MEDIUM:
-				max = 3;
-				break;
-			case HARD:
-				max = 4;
-				min = 3;
-				break;
-			case EXPERT:
-				max = 5;
-				min = 4;
-				break;
-			case BALANCED:
-				max = 8;
-				break;
-			default:
-				break;
-		}
-		
-		int r = random(min, max);
+		int r = random(d.getMin(), d.getMax());
 		
 		//ply.getPlayer().sendMessage(ply.getScore()+":" + d.toString()+" ("+r+")");
 		

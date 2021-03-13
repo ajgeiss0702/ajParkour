@@ -15,6 +15,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import net.md_5.bungee.api.ChatColor;
+import us.ajg0702.parkour.game.JumpManager;
 import us.ajg0702.parkour.game.Manager;
 import us.ajg0702.parkour.utils.Updater;
 import us.ajg0702.parkour.utils.VersionSupport;
@@ -99,6 +100,8 @@ public class Main extends JavaPlugin {
 		areaStorage = new AreaStorage(this);
 		
 		rewards = new Rewards(this);
+
+		JumpManager.getInstance(this);
 		
 		
 		Bukkit.getScheduler().runTaskLaterAsynchronously(this, new Runnable() {
@@ -231,7 +234,7 @@ public class Main extends JavaPlugin {
 	}
 	
 	
-	final private List<String> reloadable = new LinkedList<String>(Arrays.asList("config", "areas", "messages", "blocks", "rewards", "scores"));
+	final private List<String> reloadable = new LinkedList<String>(Arrays.asList("config", "areas", "messages", "blocks", "rewards", "scores", "jumps"));
 	public List<String> getReloadable() {
 		return new ArrayList<>(reloadable);
 	}
@@ -257,6 +260,9 @@ public class Main extends JavaPlugin {
 			break;
 		case "scores":
 			scores.reload();
+			break;
+		case "jumps":
+			JumpManager.getInstance().reload();
 			break;
 		default:
 			sender.sendMessage("&cCould not find file for "+key+"!");

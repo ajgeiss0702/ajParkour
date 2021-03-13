@@ -524,7 +524,11 @@ public class Commands implements CommandExecutor {
 					sender.sendMessage(getSetupHelp(sply, label));
 					return true;
  				}
-				
+			case "difficulties":
+				for(Difficulty d : Difficulty.values()) {
+					sender.sendMessage(d.toString()+" ("+d.getMin()+"/"+d.getMax()+")");
+				}
+				return true;
 			case "reload":
 				if(!sender.hasPermission("ajparkour.reload")) {
 					sender.sendMessage(msgs.get("noperm"));
