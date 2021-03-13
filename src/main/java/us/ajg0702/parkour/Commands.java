@@ -589,16 +589,9 @@ public class Commands implements CommandExecutor {
 			int y2 = pos2.getBlockY();
 			int z2 = pos2.getBlockZ();
 
-			int highestX = (x1 < x2) ? x2 : x1;
-			int lowestX = (x1 > x2) ? x2 : x1;
-			int highestY = (y1 < y2) ? y2 : y1;
-			int lowestY = (y1 > y2) ? y2 : y1;
-			int highestZ = (z1 < z2) ? z2 : z1;
-			int lowestZ = (z1 > z2) ? z2 : z1;
-
-			int l = Math.abs(highestX - lowestX);
-			int h = Math.abs(highestY - lowestY);
-			int w = Math.abs(highestZ - lowestZ);
+			int l = Math.abs(Math.max(x1, x2) - Math.min(x1, x2));
+			int h = Math.abs(Math.max(y1, y2) - Math.min(y1, y2));
+			int w = Math.abs(Math.max(z1, z2) - Math.min(z1, z2));
 
 			if(l < 20 || h < 20 || w < 20) {
 				p.sendMessage(msgs.get("setup.area.too-small")
