@@ -1,13 +1,6 @@
 package us.ajg0702.parkour.game;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -193,32 +186,31 @@ public class PkJump {
 			yaw = Math.abs(yaw)*-1;
 		}
 		yaw *= -1; // I did the things below backwards, so this is a quick fix.
-		
-		
+
+
+
+		int score = 10;
 		
 		World world = block.getWorld();
 		int x = block.getBlockX();
 		int y = block.getBlockY();
 		int z = block.getBlockZ();
-		if(
-				!block.getBlock().getType().equals(Material.AIR) 
-				|| 
-				!new Location(world, x, y-1, z).getBlock().getType().equals(Material.AIR)
-				||
-				!new Location(world, x, y-2, z).getBlock().getType().equals(Material.AIR)
-				||
-				!new Location(world, x, y+3, z).getBlock().getType().equals(Material.AIR)
-				||
-				!new Location(world, x, y+1, z).getBlock().getType().equals(Material.AIR)
-				||
-				!new Location(world, x, y+2, z).getBlock().getType().equals(Material.AIR)
-				||
-				!new Location(world, x, y+3, z).getBlock().getType().equals(Material.AIR)
-				) {
-			return -50;
+		List<Location> shouldBeAir = Arrays.asList(
+				block,
+				new Location(world, x, y-1, z),
+				new Location(world, x, y-2, z),
+				new Location(world, x, y+3, z),
+				new Location(world, x, y+1, z),
+				new Location(world, x, y+2, z),
+				new Location(world, x, y+3, z)
+		);
+		boolean returnNow = false;
+		for(Location l : shouldBeAir) {
+			if(l.getBlock().getType().equals(Material.AIR)) continue;
+			returnNow = true;
+			score -= 50;
 		}
-		
-		int score = 10;
+		if(returnNow) return score;
 		
 		float[] dirs = new float[5];
 		dirs[0] = 0f; // +z
