@@ -280,7 +280,11 @@ public class PkPlayer implements Listener {
 		
 		
 		int particles = config.getInt("particle-count");
-		if(particles > 0 && VersionSupport.getMinorVersion() >= 9) {
+		if(
+				!config.getString("new-block-particle").equalsIgnoreCase("none")
+				&& particles > 0
+				&& VersionSupport.getMinorVersion() >= 9
+		) {
 			Location njl = nj.getTo();
 			ply.spawnParticle(Particle.valueOf(config.getString("new-block-particle")), njl.getBlockX()+0.5, njl.getBlockY()+0.5, njl.getBlockZ()+0.5, particles, 0.005, 0.001, 0.005);
 		}
