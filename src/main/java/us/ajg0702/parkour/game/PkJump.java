@@ -1,13 +1,6 @@
 package us.ajg0702.parkour.game;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -47,49 +40,27 @@ public class PkJump {
 		int z = from.getBlockZ();
 		
 		List<Location> bks = new ArrayList<>();
-		
-		int max = 2;
-		int min = 2;
+
 		int maxy = 1;
 		
 		Difficulty d = ply.getArea().getDifficulty();
+
+		JumpManager jm = JumpManager.getInstance();
 		
 		if(d.equals(Difficulty.BALANCED)) {
 			d = Difficulty.EASY;
-			if(ply.getScore() >= 10) {
+			if(ply.getScore() >= jm.getBalancedStart(Difficulty.MEDIUM)) {
 				d = Difficulty.MEDIUM;
 			}
-			if(ply.getScore() >= 30) {
+			if(ply.getScore() >= jm.getBalancedStart(Difficulty.HARD)) {
 				d = Difficulty.HARD;
 			}
-			if(ply.getScore() >= 70) {
+			if(ply.getScore() >= jm.getBalancedStart(Difficulty.EXPERT)) {
 				d = Difficulty.EXPERT;
 			}
 		}
 		
-		switch(d) {
-			case EASY:
-				max = 2;
-				break;
-			case MEDIUM:
-				max = 3;
-				break;
-			case HARD:
-				max = 4;
-				min = 3;
-				break;
-			case EXPERT:
-				max = 5;
-				min = 4;
-				break;
-			case BALANCED:
-				max = 8;
-				break;
-			default:
-				break;
-		}
-		
-		int r = random(min, max);
+		int r = random(d.getMin(), d.getMax());
 		
 		//ply.getPlayer().sendMessage(ply.getScore()+":" + d.toString()+" ("+r+")");
 		
@@ -141,7 +112,7 @@ public class PkJump {
 			sign.update();
 		}*/
 		
-		LinkedHashMap<Object, Double> scs = new LinkedHashMap<>();
+		LinkedHashMap<Object, Double> scs;
 		scs = main.sortByValueWithObjectKey(sc, false);
 		
 		
@@ -158,18 +129,16 @@ public class PkJump {
 				poss.put(key, v);
 			}
 		}
-		
-		List<Object> posskeys = new ArrayList<>();
-		posskeys.addAll(poss.keySet());
+
+		List<Object> posskeys = new ArrayList<>(poss.keySet());
 		
 		//System.out.println(posskeys.size()+" o: " + poss.keySet().size());
 		
 		int ki = Main.random(0, posskeys.size()-1);
-		Object k = posskeys.get(ki);
-		selected = k;
+		selected = posskeys.get(ki);
 		
 		
-		blocks = new ArrayList<Location>();
+		blocks = new ArrayList<>();
 		blocks.add((Location) selected);
 	}
 	
@@ -181,7 +150,7 @@ public class PkJump {
 	 * @param area The PkArea the block would be in
 	 * @param ply The player the block would belong to.
 	 * @param yaw a float with the player's yaw (left-right looking)
-	 * @return the score of a block. (usually 0-10)
+	 * @return the score of a block. (usually 0-10, but can be higher or lower)
 	 */
 	public static int getBlockScore(Location block, Location from, PkArea area, PkPlayer ply, float yaw) {
 		if(yaw < 0) {
@@ -193,32 +162,31 @@ public class PkJump {
 			yaw = Math.abs(yaw)*-1;
 		}
 		yaw *= -1; // I did the things below backwards, so this is a quick fix.
-		
-		
+
+
+
+		int score = 10;
 		
 		World world = block.getWorld();
 		int x = block.getBlockX();
 		int y = block.getBlockY();
 		int z = block.getBlockZ();
-		if(
-				!block.getBlock().getType().equals(Material.AIR) 
-				|| 
-				!new Location(world, x, y-1, z).getBlock().getType().equals(Material.AIR)
-				||
-				!new Location(world, x, y-2, z).getBlock().getType().equals(Material.AIR)
-				||
-				!new Location(world, x, y+3, z).getBlock().getType().equals(Material.AIR)
-				||
-				!new Location(world, x, y+1, z).getBlock().getType().equals(Material.AIR)
-				||
-				!new Location(world, x, y+2, z).getBlock().getType().equals(Material.AIR)
-				||
-				!new Location(world, x, y+3, z).getBlock().getType().equals(Material.AIR)
-				) {
-			return -50;
+		List<Location> shouldBeAir = Arrays.asList(
+				block,
+				new Location(world, x, y-1, z),
+				new Location(world, x, y-2, z),
+				new Location(world, x, y+3, z),
+				new Location(world, x, y+1, z),
+				new Location(world, x, y+2, z),
+				new Location(world, x, y+3, z)
+		);
+		boolean returnNow = false;
+		for(Location l : shouldBeAir) {
+			if(l.getBlock().getType().equals(Material.AIR)) continue;
+			returnNow = true;
+			score -= 50;
 		}
-		
-		int score = 10;
+		if(returnNow) return score;
 		
 		float[] dirs = new float[5];
 		dirs[0] = 0f; // +z
@@ -238,7 +206,7 @@ public class PkJump {
 		
 		
 		//ply.getPlayer().sendMessage(ply.msgs.color("&9----------------"));
-		float closest = 0;
+		float closest;
 		float distance = Math.abs(dirs[0] - yaw);
 		int idx = 0;
 		for(int c = 1; c < dirs.length; c++){
@@ -252,10 +220,12 @@ public class PkJump {
 		}
 		closest = dirs[idx];
 		//ply.getPlayer().sendMessage(ply.msgs.color("&eClosest: " + closest+"\n&9-----------------"));
+
+		int goodr = Main.random(-10, 1);
 		
 		if(pos(zc) && zero(xc)) {
 			if(sfloatEquals(closest, 180f)) {
-				score += Main.random(0, 1);
+				score += goodr;
 			} else if(sfloatEquals(closest, 135f) || sfloatEquals(closest, -135f)) {
 				score += 1;
 			} else if(sfloatEquals(closest, -90f) || sfloatEquals(closest, 90f)) {
@@ -266,7 +236,7 @@ public class PkJump {
 			
 		} else if(pos(zc) && neg(xc)) {
 			if(floatEquals(closest, 45f)) {
-				score += Main.random(0, 1);
+				score += goodr;
 			} else if(sfloatEquals(closest, 90f) || sfloatEquals(closest, 0f)) {
 				score += 1;
 			} else if(sfloatEquals(closest, 135f) || sfloatEquals(closest, -45f)) {
@@ -276,7 +246,7 @@ public class PkJump {
 			}
 		} else if(neg(xc) && zero(zc)) {
 			if(floatEquals(closest, 90f)) {
-				score += Main.random(0, 1);
+				score += goodr;
 			} else if(sfloatEquals(closest, 45f) || sfloatEquals(closest, 135f)) {
 				score += 1;
 			} else if(sfloatEquals(closest, 0f) || sfloatEquals(closest, 180f)) {
@@ -286,7 +256,7 @@ public class PkJump {
 			}
 		} else if(neg(xc) && neg(zc)) {
 			if(floatEquals(closest, 135f)) {
-				score += Main.random(0, 1);
+				score += goodr;
 			} else if(sfloatEquals(closest, 90f) || sfloatEquals(closest, 180f)) {
 				score += 1;
 			} else if(sfloatEquals(closest, -135f) || sfloatEquals(closest, 45f)) {
@@ -296,7 +266,7 @@ public class PkJump {
 			}
 		} else if(neg(zc) && zero(xc)) {
 			if(floatEquals(closest, 0f)) {
-				score += Main.random(0, 1);
+				score += goodr;
 			} else if(sfloatEquals(closest, 45f) || sfloatEquals(closest, -45f)) {
 				score += 1;
 			} else if(sfloatEquals(closest, 90f) || sfloatEquals(closest, -90f)) {
@@ -306,7 +276,7 @@ public class PkJump {
 			}
 		} else if(pos(xc) && neg(zc)) {
 			if(floatEquals(closest, -135f)) {
-				score += Main.random(0, 1);
+				score += goodr;
 			} else if(sfloatEquals(closest, 180f) || sfloatEquals(closest, -90f)) {
 				score += 1;
 			} else if(sfloatEquals(closest, 135f) || sfloatEquals(closest, -45f)) {
@@ -316,7 +286,7 @@ public class PkJump {
 			}
 		} else if(pos(xc) && zero(zc)) {
 			if(floatEquals(closest, -90f)) {
-				score += Main.random(0, 1);
+				score += goodr;
 			} else if(sfloatEquals(closest, -45f) || sfloatEquals(closest, -135f)) {
 				score += 1;
 			} else if(sfloatEquals(closest, 0f) || sfloatEquals(closest, 180f)) {
@@ -326,7 +296,7 @@ public class PkJump {
 			}
 		} else if(pos(xc) && pos(zc)) {
 			if(floatEquals(closest, -45f)) {
-				score += Main.random(0, 1);
+				score += goodr;
 			} else if(sfloatEquals(closest, 0f) || sfloatEquals(closest, -90f)) {
 				score += 1;
 			} else if(sfloatEquals(closest, -135f) || sfloatEquals(closest, 45f)) {
@@ -418,7 +388,7 @@ public class PkJump {
 			}
 			MaterialParser.placeBlock(l, type);
 			l.getBlock().setMetadata("ajpk-prevtype", new FixedMetadataValue(main, prev));
-			if(type.toString().equalsIgnoreCase("SKULL") || type.toString().equalsIgnoreCase("PLAYER_HEAD")) {
+			if(type.equalsIgnoreCase("SKULL") || type.equalsIgnoreCase("PLAYER_HEAD")) {
 				List<UUID> presents = main.selector.getPresents();
 				Skull sd = (Skull) l.getBlock().getState();
 				UUID id = presents.get(Main.random(0, presents.size()-1));

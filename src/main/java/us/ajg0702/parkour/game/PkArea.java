@@ -118,12 +118,12 @@ public class PkArea {
 		y2 = pos2.getBlockY();
 		z2 = pos2.getBlockZ();
 		
-		highestX = (x1 < x2) ? x2 : x1;
-		lowestX = (x1 > x2) ? x2 : x1;
-		highestY = (y1 < y2) ? y2 : y1;
-		lowestY = (y1 > y2) ? y2 : y1;
-		highestZ = (z1 < z2) ? z2 : z1;
-		lowestZ = (z1 > z2) ? z2 : z1;
+		highestX = Math.max(x1, x2);
+		lowestX = Math.min(x1, x2);
+		highestY = Math.max(y1, y2);
+		lowestY = Math.min(y1, y2);
+		highestZ = Math.max(z1, z2);
+		lowestZ = Math.min(z1, z2);
 	}
 	
 	/**
@@ -196,7 +196,7 @@ public class PkArea {
 		int length = highestX - lowestX;
 		int height = highestY - lowestY;
 		
-		new ParticleRect(new Location(pos1.getWorld(), lowestX, lowestY, lowestZ), width, length, height).draw();;
+		new ParticleRect(new Location(pos1.getWorld(), lowestX, lowestY, lowestZ), width, length, height).draw();
 	}
 	
 	

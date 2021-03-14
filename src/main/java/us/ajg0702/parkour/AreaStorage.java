@@ -50,11 +50,9 @@ public class AreaStorage implements Listener {
 		}
 		
 		if(mainConfig.getBoolean("enable-portals") && mainConfig.getBoolean("faster-portals")) {
-			Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
-				public void run() {
-					for(Player p : Bukkit.getOnlinePlayers()) {
-						checkPortal(new PlayerMoveEvent(p, p.getLocation(), p.getLocation()));
-					}
+			Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+				for(Player p : Bukkit.getOnlinePlayers()) {
+					checkPortal(new PlayerMoveEvent(p, p.getLocation(), p.getLocation()));
 				}
 			}, 3*20, 5);
 		}
@@ -98,8 +96,10 @@ public class AreaStorage implements Listener {
 				diffraw = "BALANCED";
 				Bukkit.getLogger().warning("[ajParkour] Could not load difficulty for area '"+name+"'! Defaulting to BALANCED. Please edit the area and set the difficulty!");
 			}
-			Difficulty diff = Difficulty.valueOf(diffraw);
-			if(diff == null) {
+			Difficulty diff;
+			try {
+				diff = Difficulty.valueOf(diffraw);
+			} catch(IllegalArgumentException e) {
 				diff = Difficulty.BALANCED;
 				Bukkit.getLogger().warning("[ajParkour] Could not load difficulty for area '"+name+"'! Defaulting to BALANCED. Please edit the area and fix the difficulty!");
 			}
@@ -136,17 +136,13 @@ public class AreaStorage implements Listener {
 					if(world == null) {
 						Bukkit.getLogger().warning("[ajParkour] Could not convert portal: Unknown world '" + p.get("world").toString()+"'!");
 					}
-					int x = Integer.valueOf(p.get("x").toString());
-					int y = Integer.valueOf(p.get("y").toString());
-					int z = Integer.valueOf(p.get("z").toString());
+					int x = Integer.parseInt(p.get("x").toString());
+					int y = Integer.parseInt(p.get("y").toString());
+					int z = Integer.parseInt(p.get("z").toString());
 					Location ploc = new Location(world, x, y, z);
 					save(new Portal(i+"", ploc, null));
 				}
-				Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-					public void run() {
-						reload();
-					}
- 				}, 20);
+				Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, this::reload, 20);
 			} else {
 				return new ArrayList<>();
 			}
@@ -190,10 +186,10 @@ public class AreaStorage implements Listener {
 		if(raw == null) return null;
 		String[] a = raw.split(",");
 		if(a.length == 6) {
-			return new Location(Bukkit.getWorld(a[0]), Double.valueOf(a[1]), Double.valueOf(a[2]), Double.valueOf(a[3]), Float.valueOf(a[4]), Float.valueOf(a[5]));
+			return new Location(Bukkit.getWorld(a[0]), Double.parseDouble(a[1]), Double.parseDouble(a[2]), Double.parseDouble(a[3]), Float.parseFloat(a[4]), Float.parseFloat(a[5]));
 		}
 		else if(a.length == 4) {
-			return new Location(Bukkit.getWorld(a[0]), Double.valueOf(a[1]), Double.valueOf(a[2]), Double.valueOf(a[3]));
+			return new Location(Bukkit.getWorld(a[0]), Double.parseDouble(a[1]), Double.parseDouble(a[2]), Double.parseDouble(a[3]));
 		} else {
 			throw new IllegalArgumentException("Excepted 4 or 6 numbers but got " + a.length);
 		}
@@ -238,27 +234,27 @@ public class AreaStorage implements Listener {
 		}
 		switch(args[1]) {
 		case "list":
-			String f = msgs.get("portals.list.header", p)+"\n";
+			StringBuilder f = new StringBuilder(msgs.get("portals.list.header", p) + "\n");
 			for(Portal po : getPortals()) {
 				String name = po.getName();
 				String coords = coordsString(po.getLoc());
 				PkArea area = po.getArea();
 				if(area != null && !area.getName().isEmpty()) {
-					f += msgs.get("portals.list.format.area", p)
-							.replaceAll("\\{NAME\\}", name)
-							.replaceAll("\\{COORDS\\}", coords)
-							.replaceAll("\\{AREA\\}", area.getName())+"\n";
+					f.append(msgs.get("portals.list.format.area", p)
+							.replaceAll("\\{NAME}", name)
+							.replaceAll("\\{COORDS}", coords)
+							.replaceAll("\\{AREA}", area.getName())).append("\n");
 				} else {
-					f += msgs.get("portals.list.format.no-area", p)
-							.replaceAll("\\{NAME\\}", name)
-							.replaceAll("\\{COORDS\\}", coords)+"\n";
+					f.append(msgs.get("portals.list.format.no-area", p)
+							.replaceAll("\\{NAME}", name)
+							.replaceAll("\\{COORDS}", coords)).append("\n");
 				}
 			}
-			p.sendMessage(f);
+			p.sendMessage(f.toString());
 			break;
 		case "create":
 			if(args.length < 3) {
-				p.sendMessage(msgs.get("portals.create.help", p).replaceAll("\\{CMD\\}", label));
+				p.sendMessage(msgs.get("portals.create.help", p).replaceAll("\\{CMD}", label));
 				return;
 			}
 			String name = args[2];
@@ -272,7 +268,7 @@ public class AreaStorage implements Listener {
 			save(newp);
 			reload();
 			Manager.getInstance().reloadPositions();
-			p.sendMessage(msgs.get("portals.create.success", p).replaceAll("\\{NAME\\}", name));
+			p.sendMessage(msgs.get("portals.create.success", p).replaceAll("\\{NAME}", name));
 			
 			break;
 		case "remove":
@@ -284,7 +280,7 @@ public class AreaStorage implements Listener {
 			Set<String> portals = config.getConfigurationSection("portals").getKeys(false);
 			if(portals.contains(portalname)) {
 				config.set("portals."+portalname, null);
-				p.sendMessage(msgs.get("portals.remove.success", p).replaceAll("\\{NAME\\}", portalname));
+				p.sendMessage(msgs.get("portals.remove.success", p).replaceAll("\\{NAME}", portalname));
 				saveFile();
 				Manager.getInstance().reloadPositions();
 			} else {
@@ -307,11 +303,11 @@ public class AreaStorage implements Listener {
 		h.add(msgs.get("commands.portals.remove", p));
 
 		
-		String s = "";
+		StringBuilder s = new StringBuilder();
 		for(String t : h) {
-			s += "\n"+t;
+			s.append("\n").append(t);
 		}
-		p.sendMessage(s.replaceAll("\\{CMD\\}", label));
+		p.sendMessage(s.toString().replaceAll("\\{CMD}", label));
 	}
 	
 	

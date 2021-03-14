@@ -28,7 +28,7 @@ import us.ajg0702.parkour.utils.VersionSupport;
 
 public class BlockSelector implements Listener {
 
-	private Map<Player, Inventory> plys = new HashMap<>();
+	private final Map<Player, Inventory> plys = new HashMap<>();
 	Main plugin;
 	Messages msgs;
 	Scores scores;
@@ -125,7 +125,7 @@ public class BlockSelector implements Listener {
 		}*/
 		
 		
-		types = new ArrayList<String>();
+		types = new ArrayList<>();
 		@SuppressWarnings("unchecked")
 		List<String> mats = (List<String>) blocks.getList("blocks", new ArrayList<>());
 		
@@ -133,7 +133,7 @@ public class BlockSelector implements Listener {
 			Material t = null;
 			try {
 				t = Material.valueOf(mat.split(";")[0].split(":")[0]);
-			} catch(IllegalArgumentException e) {}
+			} catch(IllegalArgumentException ignored) {}
 			
 			if(t != null) {
 				types.add(mat);
@@ -171,7 +171,7 @@ public class BlockSelector implements Listener {
 	@SuppressWarnings("deprecation")
 	private Inventory addBlocks(Inventory inv, int pageIndex) {
 		Material randomMat = Material.valueOf(plugin.config.getString("random-item"));
-		String rawselected = plugin.scores.getMaterial(((Player)inv.getViewers().get(0)).getUniqueId());
+		String rawselected = plugin.scores.getMaterial(inv.getViewers().get(0).getUniqueId());
 		if(rawselected == null) {
 			rawselected = "random";
 		}
@@ -182,9 +182,9 @@ public class BlockSelector implements Listener {
 		} else {
 			try {
 				selected = Material.valueOf(rawselected.split(":")[0]);
-			} catch(IllegalArgumentException e) {}
+			} catch(IllegalArgumentException ignored) {}
 			if(rawselected.split(":").length > 1) {
-				selectedd = (!rawselected.split(":")[1].equalsIgnoreCase("true")) ? Integer.valueOf(rawselected.split(":")[1]) : -1;
+				selectedd = (!rawselected.split(":")[1].equalsIgnoreCase("true")) ? Integer.parseInt(rawselected.split(":")[1]) : -1;
 			}
 		}
 		
@@ -232,7 +232,7 @@ public class BlockSelector implements Listener {
 			i++;
 			String m = rm;
 			int d = -1;
-			if(rm.indexOf("FLOWER_POT") != -1) {
+			if(rm.contains("FLOWER_POT")) {
 				m = "FLOWER_POT_ITEM";
 			}
 			if(m.equals(randomMat.toString())) continue;
@@ -245,7 +245,7 @@ public class BlockSelector implements Listener {
 				
 				String[] parts = m.split(":");
 				if(parts.length > 1 && !parts[1].equalsIgnoreCase("true")) {
-					d = Integer.valueOf(parts[1]);
+					d = Integer.parseInt(parts[1]);
 				}
 				it = new ItemStack(Material.valueOf(m.split(";")[0].split(":")[0]), 1, (short)d, (byte)((d == -1) ? 0 : d));
 			}
@@ -282,7 +282,7 @@ public class BlockSelector implements Listener {
 		if(clicked.getType().toString().equals("FLOWER_POT_ITEM")) {
 			clicked.setType(Material.FLOWER_POT);
 		}
-		String matname = null; 
+		String matname;
 		if(e.getSlot() >= 9) {
 			matname = types.get(((e.getSlot())-9)-((pages.get(p)*-45)));
 		} else {
@@ -360,7 +360,7 @@ public class BlockSelector implements Listener {
 			//String dbug = "";
 			//for(String ft : ftypes) { dbug += ft+", "; }
 			//System.out.println("max: "+max+" r: "+i+" dbug: "+dbug);
-			String r = ftypes.get(i).toString();
+			String r = ftypes.get(i);
 			if(r.isEmpty()) {
 				r = ftypes.get(0);
 			}

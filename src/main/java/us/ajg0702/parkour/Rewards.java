@@ -2,22 +2,22 @@ package us.ajg0702.parkour;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import us.ajg0702.parkour.api.events.PlayerEndParkourEvent;
+import us.ajg0702.parkour.api.events.PlayerStartParkourEvent;
 import us.ajg0702.parkour.game.PkArea;
 import us.ajg0702.parkour.game.PkPlayer;
 
-public class Rewards {
+public class Rewards implements Listener {
 
 	Main plugin;
 	
@@ -31,6 +31,9 @@ public class Rewards {
 	public Rewards(Main plugin) {
 		this.plugin = plugin;
 		msgs = plugin.msgs;
+
+		Bukkit.getPluginManager().registerEvents(this, plugin);
+
 		rwFile = new File(plugin.getDataFolder(), "rewards.yml");
 		reload();
 	}
@@ -46,7 +49,7 @@ public class Rewards {
 				String message = r.getString("message");
 				List<String> commands;
 				if(r.isString("command")) {
-					commands = Arrays.asList(r.getString("command"));
+					commands = Collections.singletonList(r.getString("command"));
 				} else {
 					commands = r.getStringList("command");
 				}
@@ -54,7 +57,7 @@ public class Rewards {
 				rw.set("intervals."+interval+".commands", commands);
 			} else {
 				rw.set("intervals.10.message", "&aCongrats! &7You got to {SCORE} jumps! &bHave a diamond!");
-				rw.set("intervals.10.commands", Arrays.asList("give {PLAYER} diamond 1"));
+				rw.set("intervals.10.commands", Collections.singletonList("give {PLAYER} diamond 1"));
 			}
 		}
 		if(!rw.isSet("exceptions")) {
@@ -63,7 +66,7 @@ public class Rewards {
 				for(String k : s.getKeys(false)) {
 					ConfigurationSection ss = s.getConfigurationSection(k);
 					if(ss.isString("command")) {
-						s.set(k+".commands", Arrays.asList(ss.getString("command")));
+						s.set(k+".commands", Collections.singletonList(ss.getString("command")));
 					} else {
 						s.set(k+".commands", ss.getStringList("command"));
 					}
@@ -77,7 +80,15 @@ public class Rewards {
 		}
 		if(!rw.isSet("specials")) {
 			rw.set("specials.beat-server-record.message", "&a&lCongrats!&r&7 You reached the server high score!");
-			rw.set("specials.beat-server-record.commands", Arrays.asList("give {PLAYER} emerald 1"));
+			rw.set("specials.beat-server-record.commands", Collections.singletonList("give {PLAYER} emerald 1"));
+		}
+		if(!rw.isSet("specials.start")) {
+			rw.set("specials.start.message", "");
+			rw.set("specials.start.commands", Collections.emptyList());
+		}
+		if(!rw.isSet("specials.end")) {
+			rw.set("specials.end.message", "");
+			rw.set("specials.end.commands", Collections.emptyList());
 		}
 		save();
 	}
@@ -97,37 +108,30 @@ public class Rewards {
 		final Player player = p.getPlayer();
 		
 		if(!p.beatServerHighscore) {
-			Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-				public void run() {
-					int topscore;
-					try {
-						int number = 1;
-			        	Map<String, Double> scores = plugin.scores.getSortedScores(true, null);
-			        	Set<String> plys = scores.keySet();
-			        	
-			        	if(scores.keySet().size() < number || plys.toArray()[number-1] == null) return;
-			        	
-			        	String playername = plys.toArray()[number-1].toString();
-			        	topscore = Integer.valueOf((int) Math.round(scores.get(playername)));
-			        	
-					} catch(Exception e) {return;}
-					if(score >= topscore) {
-						String message = msgs.color(rw.getString("specials.beat-server-record.message", ""));
-						if(!message.isEmpty()) {
-							player.sendMessage(message);
-						}
-						@SuppressWarnings("unchecked")
-						List<String> cmds = (List<String>) rw.getList("specials.beat-server-record.commands", new ArrayList<String>());
-						if(cmds.size() != 0) {
-							Bukkit.getScheduler().runTask(plugin, new Runnable() {
-								public void run() {
-									executeCommands(cmds, p);
-									//Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replaceAll("\\{PLAYER\\}", player.getName()));
-								}
-							});
-						}
-						p.beatServerHighscore = true;
+			Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+				int topscore;
+				try {
+					int number = 1;
+					Map<String, Double> scores = plugin.scores.getSortedScores(true, null);
+					Set<String> plys = scores.keySet();
+
+					if(scores.keySet().size() < number || plys.toArray()[number-1] == null) return;
+
+					String playername = plys.toArray()[number-1].toString();
+					topscore = (int) Math.round(scores.get(playername));
+
+				} catch(Exception e) {return;}
+				if(score >= topscore) {
+					String message = msgs.color(rw.getString("specials.beat-server-record.message", ""));
+					if(!message.isEmpty()) {
+						player.sendMessage(message);
 					}
+					@SuppressWarnings("unchecked")
+					List<String> cmds = (List<String>) rw.getList("specials.beat-server-record.commands", new ArrayList<String>());
+					if(cmds.size() != 0) {
+						Bukkit.getScheduler().runTask(plugin, () -> executeCommands(cmds, p));
+					}
+					p.beatServerHighscore = true;
 				}
 			});
 		}
@@ -166,17 +170,13 @@ public class Rewards {
 								//p.getPlayer().sendMessage("- area not");
 								if(ar.getName().equals(area.getName())) {
 									skip = true;
-									continue;
 								}
 							} else {
 								//p.getPlayer().sendMessage("- area must");
 								if(!ar.equals(area)) {
 									skip = true;
-									continue;
 								}
 							}
-						} else {
-							//p.getPlayer().sendMessage("- Area not found: "+a);
 						}
 					}
 				}
@@ -217,9 +217,7 @@ public class Rewards {
 				
 				String message = rw.getString("exceptions."+ec+".message", "");
 				if(!message.isEmpty()) {
-					p.getPlayer().sendMessage(msgs.color(message.replaceAll("\\{SCORE\\}", score+"")));
-				} else {
-					//p.getPlayer().sendMessage("empty '"+message+"'");
+					p.getPlayer().sendMessage(msgs.color(message.replaceAll("\\{SCORE}", score+"")));
 				}
 				
 				@SuppressWarnings("unchecked")
@@ -251,21 +249,15 @@ public class Rewards {
 								//p.getPlayer().sendMessage("- area not");
 								if(ar.getName().equals(area.getName())) {
 									skip = true;
-									continue;
 								}
 							} else {
 								//p.getPlayer().sendMessage("- area must");
 								if(!ar.equals(area)) {
 									skip = true;
-									continue;
 								}
 							}
-						} else {
-							//p.getPlayer().sendMessage("- Area not found: "+a);
 						}
 					}
-				} else {
-					//p.getPlayer().sendMessage("areas is empty for "+ic+": "+areas);
 				}
 				
 				if(skip) continue;
@@ -282,7 +274,7 @@ public class Rewards {
 					}
 				}
 				
-				String message = rw.getString("intervals."+ic+".message", "").replaceAll("\\{SCORE\\}", score+"");
+				String message = rw.getString("intervals."+ic+".message", "").replaceAll("\\{SCORE}", score+"");
 				if(!message.isEmpty()) {
 					p.getPlayer().sendMessage(msgs.color(message));
 				}
@@ -304,7 +296,7 @@ public class Rewards {
 		//Bukkit.getLogger().info("First execute commands");
 		if(dontSkip) {
 			//Bukkit.getLogger().info("Going straight to executing commands");
-			staticExecuteCommands(cmds, p);
+			staticExecuteCommands(cmds, p.getPlayer());
 			return;
 		}
 		if(!plugin.config.getString("execute-reward-commands").equalsIgnoreCase("earned")) {
@@ -312,24 +304,50 @@ public class Rewards {
 			p.addCommands(cmds);
 			return;
 		}
-		staticExecuteCommands(cmds, p);
+		staticExecuteCommands(cmds, p.getPlayer());
+	}
+
+	@EventHandler
+	public void onStart(PlayerStartParkourEvent e) {
+		PkPlayer p = e.getParkourPlayer();
+		String m = rw.getString("specials.start.message");
+		if(!m.isEmpty()) {
+			if(plugin.papi) {
+				m = PlaceholderAPI.setPlaceholders(p.getPlayer(), m);
+			}
+			p.getPlayer().sendMessage(m);
+		}
+		staticExecuteCommands(rw.getStringList("specials.start.commands"), p.getPlayer());
+	}
+
+	@EventHandler
+	public void onFall(PlayerEndParkourEvent e) {
+		Player p = e.getPlayer();
+		String m = rw.getString("specials.end.message");
+		if(!m.isEmpty()) {
+			if(plugin.papi) {
+				m = PlaceholderAPI.setPlaceholders(p, m);
+			}
+			p.getPlayer().sendMessage(m);
+		}
+		staticExecuteCommands(rw.getStringList("specials.end.commands"), p);
 	}
 	
-	public static void staticExecuteCommands(List<String> cmds, PkPlayer p) {
+	public static void staticExecuteCommands(List<String> cmds, Player p) {
 		//Bukkit.getLogger().info("staticExecuteRewards is getting executed");
 		for(String cmdr : cmds) {
 			//Bukkit.getLogger().info("staticExecuteRewards: "+cmdr);
 			if(cmdr == null) continue;
 			boolean execAsPlayer = (cmdr.indexOf("[p]") == 0);
-			String cmd = (execAsPlayer) ? cmdr.replaceFirst("\\[p\\]", "") : cmdr;
+			String cmd = (execAsPlayer) ? cmdr.replaceFirst("\\[p]", "") : cmdr;
 			if(cmd.indexOf(" ") == 0) {
 				cmd = cmd.replaceFirst(" ", "");
 			}
 			if(cmd.indexOf("/") == 0) {
-				cmd = cmd.replaceFirst("\\/", "");
+				cmd = cmd.replaceFirst("/", "");
 			}
 			
-			cmd = cmd.replaceAll("\\{PLAYER\\}", p.getPlayer().getName());
+			cmd = cmd.replaceAll("\\{PLAYER}", p.getPlayer().getName());
 			
 			if(execAsPlayer) {
 				Bukkit.dispatchCommand(p.getPlayer(), cmd);
@@ -341,16 +359,12 @@ public class Rewards {
 	
 	
 	private List<String> getIntervals() {
-		List<String> r = new ArrayList<>();
 		Set<String> k = rw.getConfigurationSection("intervals").getKeys(false);
-		r.addAll(k);
-		return r;
+		return new ArrayList<>(k);
 	}
 	private List<String> getExceptions() {
-		List<String> r = new ArrayList<>();
 		Set<String> k = rw.getConfigurationSection("exceptions").getKeys(false);
-		r.addAll(k);
-		return r;
+		return new ArrayList<>(k);
 	}
 
 }

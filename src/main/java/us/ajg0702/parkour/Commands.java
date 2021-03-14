@@ -62,7 +62,7 @@ public class Commands implements CommandExecutor {
 				if(pl.man.getAreas().size() == 0) {
 					String resp = msgs.get("errors.notsetup.player", sply);
 					if(sender.hasPermission("ajparkour.setup")) {
-						resp = msgs.get("errors.notsetup.admin", sply).replaceAll("\\{CMD\\}", label);
+						resp = msgs.get("errors.notsetup.admin", sply).replaceAll("\\{CMD}", label);
 					}
 					sender.sendMessage(msgs.get("errors.notsetup.base", sply)+"\n"+resp);
 					return true;
@@ -95,7 +95,7 @@ public class Commands implements CommandExecutor {
 							return true;
 						}
 						pl.man.startGame(pt);
-						sender.sendMessage(msgs.get("start.started-other").replaceAll("\\{PLY\\}", pt.getName()));
+						sender.sendMessage(msgs.get("start.started-other").replaceAll("\\{PLY}", pt.getName()));
 					} else {
 						if(!(sender instanceof Player)) {
 							sender.sendMessage(msgs.get("not-from-console"));
@@ -109,7 +109,7 @@ public class Commands implements CommandExecutor {
 						if(a != null) {
 							pl.man.startGame(sply, a);
 						} else {
-							sender.sendMessage(msgs.get("start.no-area-player", sply).replaceAll("\\{INPUT\\}", pa));
+							sender.sendMessage(msgs.get("start.no-area-player", sply).replaceAll("\\{INPUT}", pa));
 						}
 					}
 				} else if(args.length == 3) {
@@ -134,8 +134,8 @@ public class Commands implements CommandExecutor {
 					pl.man.startGame(p, a);
 					sender.sendMessage(
 							msgs.get("start.started-other-area", sply)
-							.replaceAll("\\{PLY\\}", p.getName())
-							.replaceAll("\\{AREA\\}", a.getName())
+							.replaceAll("\\{PLY}", p.getName())
+							.replaceAll("\\{AREA}", a.getName())
 						);
 				}
 				return true;
@@ -153,21 +153,21 @@ public class Commands implements CommandExecutor {
 					sender.sendMessage(msgs.get("migrate.error", sply));
 					return true;
 				}
-				sender.sendMessage(msgs.get("migrate.success", sply).replaceAll("\\{COUNT\\}", count+""));
+				sender.sendMessage(msgs.get("migrate.success", sply).replaceAll("\\{COUNT}", count+""));
 				return true;
 			case "areas":
-				String add1 = "";
+				StringBuilder add1 = new StringBuilder();
 				sender.sendMessage(msgs.get("commands.listareas.header", sply));
 				for(PkArea a : man.getAreas()) {
 					String name = a.getName();
-					add1 += msgs.get("commands.listareas.format", sply)
-							.replaceAll("\\{NAME\\}", name)
-							.replaceAll("\\{DIFFICULTY\\}", a.getDifficulty().toString())+"\n";
+					add1.append(msgs.get("commands.listareas.format", sply)
+							.replaceAll("\\{NAME}", name)
+							.replaceAll("\\{DIFFICULTY}", a.getDifficulty().toString())).append("\n");
 				}
-				if(add1.equalsIgnoreCase("")) {
-					add1 = msgs.get("commands.listareas.none", sply);
+				if(add1.toString().equalsIgnoreCase("")) {
+					add1 = new StringBuilder(msgs.get("commands.listareas.none", sply));
 				}
-				sender.sendMessage(add1);
+				sender.sendMessage(add1.toString());
 				return true;
 			case "update":
 				if(!sender.hasPermission("ajparkour.update")) {
@@ -184,7 +184,7 @@ public class Commands implements CommandExecutor {
 					}
 					Player tp = Bukkit.getPlayer(args[1]);
 					if(tp == null) {
-						sender.sendMessage(msgs.get("couldnt-find-player", sply).replaceAll("\\{PLAYER\\}", args[1]));
+						sender.sendMessage(msgs.get("couldnt-find-player", sply).replaceAll("\\{PLAYER}", args[1]));
 						return true;
 					}
 					pl.selector.openSelector(tp);
@@ -210,9 +210,9 @@ public class Commands implements CommandExecutor {
 				if(args.length > 1) {
 					OfflinePlayer p = Bukkit.getOfflinePlayer(args[1]);
 					scores.setScore(p.getUniqueId(), 0, 0, null);
-					sender.sendMessage(msgs.get("reset.success").replaceAll("\\{PLAYER\\}", p.getName() == null ? p.getUniqueId().toString() : p.getName()));
+					sender.sendMessage(msgs.get("reset.success").replaceAll("\\{PLAYER}", p.getName() == null ? p.getUniqueId().toString() : p.getName()));
 				} else {
-					sender.sendMessage(msgs.get("reset.usage").replaceAll("\\{CMD\\}", label));
+					sender.sendMessage(msgs.get("reset.usage").replaceAll("\\{CMD}", label));
 				}
 				return true;
 			case "version":
@@ -220,88 +220,86 @@ public class Commands implements CommandExecutor {
 				return true;
 			case "top":
 				final Player fsply = sply;
-				Bukkit.getScheduler().runTaskAsynchronously(pl, new Runnable() {
-					public void run() {
-						String area = null;
-						if(args.length > 1) {
-							area = args[1];
-						}
-						
-						List<UUID> list = scores.getPlayers();
-						if(list.size() < 1) {
-							sender.sendMessage(msgs.get("nobodys-played-yet", fsply));
-							return;
-						}
-						int maxs = config.getInt("top-shown");
-						HashMap<String, Double> map = new HashMap<String, Double>();
-						int i = 0;
-						boolean doTime = msgs.get("top.format", fsply).contains("{TIME}") && (area == null || area.equals("null"));
-						List<Integer> times = new ArrayList<>();
-						for(UUID uuid : list) {
-							String name = scores.getName(uuid);
-							if(name == null || name.isEmpty() || name.equals("")) {
-								name = msgs.color("&7[Unknown]#"+i);
-							}
-							map.put(name, Double.valueOf(scores.getScore(uuid, area)));
-							if(doTime) {
-								times.add(scores.getTime(uuid));
-							}
-							i++;
-						}
-						map = pl.sortByValue(map);
-						
-						i = 1;
-						String addList = "";
-						if(area == null) {
-							addList += msgs.get("top.header", fsply)+"\n";
-						} else {
-							addList += msgs.get("top.header-area", fsply).replaceAll("\\{AREA\\}", area)+"\n";
-						}
-						for( int ai = 0; ai < map.size(); ai++) {
-							String key = (String) map.keySet().toArray()[ai];
-							String replaced = msgs.get("top.format", fsply)
-									.replaceAll("\\{#\\}", i+"")
-									.replaceAll("\\{NAME\\}", key.split("#")[0])
-									.replaceAll("\\{SCORE\\}", ((int)Math.round(map.get(key)))+"") + "\n";
-							if(doTime) {
-								int time = times.get(ai);
-								int min = (int) Math.floor((time) / (60));
-					        	int sec = (int) Math.floor((time % (60)));
-					        	String timestr = msgs.get("placeholders.stats.time-format", fsply)
-					            		.replaceAll("\\{m\\}", min+"")
-					            		.replaceAll("\\{s\\}", sec+"");
-					        	if(time < 0) {
-					        		timestr = msgs.get("placeholders.stats.no-data", fsply);
-					        	}
-								replaced = replaced.replaceAll("\\{TIME\\}", timestr);
-							}
-							replaced = replaced.replaceAll("\\{TIME\\}", msgs.get("placeholders.stats.no-data", fsply));
-							addList += replaced;
-							i++;
-							if(i > maxs) {
-								break;
-							} else {
-								addList += "\n";
-							}
-						}
-						sender.sendMessage(addList);
+				Bukkit.getScheduler().runTaskAsynchronously(pl, () -> {
+					String area = null;
+					if(args.length > 1) {
+						area = args[1];
 					}
+
+					List<UUID> list = scores.getPlayers();
+					if(list.size() < 1) {
+						sender.sendMessage(msgs.get("nobodys-played-yet", fsply));
+						return;
+					}
+					int maxs = config.getInt("top-shown");
+					HashMap<String, Double> map = new HashMap<>();
+					int i = 0;
+					boolean doTime = msgs.get("top.format", fsply).contains("{TIME}") && (area == null || area.equals("null"));
+					List<Integer> times = new ArrayList<>();
+					for(UUID uuid : list) {
+						String name = scores.getName(uuid);
+						if(name == null || name.isEmpty()) {
+							name = msgs.color("&7[Unknown]#"+i);
+						}
+						map.put(name, (double) scores.getScore(uuid, area));
+						if(doTime) {
+							times.add(scores.getTime(uuid));
+						}
+						i++;
+					}
+					map = pl.sortByValue(map);
+
+					i = 1;
+					StringBuilder addList = new StringBuilder();
+					if(area == null) {
+						addList.append(msgs.get("top.header", fsply)).append("\n");
+					} else {
+						addList.append(msgs.get("top.header-area", fsply).replaceAll("\\{AREA}", area)).append("\n");
+					}
+					for( int ai = 0; ai < map.size(); ai++) {
+						String key = (String) map.keySet().toArray()[ai];
+						String replaced = msgs.get("top.format", fsply)
+								.replaceAll("\\{#}", i+"")
+								.replaceAll("\\{NAME}", key.split("#")[0])
+								.replaceAll("\\{SCORE}", ((int)Math.round(map.get(key)))+"") + "\n";
+						if(doTime) {
+							int time = times.get(ai);
+							int min = time / (60);
+							int sec = time % (60);
+							String timestr = msgs.get("placeholders.stats.time-format", fsply)
+									.replaceAll("\\{m}", min+"")
+									.replaceAll("\\{s}", sec+"");
+							if(time < 0) {
+								timestr = msgs.get("placeholders.stats.no-data", fsply);
+							}
+							replaced = replaced.replaceAll("\\{TIME}", timestr);
+						}
+						replaced = replaced.replaceAll("\\{TIME}", msgs.get("placeholders.stats.no-data", fsply));
+						addList.append(replaced);
+						i++;
+						if(i > maxs) {
+							break;
+						} else {
+							addList.append("\n");
+						}
+					}
+					sender.sendMessage(addList.toString());
 				});
 				return true;
 			case "list":
 				List<PkPlayer> plys = man.getPlayers();
-				String add = msgs.get("list.header");
+				StringBuilder add = new StringBuilder(msgs.get("list.header"));
 				if(plys.size() <= 0) {
-					add += "\n"+msgs.get("list.none");
+					add.append("\n").append(msgs.get("list.none"));
 				}
 				for(PkPlayer p : plys) {
 					String name = p.getPlayer().getName();
 					int score = p.getScore();
-					add += "\n"+msgs.get("list.format")
-						.replaceAll("\\{NAME\\}", name)
-						.replaceAll("\\{SCORE\\}", score+"");
+					add.append("\n").append(msgs.get("list.format")
+							.replaceAll("\\{NAME}", name)
+							.replaceAll("\\{SCORE}", score + ""));
 				}
-				sender.sendMessage(add);
+				sender.sendMessage(add.toString());
 				return true;
 			case "removearea":
 				if(!sender.hasPermission("ajparkour.setup")) {
@@ -317,7 +315,7 @@ public class Commands implements CommandExecutor {
 					return true;
 				}
 				pl.areaStorage.removeArea(args[1]);
-				sender.sendMessage(msgs.get("areas.remove.success", sply).replaceAll("\\{NAME\\}", args[1]));
+				sender.sendMessage(msgs.get("areas.remove.success", sply).replaceAll("\\{NAME}", args[1]));
 				return true;
 			case "edit":
 				if(!(sender instanceof Player)) {
@@ -342,7 +340,7 @@ public class Commands implements CommandExecutor {
 							editing.put("pos2", a.getPos2());
 							editing.put("fallpos", a.getFallPos());
 							editing.put("diff", a.getDifficulty());
-							sender.sendMessage(msgs.get("setup.edit.loaded", sply).replaceAll("\\{CMD\\}", label));
+							sender.sendMessage(msgs.get("setup.edit.loaded", sply).replaceAll("\\{CMD}", label));
 						} else {
 							sender.sendMessage(msgs.get("setup.edit.no-area", sply));
 						}
@@ -376,7 +374,7 @@ public class Commands implements CommandExecutor {
 					switch(args[1].toLowerCase()) {
 						case "create":
 							if(args.length >= 3) {
-								if(editing.keySet().size() != 0 && editingoverrideplayer != (Player) sender) {
+								if(editing.keySet().size() != 0 && editingoverrideplayer != sender) {
 									sender.sendMessage(msgs.get("setup.already-creating", sply));
 									editingoverrideplayer = (Player) sender;
 								} else {
@@ -395,6 +393,7 @@ public class Commands implements CommandExecutor {
 							}
 							editing.put("pos1", sply.getLocation());
 							sender.sendMessage(msgs.get("setup.set.pos1", sply));
+							checkAreaSize(sply, editing);
 							return true;
 						case "pos2":
 							if(editing.keySet().size() == 0) {
@@ -403,6 +402,7 @@ public class Commands implements CommandExecutor {
 							}
 							editing.put("pos2", sply.getLocation());
 							sender.sendMessage(msgs.get("setup.set.pos2", sply));
+							checkAreaSize(sply, editing);
 							return true;
 						case "fallpos":
 							if(editing.keySet().size() == 0) {
@@ -468,7 +468,7 @@ public class Commands implements CommandExecutor {
 								return true;
 							}
 							if(n(editing.get("pos1")) || n(editing.get("pos2")) || n(editing.get("diff")) || n(editing.get("name"))) {
-								sender.sendMessage(msgs.get("setup.save.not-done", sply).replaceAll("\\{CMD\\}", label));
+								sender.sendMessage(msgs.get("setup.save.not-done", sply).replaceAll("\\{CMD}", label));
 								return true;
 							}
 							String name = (String) editing.get("name");
@@ -481,11 +481,9 @@ public class Commands implements CommandExecutor {
 							editing = new HashMap<>();
 							
 							final Player p = (Player) sender;
-							Bukkit.getScheduler().runTask(pl, new Runnable() {
-								public void run() {
-									pl.man.reloadPositions();
-									p.sendMessage(msgs.get("setup.save.success", p).replaceAll("\\{NAME\\}", name));
-								}
+							Bukkit.getScheduler().runTask(pl, () -> {
+								pl.man.reloadPositions();
+								p.sendMessage(msgs.get("setup.save.success", p).replaceAll("\\{NAME}", name));
 							});
 							return true;
 						case "info":
@@ -500,11 +498,11 @@ public class Commands implements CommandExecutor {
 							pr.add(msgs.color("&"+(editing.containsKey("diff") ? "a" : "c")+"difficulty"));
 							pr.add(msgs.color("&"+(editing.containsKey("max") ? "a" : "7")+"max"));
 							pr.add(msgs.color("&"+(editing.containsKey("fallpos") ? "a" : "7")+"fallpos"));
-							String str = "";
+							StringBuilder str = new StringBuilder();
 							for(String t : pr) {
-								str += "\n"+t;
+								str.append("\n").append(t);
 							}
-							sender.sendMessage(str);
+							sender.sendMessage(str.toString());
 							return true;
 						default:
 							if(!sender.hasPermission("ajparkour.setup")) {
@@ -522,7 +520,11 @@ public class Commands implements CommandExecutor {
 					sender.sendMessage(getSetupHelp(sply, label));
 					return true;
  				}
-				
+			case "difficulties":
+				for(Difficulty d : Difficulty.values()) {
+					sender.sendMessage(d.toString()+" ("+d.getMin()+"/"+d.getMax()+")");
+				}
+				return true;
 			case "reload":
 				if(!sender.hasPermission("ajparkour.reload")) {
 					sender.sendMessage(msgs.get("noperm"));
@@ -539,35 +541,47 @@ public class Commands implements CommandExecutor {
 						pl.reload(args[1].toLowerCase(), sender);
 					}
 				} else {
-					String poss = "";
+					StringBuilder poss = new StringBuilder();
 					List<String> possl = pl.getReloadable();
 					possl.add("all");
 					for(String p : possl) {
-						poss += p+", ";
+						poss.append(p).append(", ");
 					}
-					poss = poss.substring(0, poss.length()-2);
-					sender.sendMessage(msgs.get("reload.usage").replaceAll("\\{CMD\\}", label).replaceAll("\\{POSS\\}", poss));
+					poss = new StringBuilder(poss.substring(0, poss.length() - 2));
+					sender.sendMessage(msgs.get("reload.usage").replaceAll("\\{CMD}", label).replaceAll("\\{POSS}", poss.toString()));
 				}
 				
 				return true;
-			/*case "areatest":
-				if(sply != null) {
-					if(!sply.getName().equalsIgnoreCase("ajgeiss0702")) return true;
-					sender.sendMessage(""+PkJump.getBlockScore(sply.getLocation(), sply.getLocation().clone().add(Integer.valueOf(args[1]), Integer.valueOf(args[2]), Integer.valueOf(args[3])), Manager.getInstance().getArea(args[4]), null, sply.getLocation().getYaw()));
-				}
-				return true;
-			case "dtest":
-				if(sply == null) return true;
-				sender.sendMessage(man.getArea(args[1]).distanceFromWall(sply.getLocation().clone())+"");
-				return true;
-			case "itest":
-				if(sply == null) return true;
-				sender.sendMessage(man.getArea(args[1]).contains(sply.getLocation().clone())+"");
-				return true;*/
 			
 			default:
 				sender.sendMessage(getMainHelp(sply, label));
 				return true;
+		}
+	}
+
+	public void checkAreaSize(Player p, HashMap<String, Object> editing) {
+		if(editing.containsKey("pos1") && editing.containsKey("pos2")) {
+			Location pos1 = (Location) editing.get("pos1");
+			Location pos2 = (Location) editing.get("pos2");
+
+			int x1 = pos1.getBlockX();
+			int y1 = pos1.getBlockY();
+			int z1 = pos1.getBlockZ();
+			int x2 = pos2.getBlockX();
+			int y2 = pos2.getBlockY();
+			int z2 = pos2.getBlockZ();
+
+			int l = Math.abs(Math.max(x1, x2) - Math.min(x1, x2));
+			int h = Math.abs(Math.max(y1, y2) - Math.min(y1, y2));
+			int w = Math.abs(Math.max(z1, z2) - Math.min(z1, z2));
+
+			if(l < 20 || h < 20 || w < 20) {
+				p.sendMessage(msgs.get("setup.area.too-small")
+						.replaceAll("\\{w}", w+"")
+						.replaceAll("\\{h}", h+"")
+						.replaceAll("\\{l}", l+"")
+				);
+			}
 		}
 	}
 	
@@ -583,11 +597,11 @@ public class Commands implements CommandExecutor {
 		if(checkPerm("ajparkour.setup", p)) c.add(msgs.get("commands.help.setup", p));
 		if(checkPerm("ajparkour.portals", p) || checkPerm("ajparkour.setup", p)) c.add(msgs.get("commands.help.portals", p));
 		
-		String s = "";
+		StringBuilder s = new StringBuilder();
 		for(String t : c) {
-			s += "\n"+t;
+			s.append("\n").append(t);
 		}
-		return s.replaceAll("\\{CMD\\}", cmd);
+		return s.toString().replaceAll("\\{CMD}", cmd);
 	}
 	
 	private boolean checkPerm(String perm, Player p) {
@@ -612,11 +626,11 @@ public class Commands implements CommandExecutor {
 		h.add(msgs.get("commands.setup.info", p));
 		h.add(msgs.get("commands.setup.save", p));
 		
-		String s = "";
+		StringBuilder s = new StringBuilder();
 		for(String t : h) {
-			s += "\n"+t;
+			s.append("\n").append(t);
 		}
-		return s.replaceAll("\\{CMD\\}", cmd);
+		return s.toString().replaceAll("\\{CMD}", cmd);
 	}
 	
 	private boolean n(Object a) {

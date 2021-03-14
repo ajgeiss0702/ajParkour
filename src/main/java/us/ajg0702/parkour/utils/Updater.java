@@ -43,7 +43,7 @@ public class Updater implements Listener {
 	
 	String lines;
 	
-	boolean enabled = false;
+	boolean enabled;
 	
 	private Updater(Main pl) {
 		instance = this;
@@ -57,93 +57,87 @@ public class Updater implements Listener {
 		currentVersion = pl.getDescription().getVersion().split("-")[0];
 		
 		check();
-		Bukkit.getScheduler().scheduleSyncRepeatingTask(pl, new Runnable() {
-			public void run() {
-				check();
-			}
-		},5*60*20, (long)3600*20); // checks for an update every hour
+		Bukkit.getScheduler().scheduleSyncRepeatingTask(pl, this::check,5*60*20, (long)3600*20); // checks for an update every hour
 	}
 	
 	public void check() {
 		if(!enabled || alreadyDownloaded) return;
-		Bukkit.getScheduler().runTaskAsynchronously(pl, new Runnable() {
-			public void run() {
-				try {
-					//URL url = new URL("https://api.spiget.org/v2/resources/60909/versions?size=1&sort=-releaseDate");
-					URL url = new URL("https://ajg0702.us/pl/ap/updates/getversion.php");
-					HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-					connection.addRequestProperty("User-Agent", "ajParkour/"+currentVersion);// Set User-Agent
+		Bukkit.getScheduler().runTaskAsynchronously(pl, () -> {
+			try {
+				//URL url = new URL("https://api.spiget.org/v2/resources/60909/versions?size=1&sort=-releaseDate");
+				URL url = new URL("https://ajg0702.us/pl/ap/updates/getversion.php");
+				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+				connection.addRequestProperty("User-Agent", "ajParkour/"+currentVersion);// Set User-Agent
 
-					// If you're not sure if the request will be successful,
-					// you need to check the response code and use #getErrorStream if it returned an error code
-					InputStream inputStream = connection.getInputStream();
-					/*InputStreamReader reader = new InputStreamReader(inputStream); // old update checker for spiget
+				// If you're not sure if the request will be successful,
+				// you need to check the response code and use #getErrorStream if it returned an error code
+				InputStream inputStream = connection.getInputStream();
+				/*InputStreamReader reader = new InputStreamReader(inputStream); // old update checker for spiget
 
-					// This could be either a JsonArray or JsonObject
-					JsonElement element = new JsonParser().parse(reader);
-					JsonArray o = element.getAsJsonArray();
-					
-					latestVersion = o.get(0).getAsJsonObject().get("name").getAsString();*/
-					
-					BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
-                    String line = null;
-                    
-                    String string = "";
-                    while ((line = br.readLine()) != null) {
-                        string += line;
-                    }
-                    
-                    latestVersion = string;
+				// This could be either a JsonArray or JsonObject
+				JsonElement element = new JsonParser().parse(reader);
+				JsonArray o = element.getAsJsonArray();
 
-                    if(latestVersion.isEmpty()) return;
-					
-					
-					
-					String[] parts = latestVersion.split("\\.");
-					String[] curparts = currentVersion.split("\\.");
-					
-					//System.out.println("latest: "+latestVersion+" ("+parts.length+") cur: "+currentVersion+" ("+curparts.length+")");
-					
-					int i = 0;
-					for(String part : parts) {
-						if(i >= curparts.length) {
-							break;
-						}
-						int newver = Integer.valueOf(part);
-						int curver = Integer.valueOf(curparts[i]);
-						if(newver > curver) {
-							if(i != 0) {
-								int newverlast = Integer.valueOf(parts[i-1]);
-								int currentverlast = Integer.valueOf(curparts[i-1]);
-								if(newverlast >= currentverlast) {
-									updateAvailable = true;
-									break;
-								}
-							} else {
+				latestVersion = o.get(0).getAsJsonObject().get("name").getAsString();*/
+
+				BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+				String line;
+
+				StringBuilder string = new StringBuilder();
+				while ((line = br.readLine()) != null) {
+				string.append(line);
+				}
+
+				latestVersion = string.toString();
+
+				if(latestVersion.isEmpty()) return;
+
+
+
+				String[] parts = latestVersion.split("\\.");
+				String[] curparts = currentVersion.split("\\.");
+
+				//System.out.println("latest: "+latestVersion+" ("+parts.length+") cur: "+currentVersion+" ("+curparts.length+")");
+
+				int i = 0;
+				for(String part : parts) {
+					if(i >= curparts.length) {
+						break;
+					}
+					int newver = Integer.parseInt(part);
+					int curver = Integer.parseInt(curparts[i]);
+					if(newver > curver) {
+						if(i != 0) {
+							int newverlast = Integer.parseInt(parts[i-1]);
+							int currentverlast = Integer.parseInt(curparts[i-1]);
+							if(newverlast >= currentverlast) {
 								updateAvailable = true;
 								break;
 							}
+						} else {
+							updateAvailable = true;
+							break;
 						}
-						i++;
 					}
-					
-					/*int latestInt = Integer.valueOf(join(parts, ""));
-					int currentInt = Integer.valueOf(join(curparts, ""));
-					
-					if(latestInt > currentInt) {
-						updateAvailable = true;
-					}*/
-					
-					if(updateAvailable && !ready) {
-						Bukkit.getLogger().info(msgs.color("[ajParkour] An update is available! ("+latestVersion+") Do &7/ajParkour update&r to download it!"));
-					} else if(!ready) {
-						Bukkit.getLogger().info("[ajParkour] You are up to date! ("+latestVersion+")");
-					}
-					ready = true;
-				} catch (IOException e) {
-					// TODO: handle exception
-					e.printStackTrace();
+					i++;
 				}
+
+				/*int latestInt = Integer.valueOf(join(parts, ""));
+				int currentInt = Integer.valueOf(join(curparts, ""));
+
+				if(latestInt > currentInt) {
+					updateAvailable = true;
+				}*/
+
+				if(updateAvailable && !ready) {
+					Bukkit.getLogger().info(msgs.color("[ajParkour] An update is available! ("+latestVersion+") Do &7/ajParkour update&r to download it!"));
+				} else if(!ready) {
+					Bukkit.getLogger().info("[ajParkour] You are up to date! ("+latestVersion+")");
+				}
+				ready = true;
+			} catch (IOException e) {
+				// TODO: handle exception
+				e.printStackTrace();
 			}
 		});
 	}
@@ -158,31 +152,12 @@ public class Updater implements Listener {
 		return instance;
 	}
 	
-	
-	private String join(String[] array, String joiner) {
-		String f = "";
-		int i = 0;
-		for(String p : array) {
-			f += p;
-			if(i+1 != array.length-1) {
-				f += joiner;
-			}
-			i++;
-		}
-		return f;
-	}
-	
-	
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
 		if(!enabled || alreadyDownloaded) return;
 		if(ready && updateAvailable && pl.config.getBoolean("notify-update")) {
 			if(!e.getPlayer().hasPermission("ajparkour.update")) return;
-			Bukkit.getScheduler().runTaskLater(pl, new Runnable() {
-				public void run() {
-					e.getPlayer().sendMessage(lines+msgs.color("\n\n  &aAn update is available for ajParkour!\n  &2You can download it using /ajParkour update\n\n"+lines));
-				}
-			}, 20); // wait a second to send the message to try to make it at the bottom of all the other plugin messages
+			Bukkit.getScheduler().runTaskLater(pl, () -> e.getPlayer().sendMessage(lines+msgs.color("\n\n  &aAn update is available for ajParkour!\n  &2You can download it using /ajParkour update\n\n"+lines)), 20); // wait a second to send the message to try to make it at the bottom of all the other plugin messages
 		}
 	}
 	
@@ -201,10 +176,10 @@ public class Updater implements Listener {
 		}
 		String curjarname = "ajParkour-"+currentVersion+".jar";
 		String[] slashparts = pl.getDataFolder().toString().split(Matcher.quoteReplacement(File.separator));
-		String pluginspath = "";
+		StringBuilder pluginspath = new StringBuilder();
 		int i = 0;
 		for(String part : slashparts) {
-			pluginspath += part+File.separator;
+			pluginspath.append(part).append(File.separator);
 			i++;
 			if(i+1 >= slashparts.length) break;
 		}
@@ -290,7 +265,6 @@ public class Updater implements Listener {
 		} catch(Exception e) {
 			p.sendMessage(msgs.color("&cAn error occured while trying to download the newest version. Check console for more info"));
 			e.printStackTrace();
-			return;
 		}
 		
 		

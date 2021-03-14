@@ -38,18 +38,26 @@ public class CommandComplete implements TabCompleter {
         	return finalList;
 		} else if(args.length == 2) {
 			switch(args[0].toLowerCase()) {
+				case "reload":
+					List<String> finalList = new ArrayList<>();
+					for(String command : plugin.getReloadable()) {
+						if(command.startsWith(args[1].toLowerCase())) {
+							finalList.add(command);
+						}
+					}
+					return finalList;
 				case "top":
 					List<String> areas = new ArrayList<>();
 					for(PkArea p : plugin.man.getAreas()) {
 						areas.add(p.getName().toLowerCase());
 					}
-					List<String> finalList = new ArrayList<>();
+					List<String> finalList2 = new ArrayList<>();
 		        	for(String command : areas) {
 		            	if(command.startsWith(args[1].toLowerCase())) {
-		            		finalList.add(command);
+		            		finalList2.add(command);
 		            	}
 		            }
-		        	return finalList;
+		        	return finalList2;
 				case "edit":
 					List<String> areas1 = new ArrayList<>();
 					for(PkArea p : plugin.man.getAreas()) {

@@ -1,6 +1,5 @@
 package us.ajg0702.parkour.utils;
 
-import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.util.Vector;
@@ -12,7 +11,7 @@ import java.util.ArrayList;
 */
 public class ParticleRect {
 
-    ArrayList<ParticlePoint> sides = new ArrayList<ParticlePoint>();
+    ArrayList<ParticlePoint> sides = new ArrayList<>();
     Location start;
 
     public ParticleRect(Location start, double width, double length,double height){
@@ -24,18 +23,18 @@ public class ParticleRect {
         Vector E = new Vector(0,height,width);
         Vector F = new Vector(length,height,0);
         Vector G = new Vector(length,0,width);
-        sides.add(new ParticlePoint(A,B));
-        sides.add(new ParticlePoint(A,C));
-        sides.add(new ParticlePoint(A,D));
-        sides.add(new ParticlePoint(C,D));
-        sides.add(new ParticlePoint(B,D));
-        sides.add(new ParticlePoint(C,B));
-        sides.add(new ParticlePoint(B,C));
-        sides.add(new ParticlePoint(D,C));
-        sides.add(new ParticlePoint(D,B));
-        sides.add(new ParticlePoint(E,B));
-        sides.add(new ParticlePoint(F,C));
-        sides.add(new ParticlePoint(G,D));
+        sides.add(new ParticlePoint(A, B));
+        sides.add(new ParticlePoint(A, C));
+        sides.add(new ParticlePoint(A, D));
+        sides.add(new ParticlePoint(C, D));
+        sides.add(new ParticlePoint(B, D));
+        sides.add(new ParticlePoint(C, B));
+        sides.add(new ParticlePoint(B, C));
+        sides.add(new ParticlePoint(D, C));
+        sides.add(new ParticlePoint(D, B));
+        sides.add(new ParticlePoint(E, B));
+        sides.add(new ParticlePoint(F, C));
+        sides.add(new ParticlePoint(G, D));
     }
 
     public Vector getPostion(double blocksAway,Vector origin, Vector direction) {
@@ -60,7 +59,7 @@ public class ParticleRect {
         }
     }
 
-    private class ParticlePoint {
+    private static class ParticlePoint {
         Vector origin,direction;
         ParticlePoint(Vector origin, Vector direction) {
             this.origin = origin;

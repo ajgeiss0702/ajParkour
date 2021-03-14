@@ -20,8 +20,7 @@ public class WorldeditSelector {
 
 	public static boolean bruh(WorldEditPlugin wep, CommandSender sender, Messages msgs, HashMap<String, Object> editing) {
 		Player sply = (Player) sender;
-		WorldEditPlugin we = wep;
-		LocalSession s = we.getSession(sply);
+		LocalSession s = wep.getSession(sply);
 		BlockVector3 max;
 		BlockVector3 min;
 		try {

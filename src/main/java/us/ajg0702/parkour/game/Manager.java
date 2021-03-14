@@ -1,11 +1,5 @@
 package us.ajg0702.parkour.game;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -16,15 +10,14 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerBucketEmptyEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
-
+import org.bukkit.event.player.*;
 import us.ajg0702.parkour.Main;
 import us.ajg0702.parkour.Messages;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * A class for managing all players in the parkour.
@@ -50,22 +43,12 @@ public class Manager implements Listener {
 		
 		msgs = main.msgs;
 		
-		Bukkit.getScheduler().scheduleSyncDelayedTask(pl, new Runnable() {
-			public void run() {
-				reloadPositions();
-			}
-		}, 5);
-		Bukkit.getScheduler().scheduleSyncRepeatingTask(main, new Runnable() {
-			public void run() {
-				checkActive();
-			}
-		}, 15*20, 60*20);
-		Bukkit.getScheduler().runTaskTimer(pl, new Runnable() {
-			public void run() {
-				if(main.config.getBoolean("debug")) {
-					for(PkArea a : getAreas()) {
-						a.draw();
-					}
+		Bukkit.getScheduler().scheduleSyncDelayedTask(pl, this::reloadPositions, 5);
+		Bukkit.getScheduler().scheduleSyncRepeatingTask(main, this::checkActive, 15*20, 60*20);
+		Bukkit.getScheduler().runTaskTimer(pl, () -> {
+			if(main.config.getBoolean("debug")) {
+				for(PkArea a : getAreas()) {
+					a.draw();
 				}
 			}
 		}, 10, 20);
@@ -166,8 +149,8 @@ public class Manager implements Listener {
 		return plys.size();
 	}
 
-	
-	
+
+
 	/**
 	 * Kick a player from parkour.
 	 * @param ply The {@link org.bukkit.entity.Player Player} to kick.
@@ -209,7 +192,7 @@ public class Manager implements Listener {
 		PkArea s = area;
 		if(area == null) {
 			if(fm.equalsIgnoreCase("lowest")) {
-				HashMap<Object, Double> ac = new HashMap<Object, Double>();
+				HashMap<Object, Double> ac = new HashMap<>();
 				for(PkArea p : areas) {
 					int c = getPlayerCounts(p);
 					ac.put(p, (double)c);
@@ -241,15 +224,7 @@ public class Manager implements Listener {
 	 * Checks that all players are still in parkour. If they are not, they are removed from the list of player in parkour
 	 */
 	public void checkActive() {
-		Iterator<PkPlayer> iter = plys.iterator();
-
-		while (iter.hasNext()) {
-		    PkPlayer p = iter.next();
-
-		    if (!p.active) {
-		        iter.remove();
-		    }
-		}
+		plys.removeIf(p -> !p.active);
 	}
 	
 	/**

@@ -1,14 +1,6 @@
 package us.ajg0702.parkour;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.ConcurrentModificationException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -23,7 +15,7 @@ import us.ajg0702.parkour.game.PkPlayer;
  */
 public class Placeholders extends PlaceholderExpansion {
 
-    private Main plugin;
+    private final Main plugin;
 
     /**
      * Since we register the expansion inside our own plugin, we
@@ -98,24 +90,22 @@ public class Placeholders extends PlaceholderExpansion {
         return plugin.getDescription().getVersion();
     }
     
-    HashMap<Player, HashMap<String, String>> responseCache = new HashMap<>();
+    HashMap<Player, LinkedHashMap<String, String>> responseCache = new HashMap<>();
     
     public void cleanCache() {
-    	Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-    		public void run() {
-    			Iterator<Player> it = responseCache.keySet().iterator();
-    	    	while(it.hasNext()) {
-    	    		Player p = it.next();
-    	    		if(p == null) {
-    	    			it.remove();
-    	    			continue;
-    	    		}
-    	    		if(!p.isOnline()) {
-    	    			it.remove();
-    	    		}
-    	    	}
-    		}
-    	});
+    	Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+			Iterator<Player> it = responseCache.keySet().iterator();
+			while(it.hasNext()) {
+				Player p = it.next();
+				if(p == null) {
+					it.remove();
+					continue;
+				}
+				if(!p.isOnline()) {
+					it.remove();
+				}
+			}
+		});
     }
 
     List<String> syncPlaceholders = Arrays.asList("current", "jumping", "jumping_.+");
@@ -151,30 +141,24 @@ public class Placeholders extends PlaceholderExpansion {
         	}
     	}
     	
-    	Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-    		public void run() {
-    			HashMap<String, String> playerCache;
-    			if(responseCache.containsKey(player)) {
-    				playerCache = responseCache.get(player);
-    			} else {
-    				playerCache = new HashMap<String, String>();
-    			}
-    			if(playerCache.size() > 75) {
-    				try {
-    					playerCache.remove(playerCache.keySet().toArray()[0]);
-    				} catch(ConcurrentModificationException e) {
-    					Bukkit.getScheduler().runTask(plugin, new Runnable() {
-    						public void run() {
-    							playerCache.remove(playerCache.keySet().toArray()[0]);
-    						}
-    					});
-    				}
-    			}
-    			String resp = parsePlaceholder(player, identifier);
-    			playerCache.put(identifier, resp);
-    			responseCache.put(player, playerCache);
-    		}
-    	});
+    	Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+			LinkedHashMap<String, String> playerCache;
+			if(responseCache.containsKey(player)) {
+				playerCache = responseCache.get(player);
+			} else {
+				playerCache = new LinkedHashMap<>();
+			}
+			if(playerCache.size() > 75) {
+				try {
+					playerCache.remove(playerCache.entrySet().iterator().next().getKey());
+				} catch(ConcurrentModificationException e) {
+					Bukkit.getScheduler().runTask(plugin, () -> playerCache.remove(playerCache.entrySet().iterator().next().getKey()));
+				}
+			}
+			String resp = parsePlaceholder(player, identifier);
+			playerCache.put(identifier, resp);
+			responseCache.put(player, playerCache);
+		});
     	
     	
     	if(responseCache.containsKey(player)) {
@@ -199,7 +183,7 @@ public class Placeholders extends PlaceholderExpansion {
     
     protected String parsePlaceholder(Player player, String identifier) {
     	if(identifier.matches("stats_top_name_[1-9][0-9]*$")) {
-        	int number = Integer.valueOf(identifier.split("stats_top_name_")[1]);
+        	int number = Integer.parseInt(identifier.split("stats_top_name_")[1]);
         	Map<String, Double> scores = plugin.scores.getSortedScores(true, null);	
         	Set<String> names = scores.keySet();
 
@@ -207,11 +191,10 @@ public class Placeholders extends PlaceholderExpansion {
         		return plugin.msgs.get("placeholders.stats.no-data", player);
         	}
 
-        	String name = names.toArray()[number-1].toString();
-            return name;
+			return names.toArray()[number-1].toString();
         }
         if(identifier.matches("stats_top_name_[1-9][0-9]*_.+$")) {
-        	int number = Integer.valueOf(identifier.split("_")[3]);
+        	int number = Integer.parseInt(identifier.split("_")[3]);
         	String area = identifier.split("_")[4];
         	Map<String, Double> scores = plugin.scores.getSortedScores(true, area);	
         	Set<String> names = scores.keySet();
@@ -219,8 +202,7 @@ public class Placeholders extends PlaceholderExpansion {
         		return plugin.msgs.get("placeholders.stats.no-data", player);
         	}
 
-        	String name = names.toArray()[number-1].toString();
-            return name;
+			return names.toArray()[number-1].toString();
         }
         
         
@@ -228,18 +210,18 @@ public class Placeholders extends PlaceholderExpansion {
 
         // %someplugin_placeholder2%
         if(identifier.matches("stats_top_score_[1-9][0-9]*$")) {
-        	int number = Integer.valueOf(identifier.split("stats_top_score_")[1]);
+        	int number = Integer.parseInt(identifier.split("stats_top_score_")[1]);
         	Map<String, Double> scores = plugin.scores.getSortedScores(true, null);
         	Set<String> plys = scores.keySet();
         	if(scores.keySet().size() < number || plys.toArray()[number-1] == null) {
         		return plugin.msgs.get("placeholders.stats.no-data", player);
         	}
         	String playername = plys.toArray()[number-1].toString();
-        	int score = Integer.valueOf((int) Math.round(scores.get(playername)));
+        	int score = (int) Math.round(scores.get(playername));
         	return score+"";
         }
         if(identifier.matches("stats_top_score_[1-9][0-9]*_.+$")) {
-        	int number = Integer.valueOf(identifier.split("_")[3]);
+        	int number = Integer.parseInt(identifier.split("_")[3]);
         	String area = identifier.split("_")[4];
         	Map<String, Double> scores = plugin.scores.getSortedScores(true, area);
         	Set<String> plys = scores.keySet();
@@ -247,7 +229,7 @@ public class Placeholders extends PlaceholderExpansion {
         		return plugin.msgs.get("placeholders.stats.no-data", player);
         	}
         	String playername = plys.toArray()[number-1].toString();
-        	int score = Integer.valueOf((int) Math.round(scores.get(playername)));
+        	int score = (int) Math.round(scores.get(playername));
         	return score+"";
         }
         
@@ -282,7 +264,7 @@ public class Placeholders extends PlaceholderExpansion {
         
         
         if(identifier.matches("stats_top_time_[1-9][0-9]*$")) {
-        	int number = Integer.valueOf(identifier.split("stats_top_time_")[1]);
+        	int number = Integer.parseInt(identifier.split("stats_top_time_")[1]);
         	Map<String, Double> scores = plugin.scores.getSortedScores(false, null);
         	Set<String> uuids = scores.keySet();
         	if(scores.keySet().size() < number || uuids.toArray()[number-1] == null) {
@@ -296,12 +278,12 @@ public class Placeholders extends PlaceholderExpansion {
         		return plugin.msgs.get("placeholders.stats.no-data", player);
         	}
         	
-        	int min = (int) Math.floor((time) / (60));
-        	int sec = (int) Math.floor((time % (60)));
+        	int min = time / 60;
+        	int sec = time % 60;
         	
             return plugin.msgs.get("placeholders.stats.time-format", player)
-            		.replaceAll("\\{m\\}", min+"")
-            		.replaceAll("\\{s\\}", sec+"");
+            		.replaceAll("\\{m}", min+"")
+            		.replaceAll("\\{s}", sec+"");
         }
         /*if(identifier.matches("stats_top_time_[1-9][0-9]*_.+$")) {
         	int number = Integer.valueOf(identifier.split("_")[3]);

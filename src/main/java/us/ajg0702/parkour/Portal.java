@@ -8,7 +8,7 @@ public class Portal {
 	String name;
 	
 	Location loc;
-	PkArea area = null;
+	PkArea area;
 	
 	public Portal(String name, Location loc, PkArea a) {
 		this.loc = loc;
