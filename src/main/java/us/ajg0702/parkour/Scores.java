@@ -35,7 +35,7 @@ public class Scores {
 
 	String method;
 
-	private HikariConfig hconfig = new HikariConfig();
+	private final HikariConfig hconfig = new HikariConfig();
 	HikariDataSource ds;
 
 
@@ -101,12 +101,12 @@ public class Scores {
 			while(map == null) {
 				if(i > 100) {
 					//plugin.getLogger().warning("Waiting for scores timed out! (this is not an issue with mysql. please report to aj!)");
-					return new HashMap<String, Double>();
+					return new HashMap<>();
 				}
 				try {
 					Thread.sleep(10);
 				} catch (InterruptedException e) {
-					return new HashMap<String, Double>();
+					return new HashMap<>();
 				}
 				map = scoresCache.get(nameKeys+area);
 				i++;
@@ -124,7 +124,7 @@ public class Scores {
 		if(Manager.getInstance().getArea(area) == null && !area.equalsIgnoreCase("null")) {
 			plugin.getLogger().warning("[scores] Could not find area '"+area+"'!");
 		}
-		LinkedHashMap<String, Double> map = new LinkedHashMap<String, Double>();
+		LinkedHashMap<String, Double> map = new LinkedHashMap<>();
 
 		if(method.equals("mysql")) {
 			scoresGetting.put(nameKeys+area, true);
@@ -140,7 +140,7 @@ public class Scores {
 							}
 							if(size == 0) {
 								conn.close();
-								return new LinkedHashMap<String, Double>();
+								return new LinkedHashMap<>();
 							}
 							p.first();
 
@@ -159,7 +159,7 @@ public class Scores {
 								int highest = -1;
 								if(area == null || area.equals("null")) {
 									for(Object kr : o.keySet()) {
-										int value = (int) Math.round((long) o.get(kr));
+										int value = Math.round((long) o.get(kr));
 										if(value > highest) {
 											highest = value;
 										}
@@ -168,7 +168,7 @@ public class Scores {
 									Object raw = o.get(area);
 									highest = raw == null ? -1 : Math.round((long) raw);
 								}
-								map.put(key, Double.valueOf(highest));
+								map.put(key, (double) highest);
 
 								//plugin.getLogger().info(p.getRow() + " " + size);
 
@@ -189,7 +189,7 @@ public class Scores {
 							Bukkit.getLogger().severe("[ajParkour] An error occured when attempting get all players' scores:");
 							e.printStackTrace();
 							conn.close();
-							return new LinkedHashMap<String, Double>();
+							return new LinkedHashMap<>();
 						}
 						conn.close();
 				/*if(cache.containsKey(uuid)) {
@@ -200,7 +200,7 @@ public class Scores {
 			} catch (Exception e) {
 				Bukkit.getLogger().severe("[ajParkour] An error occured when attempting get all players' scores:");
 				e.printStackTrace();
-				return new LinkedHashMap<String, Double>();
+				return new LinkedHashMap<>();
 			}
 		}
 		if(method.equals("yaml")) {
@@ -214,14 +214,12 @@ public class Scores {
 						lps++;
 						key = "LoadingPlayer#"+lps;
 					}
-					Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-						public void run() {
-							String nt = Bukkit.getOfflinePlayer(uuid).getName();
-							if(nt == null) {
-								nt = "-Unknown UUID-";
-							}
-							playerNameCache.put(uuid, nt);
+					Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+						String nt = Bukkit.getOfflinePlayer(uuid).getName();
+						if(nt == null) {
+							nt = "-Unknown UUID-";
 						}
+						playerNameCache.put(uuid, nt);
 					});
 				} else {
 					key = uuid.toString();
@@ -230,7 +228,7 @@ public class Scores {
 				int highest = -1;
 				if(area == null || area.equals("null")) {
 					for(Object kr : o.keySet()) {
-						int value = (int) Math.round((long) o.get(kr));
+						int value = Math.round((long) o.get(kr));
 						if(value > highest) {
 							highest = value;
 						}
@@ -239,7 +237,7 @@ public class Scores {
 					Object raw = o.get(area);
 					highest = raw == null ? -1 : Math.round((long) raw);
 				}
-				map.put(key, Double.valueOf(highest));
+				map.put(key, (double) highest);
 			}
 		}
 
@@ -253,7 +251,7 @@ public class Scores {
 	}
 
 	private void checkStorageConfig() {
-		Map<String, Object> v = new HashMap<String, Object>();
+		Map<String, Object> v = new HashMap<>();
 		v.put("method", "yaml");
 		v.put("mysql.ip", "127.0.0.1:3306");
 		v.put("mysql.username", "");
@@ -338,19 +336,19 @@ public class Scores {
 		method = "mysql";
 		try {
 			conn.createStatement().executeUpdate("alter table "+tablename+" add column time INT(255) after name");
-		} catch(Exception e) {}
+		} catch(Exception ignored) {}
 		try {
 			conn.createStatement().executeUpdate("alter table "+tablename+" add column material TINYTEXT after time");
-		} catch(Exception e) {}
+		} catch(Exception ignored) {}
 		try {
 			conn.createStatement().executeUpdate("alter table "+tablename+" add column gamesplayed INT(255) after material");
-		} catch(Exception e) {}
+		} catch(Exception ignored) {}
 		try {
 			conn.createStatement().executeUpdate("alter table "+tablename+" modify score score MEDIUMTEXT");
-		} catch(Exception e) {}
+		} catch(Exception ignored) {}
 		try {
 			conn.createStatement().executeUpdate("alter table "+tablename+" add PRIMARY KEY (`id`)");
-		} catch(Exception e) {}
+		} catch(Exception ignored) {}
 		conn.close();
 	}
 
@@ -368,7 +366,7 @@ public class Scores {
 		}
 		int highest = -1;
 		for(Object key : o.keySet()) {
-			int value = (int) Math.round((long) o.get(key));
+			int value = Math.round((long) o.get(key));
 			if(value > highest) {
 				highest = value;
 			}
@@ -384,8 +382,7 @@ public class Scores {
 			raw = "{\"null\":"+raw+"}";
 		}
 		try {
-			JSONObject o = (JSONObject) new JSONParser().parse(raw);
-			return o;
+			return (JSONObject) new JSONParser().parse(raw);
 		} catch(Exception e) {
 			Bukkit.getLogger().severe("[ajParkour] An error occured when attempting get a player's score:");
 			e.printStackTrace();
@@ -401,8 +398,7 @@ public class Scores {
 			}
 
 			try {
-				JSONObject o = (JSONObject) new JSONParser().parse(raw);
-				return o;
+				return (JSONObject) new JSONParser().parse(raw);
 			} catch(Exception e) {
 				Bukkit.getLogger().severe("[ajParkour] An error occured when attempting get a player's score:");
 				e.printStackTrace();
@@ -454,7 +450,6 @@ public class Scores {
 		return new JSONObject();
 	}
 
-	HashMap<UUID, Integer> timeCache = new HashMap<>();
 	public int getTime(UUID uuid) {
 		if(method.equals("yaml")) {
 
@@ -497,48 +492,46 @@ public class Scores {
 
 	@SuppressWarnings("unchecked")
 	public void setScore(UUID uuid, int score, int secs, final String area) {
-		Runnable r = new Runnable() {
-			public void run() {
-				String ar = area;
-				if(ar == null) {
-					ar = "null";
+		Runnable r = () -> {
+			String ar = area;
+			if(ar == null) {
+				ar = "null";
+			}
+			JSONObject o = getJsonObject(uuid);
+			o.put(ar, score);
+			String out = o.toJSONString();
+			if(method.equals("yaml")) {
+				scores.set(uuid.toString()+".score", out);
+				scores.set(uuid.toString()+".time", secs);
+				if(score == 0 && secs == 0) {
+					scores.set(uuid.toString(), null);
 				}
-				JSONObject o = getJsonObject(uuid);
-				o.put(ar, score);
-				String out = o.toJSONString();
-				if(method.equals("yaml")) {
-					scores.set(uuid.toString()+".score", out);
-					scores.set(uuid.toString()+".time", secs);
-					if(score == 0 && secs == 0) {
-						scores.set(uuid.toString(), null);
+				saveYaml();
+			} else if(method.equals("mysql")) {
+				try {
+					Connection conn = getConnection();
+					ResultSet r1 = conn.createStatement().executeQuery("select * from "+tablename+" where id='"+uuid.toString()+"'");
+					int size = 0;
+					if(r1 != null) {
+						r1.last();
+						size = r1.getRow();
 					}
-					saveYaml();
-				} else if(method.equals("mysql")) {
-					try {
-						Connection conn = getConnection();
-						ResultSet r = conn.createStatement().executeQuery("select * from "+tablename+" where id='"+uuid.toString()+"'");
-						int size = 0;
-						if(r != null) {
-							r.last();
-							size = r.getRow();
+					if(size <= 0) {
+						if(!(score == 0 && secs == 0)) {
+							conn.createStatement().executeUpdate("insert into "+tablename+" (id, score, name, time) "
+									+ "values ('"+uuid+"', '"+out+"', '"+Bukkit.getOfflinePlayer(uuid).getName()+"', "+secs+")");
 						}
-						if(size <= 0) {
-							if(!(score == 0 && secs == 0)) {
-								conn.createStatement().executeUpdate("insert into "+tablename+" (id, score, name, time) "
-										+ "values ('"+uuid+"', '"+out+"', '"+Bukkit.getOfflinePlayer(uuid).getName()+"', "+secs+")");
-							}
+					} else {
+						if(score == 0 && secs == 0) {
+							conn.createStatement().executeUpdate("delete from `"+tablename+"` where id='"+uuid.toString()+"'");
 						} else {
-							if(score == 0 && secs == 0) {
-								conn.createStatement().executeUpdate("delete from `"+tablename+"` where id='"+uuid.toString()+"'");
-							} else {
-								conn.createStatement().executeUpdate("update "+tablename+" set score='"+out+"',time="+secs+" where id='"+uuid.toString()+"'");
-							}
+							conn.createStatement().executeUpdate("update "+tablename+" set score='"+out+"',time="+secs+" where id='"+uuid.toString()+"'");
 						}
-						conn.close();
-					} catch (SQLException e) {
-						Bukkit.getLogger().severe("[ajParkour] Unable to set score for a player:");
-						e.printStackTrace();
 					}
+					conn.close();
+				} catch (SQLException e) {
+					Bukkit.getLogger().severe("[ajParkour] Unable to set score for a player:");
+					e.printStackTrace();
 				}
 			}
 		};
@@ -551,7 +544,7 @@ public class Scores {
 
 	public void setMaterial(UUID uuid, String mat) {
 		if(method.equals("yaml")) {
-			scores.set(uuid.toString()+".material", mat.toString());
+			scores.set(uuid.toString()+".material", mat);
 			saveYaml();
 		} else if(method.equals("mysql")) {
 			try {
@@ -564,7 +557,7 @@ public class Scores {
 				}
 				if(size <= 0) {
 					conn.createStatement().executeUpdate("insert into "+tablename+" (id, score, name, material) "
-						+ "values ('"+uuid+"', '{}', '"+Bukkit.getOfflinePlayer(uuid).getName()+"', '"+mat.toString()+"')");
+						+ "values ('"+uuid+"', '{}', '"+Bukkit.getOfflinePlayer(uuid).getName()+"', '"+ mat +"')");
 				} else {
 					conn.createStatement().executeUpdate("update "+tablename+" set material='" + mat + "' where id='"+uuid.toString()+"'");
 				}
@@ -645,7 +638,7 @@ public class Scores {
 
 	public List<UUID> getPlayers() {
 		if(method.equals("yaml")) {
-			List<UUID> uuids = new ArrayList<UUID>();
+			List<UUID> uuids = new ArrayList<>();
 			for(String key : scores.getKeys(false)) {
 				uuids.add(UUID.fromString(key));
 			}
@@ -655,7 +648,7 @@ public class Scores {
 					try {
 						Connection conn = getConnection();
 						ResultSet r = conn.createStatement().executeQuery("select id, score from "+tablename+";");
-						List<UUID> uuids = new ArrayList<UUID>();
+						List<UUID> uuids = new ArrayList<>();
 						if(r != null) {
 							r.last();
 							size = r.getRow();
@@ -691,35 +684,31 @@ public class Scores {
 	}
 
 	public void updateName(UUID uuid) {
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-			public void run() {
-				//System.out.println("updateName("+uuid.toString()+")");
-				String newname = Bukkit.getPlayer(uuid).getName();
-				if(method.equals("yaml")) {
-					scores.set(uuid.toString()+".name", newname);
-					saveYaml();
-				} else if(method.equals("mysql")) {
-					try {
-						Connection conn = getConnection();
-						ResultSet r = conn.createStatement().executeQuery("select id from "+tablename+" where id='"+uuid.toString()+"'");
-						int size = 0;
-						if(r != null) {
-							r.last();
-							size = r.getRow();
-						}
-
-						if(size > 0) {
-							conn.createStatement().executeUpdate("update "+tablename+" set name='"+newname+"' where id='"+uuid.toString()+"'");
-						} else {
-							//System.out.println("No name to update for " + newname);
-						}
-						conn.close();
-					} catch (SQLException e) {
-						Bukkit.getLogger().severe("[ajParkour] An error occured while trying to update name for player " + newname+":");
-						e.printStackTrace();
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+			//System.out.println("updateName("+uuid.toString()+")");
+			String newname = Bukkit.getPlayer(uuid).getName();
+			if(method.equals("yaml")) {
+				scores.set(uuid.toString()+".name", newname);
+				saveYaml();
+			} else if(method.equals("mysql")) {
+				try {
+					Connection conn = getConnection();
+					ResultSet r = conn.createStatement().executeQuery("select id from "+tablename+" where id='"+uuid.toString()+"'");
+					int size = 0;
+					if(r != null) {
+						r.last();
+						size = r.getRow();
 					}
 
+					if(size > 0) {
+						conn.createStatement().executeUpdate("update "+tablename+" set name='"+newname+"' where id='"+uuid.toString()+"'");
+					}
+					conn.close();
+				} catch (SQLException e) {
+					Bukkit.getLogger().severe("[ajParkour] An error occured while trying to update name for player " + newname+":");
+					e.printStackTrace();
 				}
+
 			}
 		});
 	}
@@ -772,8 +761,6 @@ public class Scores {
 
 				if(size > 0) {
 					conn.createStatement().executeUpdate("update "+tablename+" set gamesplayed='"+newgp+"' where id='"+uuid.toString()+"'");
-				} else {
-					//System.out.println("No name to update for " + newname);
 				}
 				conn.close();
 			} catch (SQLException e) {
@@ -784,7 +771,6 @@ public class Scores {
 		}
 
 		plugin.getLogger().warning("addToGamesPlayed() could not find a method!");
-		return;
 	}
 
 	public int migrate(String from) {
@@ -801,12 +787,10 @@ public class Scores {
 				//setScore(uuid, s.getInt(key), -1, "null");
 				JSONObject o = getJsonObject(s.getString(key+".score"));
 				for(Object k : o.keySet()) {
-					setScore(uuid, Integer.valueOf(o.get(k)+""), Integer.valueOf(s.getInt(key+".time")), k+"");
+					setScore(uuid, Integer.parseInt(o.get(k)+""), s.getInt(key + ".time"), k+"");
 				}
 				count++;
 			}
-			sc = null;
-			s = null;
 			return count;
 		} else if(from.equalsIgnoreCase("mysql")) {
 			String ip = storageConfig.getString("mysql.ip");
@@ -841,7 +825,7 @@ public class Scores {
 						UUID uuid = UUID.fromString(r.getString(1));
 						JSONObject o = getJsonObject(r.getString(2));
 						for(Object k : o.keySet()) {
-							setScore(uuid, Integer.valueOf(o.get(k)+""), r.getInt(3), k.toString());
+							setScore(uuid, Integer.parseInt(o.get(k)+""), r.getInt(3), k.toString());
 						}
 						//setScore(UUID.fromString(r.getString(1)), r.getString(2), r.getInt(3), null);
 						i--;
@@ -894,7 +878,7 @@ public class Scores {
 						JSONObject o = getJsonObject(r.getString(3));
 						for(Object k : o.keySet()) {
 							System.out.println("moving score");
-							setScore(uuid, Integer.valueOf(o.get(k)+""), -1, k.toString());
+							setScore(uuid, Integer.parseInt(o.get(k)+""), -1, k.toString());
 						}
 						//setScore(UUID.fromString(r.getString(1)), r.getString(2), r.getInt(3), null);
 						i--;

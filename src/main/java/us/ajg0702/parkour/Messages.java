@@ -44,7 +44,7 @@ public class Messages {
 		String raw;
 		if(msgs.isSet(key)) {
 			raw = msgs.getString(key);
-			if(noprefix.indexOf(key) == -1 && !key.equals("prefix")) {
+			if(!noprefix.contains(key) && !key.equals("prefix")) {
 				raw = get("prefix")+raw;
 			}
 		} else {
@@ -75,7 +75,7 @@ public class Messages {
 	public Messages(Main pl) {
 		this.plugin = pl;
 		instance = this;
-		Map<String, String> msgDefaults = new LinkedHashMap<String, String>();
+		Map<String, String> msgDefaults = new LinkedHashMap<>();
 		msgDefaults.put("prefix", "");
 		msgDefaults.put("alreadyin", "&cYou are already in parkour!");
 		msgDefaults.put("start.score", "&aStarted parkour! &7Try to beat your high-score of &r{SCORE}&7!");
@@ -238,7 +238,7 @@ public class Messages {
 			}
 		}
 		
-		Map<String, String> mv = new HashMap<String, String>();
+		Map<String, String> mv = new HashMap<>();
 		mv.put("top-header", "top.header");
 		mv.put("list-header", "list.header");
 		mv.put("block-potion", "block.potion");
@@ -247,7 +247,7 @@ public class Messages {
 		for(String key : mv.keySet()) {
 			if(msgs.isSet(key)) {
 				msgs.set(mv.get(key), msgs.getString(key));
-				if(key.indexOf(mv.get(key)) != -1) {
+				if(key.contains(mv.get(key))) {
 					msgs.set(key, null);
 				}
 			}

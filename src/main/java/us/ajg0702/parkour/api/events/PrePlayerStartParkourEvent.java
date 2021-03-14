@@ -11,7 +11,7 @@ import org.bukkit.event.HandlerList;
 public class PrePlayerStartParkourEvent extends Event implements Cancellable {
 	private boolean isCancelled;
 
-	private Player ply;
+	private final Player ply;
     public PrePlayerStartParkourEvent(Player p) {
         this.ply = p;
     }

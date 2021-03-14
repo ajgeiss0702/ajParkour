@@ -112,7 +112,7 @@ public class PkJump {
 			sign.update();
 		}*/
 		
-		LinkedHashMap<Object, Double> scs = new LinkedHashMap<>();
+		LinkedHashMap<Object, Double> scs;
 		scs = main.sortByValueWithObjectKey(sc, false);
 		
 		
@@ -129,18 +129,16 @@ public class PkJump {
 				poss.put(key, v);
 			}
 		}
-		
-		List<Object> posskeys = new ArrayList<>();
-		posskeys.addAll(poss.keySet());
+
+		List<Object> posskeys = new ArrayList<>(poss.keySet());
 		
 		//System.out.println(posskeys.size()+" o: " + poss.keySet().size());
 		
 		int ki = Main.random(0, posskeys.size()-1);
-		Object k = posskeys.get(ki);
-		selected = k;
+		selected = posskeys.get(ki);
 		
 		
-		blocks = new ArrayList<Location>();
+		blocks = new ArrayList<>();
 		blocks.add((Location) selected);
 	}
 	
@@ -208,7 +206,7 @@ public class PkJump {
 		
 		
 		//ply.getPlayer().sendMessage(ply.msgs.color("&9----------------"));
-		float closest = 0;
+		float closest;
 		float distance = Math.abs(dirs[0] - yaw);
 		int idx = 0;
 		for(int c = 1; c < dirs.length; c++){
@@ -390,7 +388,7 @@ public class PkJump {
 			}
 			MaterialParser.placeBlock(l, type);
 			l.getBlock().setMetadata("ajpk-prevtype", new FixedMetadataValue(main, prev));
-			if(type.toString().equalsIgnoreCase("SKULL") || type.toString().equalsIgnoreCase("PLAYER_HEAD")) {
+			if(type.equalsIgnoreCase("SKULL") || type.equalsIgnoreCase("PLAYER_HEAD")) {
 				List<UUID> presents = main.selector.getPresents();
 				Skull sd = (Skull) l.getBlock().getState();
 				UUID id = presents.get(Main.random(0, presents.size()-1));

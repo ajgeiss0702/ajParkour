@@ -1,25 +1,16 @@
 package us.ajg0702.parkour;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Random;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import net.md_5.bungee.api.ChatColor;
 import us.ajg0702.parkour.game.JumpManager;
 import us.ajg0702.parkour.game.Manager;
 import us.ajg0702.parkour.utils.Updater;
-import us.ajg0702.parkour.utils.VersionSupport;
 import us.ajg0702.utils.spigot.Config;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 public class Main extends JavaPlugin {
 	
@@ -104,11 +95,9 @@ public class Main extends JavaPlugin {
 		JumpManager.getInstance(this);
 		
 		
-		Bukkit.getScheduler().runTaskLaterAsynchronously(this, new Runnable() {
-			public void run() {
-				areaStorage.getAreas();
-				areaStorage.getPortals();
-			}
+		Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
+			areaStorage.getAreas();
+			areaStorage.getPortals();
 		}, 10);
 		
 		getCommand("ajParkour").setTabCompleter(new CommandComplete(this));
@@ -149,23 +138,20 @@ public class Main extends JavaPlugin {
 	    LinkedHashMap<String, Double> sortedMap =
 	        new LinkedHashMap<>();
 
-	    Iterator<Double> valueIt = mapValues.iterator();
-	    while (valueIt.hasNext()) {
-	        Double val = valueIt.next();
-	        Iterator<String> keyIt = mapKeys.iterator();
+		for (Double val : mapValues) {
+			Iterator<String> keyIt = mapKeys.iterator();
 
-	        while (keyIt.hasNext()) {
-	            String key = keyIt.next();
-	            Double comp1 = passedMap.get(key);
-	            Double comp2 = val;
+			while (keyIt.hasNext()) {
+				String key = keyIt.next();
+				Double comp1 = passedMap.get(key);
 
-	            if (comp1.equals(comp2)) {
-	                keyIt.remove();
-	                sortedMap.put(key, val);
-	                break;
-	            }
-	        }
-	    }
+				if (comp1.equals(val)) {
+					keyIt.remove();
+					sortedMap.put(key, val);
+					break;
+				}
+			}
+		}
 	    LinkedHashMap<String, Double> reverseMap = new LinkedHashMap<>();
 	    List<Entry<String,Double>> list = new ArrayList<>(sortedMap.entrySet());
 
@@ -186,23 +172,20 @@ public class Main extends JavaPlugin {
 	    LinkedHashMap<Object, Double> sortedMap =
 	        new LinkedHashMap<>();
 
-	    Iterator<Double> valueIt = mapValues.iterator();
-	    while (valueIt.hasNext()) {
-	        Double val = valueIt.next();
-	        Iterator<Object> keyIt = mapKeys.iterator();
+		for (Double val : mapValues) {
+			Iterator<Object> keyIt = mapKeys.iterator();
 
-	        while (keyIt.hasNext()) {
-	            Object key = keyIt.next();
-	            Double comp1 = passedMap.get(key);
-	            Double comp2 = val;
+			while (keyIt.hasNext()) {
+				Object key = keyIt.next();
+				Double comp1 = passedMap.get(key);
 
-	            if (comp1.equals(comp2)) {
-	                keyIt.remove();
-	                sortedMap.put(key, val);
-	                break;
-	            }
-	        }
-	    }
+				if (comp1.equals(val)) {
+					keyIt.remove();
+					sortedMap.put(key, val);
+					break;
+				}
+			}
+		}
 	    if(reverse) {
 	    	LinkedHashMap<Object, Double> reverseMap = new LinkedHashMap<>();
 		    List<Entry<Object,Double>> list = new ArrayList<>(sortedMap.entrySet());
@@ -220,21 +203,12 @@ public class Main extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		man.disable();
-		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', 
-				"&cajParkour &4v"+this.getDescription().getVersion()+" by ajgeiss0702 has been &cdisabled!"));
+		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',
+				"&cajParkour &4v" + this.getDescription().getVersion() + " by ajgeiss0702 has been &cdisabled!"));
 	}
 	
 	
-	public static String nullstring(Object n) {
-		if(n == null) {
-			return "null";
-		} else {
-			return n.toString();
-		}
-	}
-	
-	
-	final private List<String> reloadable = new LinkedList<String>(Arrays.asList("config", "areas", "messages", "blocks", "rewards", "scores", "jumps"));
+	final private List<String> reloadable = new LinkedList<>(Arrays.asList("config", "areas", "messages", "blocks", "rewards", "scores", "jumps"));
 	public List<String> getReloadable() {
 		return new ArrayList<>(reloadable);
 	}

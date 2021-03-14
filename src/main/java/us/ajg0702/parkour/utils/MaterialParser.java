@@ -13,12 +13,12 @@ public class MaterialParser {
 		blockname = blockname.split(";")[0];
 		Material mat;
 		int data = -1;
-		if(blockname.indexOf(":") != -1 && VersionSupport.getMinorVersion() <= 12) {
+		if(blockname.contains(":") && VersionSupport.getMinorVersion() <= 12) {
 			String sd = blockname.split(":")[1];
 			if(sd.equalsIgnoreCase("true")) {
 				data = Main.random(0, 16);
 			} else {
-				data = Integer.valueOf(sd);
+				data = Integer.parseInt(sd);
 			}
 		}
 		try {

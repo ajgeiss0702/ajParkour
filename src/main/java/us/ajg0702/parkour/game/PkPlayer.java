@@ -1,16 +1,7 @@
 package us.ajg0702.parkour.game;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
+import fr.mrmicky.infinitejump.InfiniteJump;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,8 +10,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-
-import fr.mrmicky.infinitejump.InfiniteJump;
 import us.ajg0702.parkour.Main;
 import us.ajg0702.parkour.Messages;
 import us.ajg0702.parkour.Rewards;
@@ -29,14 +18,18 @@ import us.ajg0702.parkour.api.events.PlayerEndParkourEvent;
 import us.ajg0702.parkour.api.events.PlayerJumpEvent;
 import us.ajg0702.parkour.api.events.PlayerStartParkourEvent;
 import us.ajg0702.parkour.api.events.PrePlayerStartParkourEvent;
-import us.ajg0702.parkour.game.Manager;
-import us.ajg0702.utils.spigot.Config;
 import us.ajg0702.parkour.utils.InvManager;
 import us.ajg0702.parkour.utils.VersionSupport;
+import us.ajg0702.utils.spigot.Config;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class PkPlayer implements Listener {
 	
-	long lastmove = System.currentTimeMillis();
+	long lastmove;
 	
 	Player ply;
 	Manager man;
@@ -67,13 +60,11 @@ public class PkPlayer implements Listener {
 	int afkkick;
 	int afktask;
 	
-	int lasty = 0;
-	
-	int ahead = 1; // how many (extra) blocks to make ahead
+	int ahead; // how many (extra) blocks to make ahead
 	
 	int clearPotsTaskID;
 	
-	boolean fasterAfkCheck = false;
+	boolean fasterAfkCheck;
 	int fastAfkCheckID;
 	
 	public boolean beatServerHighscore = false;
@@ -125,23 +116,17 @@ public class PkPlayer implements Listener {
 			return;
 		}
 		
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-			public void run() {
-				prevhigh = scores.getScore(ply.getUniqueId(), config.getBoolean("begin-score-per-area") ? area.getName() : null);
-				if(prevhigh > 0 && !(prevhigh+"").equalsIgnoreCase("-1")) {
-					p.sendMessage(msgs.get("start.score", p).replaceAll("\\{SCORE\\}", ""+prevhigh));
-				} else {
-					p.sendMessage(msgs.get("start.first", p).replaceAll("\\{SCORE\\}", ""+prevhigh));
-				}
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+			prevhigh = scores.getScore(ply.getUniqueId(), config.getBoolean("begin-score-per-area") ? area.getName() : null);
+			if(prevhigh > 0 && !(prevhigh+"").equalsIgnoreCase("-1")) {
+				p.sendMessage(msgs.get("start.score", p).replaceAll("\\{SCORE}", ""+prevhigh));
+			} else {
+				p.sendMessage(msgs.get("start.first", p).replaceAll("\\{SCORE}", ""+prevhigh));
 			}
 		});
 		
 		
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-			public void run() {
-				plugin.scores.addToGamesPlayed(p.getUniqueId());
-			}
-		});
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> plugin.scores.addToGamesPlayed(p.getUniqueId()));
 		
 		
 		if(!fasterAfkCheck) {
@@ -149,11 +134,7 @@ public class PkPlayer implements Listener {
 				Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
 			}
 		} else if(afkkick > 0) {
-			fastAfkCheckID = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {
-				public void run() {
-					onMove(new PlayerMoveEvent(ply, p.getLocation(), p.getLocation()));
-				}
-			}, 5, 5).getTaskId();
+			fastAfkCheckID = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> onMove(new PlayerMoveEvent(ply, p.getLocation(), p.getLocation())), 5, 5).getTaskId();
 		}
 		
 		infiniteJump = Bukkit.getPluginManager().getPlugin("InfiniteJump") != null;
@@ -182,11 +163,7 @@ public class PkPlayer implements Listener {
 		Location tp = jumps.get(0).getTo();
 		teleporting = true;
 		p.teleport(new Location(tp.getWorld(), tp.getX()+0.5, tp.getY()+1.5, tp.getZ()+0.5, p.getLocation().getYaw(), p.getLocation().getPitch()));
-		Bukkit.getScheduler().scheduleSyncDelayedTask(m.main, new Runnable() {
-			public void run() {
-				teleporting = false;
-			}
-		}, 5);
+		Bukkit.getScheduler().scheduleSyncDelayedTask(m.main, () -> teleporting = false, 5);
 		
 		playSound("start-sound", p);
 		
@@ -213,24 +190,20 @@ public class PkPlayer implements Listener {
 		}
 		
 		if(afkkick >= 0) {
-			afktask = Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
-				public void run() {
-					long distance = System.currentTimeMillis() - lastmove;
-					if(distance > (afkkick*1000)) {
-						end(msgs.get("fall.force.afk"));
-					}
+			afktask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+				long distance = System.currentTimeMillis() - lastmove;
+				if(distance > (afkkick* 1000L)) {
+					end(msgs.get("fall.force.afk"));
 				}
-			}, afkkick*20, 20).getTaskId();
+			}, afkkick* 20L, 20).getTaskId();
 		}
 		
 		clearPots();
-		clearPotsTaskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
-			public void run() {
-				if(Manager.getInstance().getPlayer(ply) != null) {
-					clearPots();
-				}
+		clearPotsTaskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+			if(Manager.getInstance().getPlayer(ply) != null) {
+				clearPots();
 			}
-		}, 0, 1*20);
+		}, 0, 20);
 		
 		
 		
@@ -245,14 +218,14 @@ public class PkPlayer implements Listener {
 		}
 	}
 	
-	private List<PotionEffectType> disallowedPots = Arrays.asList(
+	private final List<PotionEffectType> disallowedPots = Arrays.asList(
 			PotionEffectType.SPEED,
 			PotionEffectType.JUMP,
 			PotionEffectType.getByName("LEVITATION"),
 			PotionEffectType.getByName("SLOW_FALLING"));
 	private void clearPots() {
 		for(PotionEffect effect : ply.getActivePotionEffects()) {
-	        if(disallowedPots.indexOf(effect.getType()) != -1) {
+	        if(disallowedPots.contains(effect.getType())) {
 	        	ply.removePotionEffect(effect.getType());
 	        }
 	    }
@@ -270,12 +243,12 @@ public class PkPlayer implements Listener {
 		jumps.add(nj);
 		VersionSupport.sendActionBar(ply, 
 				msgs.get("score")
-				.replaceAll("\\{SCORE\\}", score+"")
-				.replaceAll("\\{HIGHSCORE\\}", prevhigh < 0 ? "0" : prevhigh+"")
+				.replaceAll("\\{SCORE}", score+"")
+				.replaceAll("\\{HIGHSCORE}", prevhigh < 0 ? "0" : prevhigh+"")
 				);
 		
 		if(score == prevhigh && prevhigh > 0) {
-			ply.sendMessage(msgs.get("beatrecord-ingame", ply).replaceAll("\\{SCORE\\}", prevhigh+""));
+			ply.sendMessage(msgs.get("beatrecord-ingame", ply).replaceAll("\\{SCORE}", prevhigh+""));
 		}
 		
 		
@@ -312,7 +285,7 @@ public class PkPlayer implements Listener {
 			Sound sound = null;
 			try {
 				sound = Sound.valueOf(soundraw);
-			} catch(IllegalArgumentException e) { }
+			} catch(IllegalArgumentException ignored) { }
 			if(sound != null) {
 				if(VersionSupport.getMinorVersion() >= 12) {
 					ply.playSound(loc, sound, SoundCategory.MASTER, 1, 1);
@@ -392,7 +365,6 @@ public class PkPlayer implements Listener {
 				plyloc.getBlockY() > getHighestBlock().getTo().getBlockY()+3
 			) {
 			end();
-			return;
 		}
 	}
 	
@@ -452,13 +424,13 @@ public class PkPlayer implements Listener {
 		if(!reason.isEmpty()) {
 			ply.sendMessage(msgs.get("fall.force.base")+reason);
 		}
-		ply.sendMessage(msgs.get("fall.normal").replaceAll("\\{SCORE\\}", score+""));
+		ply.sendMessage(msgs.get("fall.normal").replaceAll("\\{SCORE}", score+""));
 		
 		int prevscore = scores.getScore(ply.getUniqueId(), area.getName());
 		if(prevscore < score) {
 			int time = (int) (System.currentTimeMillis() - started)/1000;
 			scores.setScore(ply.getUniqueId(), score, time, area.getName());
-			ply.sendMessage(msgs.get("beatrecord", ply).replaceAll("\\{SCORE\\}", prevscore+""));
+			ply.sendMessage(msgs.get("beatrecord", ply).replaceAll("\\{SCORE}", prevscore+""));
 		}
 		
 		
