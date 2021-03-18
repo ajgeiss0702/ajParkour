@@ -175,6 +175,7 @@ public class Placeholders extends PlaceholderExpansion {
     		if(plugin.config.getBoolean("debug")) {
 				plugin.getLogger().info("Cache does not have player "+player.getName()+"! Returning "+identifier+" sync!");
 			}
+    		if(plugin.scores.method.equalsIgnoreCase("mysql")) return "Loading..";
     		return parsePlaceholder(player, identifier);
 		}
     	
