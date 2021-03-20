@@ -7,6 +7,14 @@ cache:
     - .gradle
 
 
+
+build:
+  script:
+  - gradle shadowJar
+  artifacts:
+    paths:
+    - build/libs
+
 pages:
   script:
   - gradle javadoc
