@@ -7,8 +7,8 @@ cache:
     - .gradle
 
 
-
 build:
+  stage: build
   script:
   - gradle shadowJar
   artifacts:
@@ -16,10 +16,24 @@ build:
     - build/libs
 
 pages:
+  stage: build
   image: gradle:6.8.3-jdk15
+  only:
+  - master
   script:
   - gradle javadoc
   - mv build/docs/javadoc public
   artifacts:
     paths:
     - public
+
+upload to updater:
+  stage: deploy
+  only:
+  - master
+  dependencies:
+  - build
+  script:
+  - cd build/libs
+  - files=(*)
+  - curl -i -F "submit=true" -F "secret=$UPLOAD_SECRET" -F "file=@${files[0]}" https://ajg0702.us/pl/updater/upload.php
