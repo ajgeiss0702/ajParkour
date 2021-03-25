@@ -273,7 +273,7 @@ public class Manager implements Listener {
 	public void onInteract(PlayerInteractEvent e) {
 		Player p = e.getPlayer();
 		if(getPlayer(p) == null) return;
-		if(e.getMaterial().equals(Material.CHEST)) {
+		if(e.getMaterial().equals(Material.CHEST) && main.config.getBoolean("parkour-inventory")) {
 			main.selector.openSelector(p);
 			e.setCancelled(true);
 		}
