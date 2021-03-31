@@ -160,18 +160,19 @@ public class BlockSelector implements Listener {
 	
 	public Inventory openSelector(Player ply) {
 		Inventory inv = Bukkit.createInventory(ply, 54, msgs.get("gui.selector.title", ply));
-		
-		ply.openInventory(inv);
+
+		inv = addBlocks(ply, inv, 0);
 		plys.put(ply, inv);
-		inv = addBlocks(inv, 0);
 		pages.put(ply, 0);
+		ply.openInventory(inv);
 		return inv;
 	}
 	
 	@SuppressWarnings("deprecation")
-	private Inventory addBlocks(Inventory inv, int pageIndex) {
+	private Inventory addBlocks(Player player, Inventory inv, int pageIndex) {
+		//plugin.getLogger().info("[blocks] addBlocks pg: "+pageIndex);
 		Material randomMat = Material.valueOf(plugin.config.getString("random-item"));
-		String rawselected = plugin.scores.getMaterial(inv.getViewers().get(0).getUniqueId());
+		String rawselected = plugin.scores.getMaterial(player.getUniqueId());
 		if(rawselected == null) {
 			rawselected = "random";
 		}
@@ -289,21 +290,21 @@ public class BlockSelector implements Listener {
 			if(e.getSlot() == 8) {
 				pages.put(p, pages.get(p)+1);
 				inv.clear();
-				plys.put(p, addBlocks(inv, pages.get(p)));
+				plys.put(p, addBlocks(p, inv, pages.get(p)));
 				return;
 			}
 			if(e.getSlot() == 0) {
 				if(pages.get(p) <= 0) return;
 				pages.put(p, pages.get(p)-1);
 				inv.clear();
-				plys.put(p, addBlocks(inv, pages.get(p)));
+				plys.put(p, addBlocks(p, inv, pages.get(p)));
 				return;
 			}
 			matname = "random";
 		}
 		scores.setMaterial(p.getUniqueId(), matname);
 		inv.clear();
-		plys.put(p, addBlocks(inv, pages.get(p)));
+		plys.put(p, addBlocks(p, inv, pages.get(p)));
 		e.setCancelled(true);
 	}
 	
