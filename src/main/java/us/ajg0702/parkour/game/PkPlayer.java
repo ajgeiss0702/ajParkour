@@ -425,8 +425,9 @@ public class PkPlayer implements Listener {
 			ply.sendMessage(msgs.get("fall.force.base")+reason);
 		}
 		ply.sendMessage(msgs.get("fall.normal").replaceAll("\\{SCORE}", score+""));
-		
-		int prevscore = scores.getScore(ply.getUniqueId(), area.getName());
+
+		String scoreArea = plugin.getAConfig().getBoolean("begin-score-per-area") ? area.getName() : null;
+		int prevscore = scores.getScore(ply.getUniqueId(), scoreArea);
 		if(prevscore < score) {
 			int time = (int) (System.currentTimeMillis() - started)/1000;
 			scores.setScore(ply.getUniqueId(), score, time, area.getName());
