@@ -5,6 +5,7 @@ image: gradle:6.8.2-jdk8
 cache:
   paths:
     - .gradle
+    - build
 
 
 build:
