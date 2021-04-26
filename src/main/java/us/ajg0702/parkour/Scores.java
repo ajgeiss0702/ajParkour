@@ -133,19 +133,9 @@ public class Scores {
 				Connection conn = getConnection();
 						try {
 							ResultSet p = conn.createStatement().executeQuery("select id,score,name from "+tablename);
-							int size = 0;
-							if(p != null) {
-								p.last();
-								size = p.getRow();
-							}
-							if(size == 0) {
-								conn.close();
-								return new LinkedHashMap<>();
-							}
-							p.first();
 
-
-							while(p.getRow() <= size) {
+							boolean next = true;
+							while(next) {
 								String key;
 								if(nameKeys) {
 									key = p.getString(3);
@@ -172,11 +162,7 @@ public class Scores {
 
 								//plugin.getLogger().info(p.getRow() + " " + size);
 
-								if(p.getRow() != size) {
-									p.next();
-								} else {
-									break;
-								}
+								next = p.next();
 							}
 
 
@@ -410,16 +396,6 @@ public class Scores {
 				Connection conn = getConnection();
 						try {
 							ResultSet p = conn.createStatement().executeQuery("select score from "+tablename+" where id='"+uuid.toString()+"'");
-							int size = 0;
-							if(p != null) {
-								p.last();
-								size = p.getRow();
-							}
-							if(size == 0) {
-								conn.close();
-								return new JSONObject();
-							}
-							p.first();
 
 
 							String raw = p.getString(1);
@@ -459,15 +435,6 @@ public class Scores {
 					try {
 						Connection conn = getConnection();
 						ResultSet p = conn.createStatement().executeQuery("select time from "+tablename+" where id='"+uuid.toString()+"'");
-						int size = 0;
-						if(p != null) {
-							p.last();
-							size = p.getRow();
-						}
-						if(size == 0) {
-							return -1;
-						}
-						p.first();
 						int r = p.getInt(1);
 						conn.close();
 						return r;
@@ -579,16 +546,6 @@ public class Scores {
 					try {
 						Connection conn = getConnection();
 						ResultSet p = conn.createStatement().executeQuery("select material from "+tablename+" where id='"+uuid.toString()+"'");
-						int size = 0;
-						if(p != null) {
-							p.last();
-							size = p.getRow();
-						}
-						if(size == 0) {
-							conn.close();
-							return "RANDOM";
-						}
-						p.first();
 						String r = p.getString(1);
 						conn.close();
 						return r;
