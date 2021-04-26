@@ -478,12 +478,7 @@ public class Scores {
 				try {
 					Connection conn = getConnection();
 					ResultSet r1 = conn.createStatement().executeQuery("select * from "+tablename+" where id='"+uuid.toString()+"'");
-					int size = 0;
-					if(r1 != null) {
-						r1.last();
-						size = r1.getRow();
-					}
-					if(size <= 0) {
+					if(r1.isAfterLast()) {
 						if(!(score == 0 && secs == 0)) {
 							conn.createStatement().executeUpdate("insert into "+tablename+" (id, score, name, time) "
 									+ "values ('"+uuid+"', '"+out+"', '"+Bukkit.getOfflinePlayer(uuid).getName()+"', "+secs+")");
@@ -517,12 +512,7 @@ public class Scores {
 			try {
 				Connection conn = getConnection();
 				ResultSet r = conn.createStatement().executeQuery("select * from "+tablename+" where id='"+uuid.toString()+"'");
-				int size = 0;
-				if(r != null) {
-					r.last();
-					size = r.getRow();
-				}
-				if(size <= 0) {
+				if(r.isAfterLast()) {
 					conn.createStatement().executeUpdate("insert into "+tablename+" (id, score, name, material) "
 						+ "values ('"+uuid+"', '{}', '"+Bukkit.getOfflinePlayer(uuid).getName()+"', '"+ mat +"')");
 				} else {
@@ -572,12 +562,7 @@ public class Scores {
 			try {
 				Connection conn = getConnection();
 				ResultSet r = conn.createStatement().executeQuery("select name from "+tablename+" where id='"+uuid.toString()+"'");
-				int size = 0;
-				if(r != null) {
-					r.last();
-					size = r.getRow();
-				}
-				if(size <= 0) {
+				if(r.isAfterLast()) {
 					return null;
 				}
 				String re = r.getString("name");
@@ -601,31 +586,20 @@ public class Scores {
 			}
 			return uuids;
 		} else if(method.equals("mysql")) {
-					int size = 0;
 					try {
 						Connection conn = getConnection();
 						ResultSet r = conn.createStatement().executeQuery("select id, score from "+tablename+";");
 						List<UUID> uuids = new ArrayList<>();
-						if(r != null) {
-							r.last();
-							size = r.getRow();
-						}
-						if(size > 0) {
-							int i = size;
-							r.first();
-							while(i > 0) {
-								//Bukkit.getLogger().info(i+"");
-								uuids.add(UUID.fromString(r.getString(1)));
-								i--;
-								if(i > 0) {
-									r.next();
-								}
-							}
+						boolean next = !r.isAfterLast();
+						while(next) {
+							//Bukkit.getLogger().info(i+"");
+							uuids.add(UUID.fromString(r.getString(1)));
+							next = r.next();
 						}
 						conn.close();
 						return uuids;
 					} catch (SQLException e) {
-						Bukkit.getLogger().severe("[ajParkour] An error occured while trying to get list of ("+size+") scores:");
+						Bukkit.getLogger().severe("[ajParkour] An error occured while trying to get list of scores:");
 						e.printStackTrace();
 					}
 			/*if(sort) {
@@ -651,13 +625,8 @@ public class Scores {
 				try {
 					Connection conn = getConnection();
 					ResultSet r = conn.createStatement().executeQuery("select id from "+tablename+" where id='"+uuid.toString()+"'");
-					int size = 0;
-					if(r != null) {
-						r.last();
-						size = r.getRow();
-					}
 
-					if(size > 0) {
+					if(!r.isAfterLast()) {
 						conn.createStatement().executeUpdate("update "+tablename+" set name='"+newname+"' where id='"+uuid.toString()+"'");
 					}
 					conn.close();
@@ -678,12 +647,7 @@ public class Scores {
 			try {
 				Connection conn = getConnection();
 				ResultSet r = conn.createStatement().executeQuery("select gamesplayed from "+tablename+" where id='"+uuid.toString()+"'");
-				int size = 0;
-				if(r != null) {
-					r.last();
-					size = r.getRow();
-				}
-				if(size <= 0) {
+				if(r.isAfterLast()) {
 					conn.close();
 					return -1;
 				}
@@ -710,13 +674,8 @@ public class Scores {
 			try {
 				Connection conn = getConnection();
 				ResultSet r = conn.createStatement().executeQuery("select id from "+tablename+" where id='"+uuid.toString()+"'");
-				int size = 0;
-				if(r != null) {
-					r.last();
-					size = r.getRow();
-				}
 
-				if(size > 0) {
+				if(!r.isAfterLast()) {
 					conn.createStatement().executeUpdate("update "+tablename+" set gamesplayed='"+newgp+"' where id='"+uuid.toString()+"'");
 				}
 				conn.close();
@@ -772,25 +731,20 @@ public class Scores {
 				con.createStatement().executeUpdate("create table if not exists "+table+" (id VARCHAR(36), score BIGINT(255), name VARCHAR(17))");
 
 				ResultSet r = con.createStatement().executeQuery("select id,score,time from "+tablename);
-				int size = 0;
 				if(r != null) {
-					r.last();
-					size = r.getRow();
-
-					int i = size;
-					while(i > 0) {
+					boolean next = !r.isAfterLast();
+					while(next) {
 						UUID uuid = UUID.fromString(r.getString(1));
 						JSONObject o = getJsonObject(r.getString(2));
 						for(Object k : o.keySet()) {
 							setScore(uuid, Integer.parseInt(o.get(k)+""), r.getInt(3), k.toString());
 						}
 						//setScore(UUID.fromString(r.getString(1)), r.getString(2), r.getInt(3), null);
-						i--;
-						r.next();
+						next = r.next();
 					}
 
 				}
-				return size;
+				return r.getRow();
 			} catch (SQLException e) {
 				e.printStackTrace();
 				return 0;
@@ -819,17 +773,9 @@ public class Scores {
 				con.createStatement().executeUpdate("create table if not exists "+table+" (`id` int(11) NOT NULL AUTO_INCREMENT,`player` varchar(40) NOT NULL,`score` int(11) NOT NULL, PRIMARY KEY (`id`))");
 
 				ResultSet r = con.createStatement().executeQuery("select * from "+table);
-				int size = 0;
-				//System.out.println("0");
 				if(r != null) {
-					//System.out.println("1");
-					r.last();
-					size = r.getRow();
-					//System.out.println("size: "+size);
-					r.first();
-
-					int i = size;
-					while(i > 0) {
+					boolean next = !r.isAfterLast();
+					while(next) {
 						//System.out.println("2");
 						UUID uuid = UUID.fromString(r.getString(2));
 						JSONObject o = getJsonObject(r.getString(3));
@@ -838,12 +784,11 @@ public class Scores {
 							setScore(uuid, Integer.parseInt(o.get(k)+""), -1, k.toString());
 						}
 						//setScore(UUID.fromString(r.getString(1)), r.getString(2), r.getInt(3), null);
-						i--;
-						r.next();
+						next = r.next();
 					}
 
 				}
-				return size;
+				return r.getRow();
 			} catch (SQLException e) {
 				e.printStackTrace();
 				return 0;
