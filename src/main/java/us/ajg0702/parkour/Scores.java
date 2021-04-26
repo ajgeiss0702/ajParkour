@@ -134,7 +134,7 @@ public class Scores {
 						try {
 							ResultSet p = conn.createStatement().executeQuery("select id,score,name from "+tablename);
 
-							boolean next = true;
+							boolean next = p.isBeforeFirst();
 							while(next) {
 								String key;
 								if(nameKeys) {
@@ -590,7 +590,8 @@ public class Scores {
 						Connection conn = getConnection();
 						ResultSet r = conn.createStatement().executeQuery("select id, score from "+tablename+";");
 						List<UUID> uuids = new ArrayList<>();
-						boolean next = !r.isAfterLast();
+						boolean next = r.isBeforeFirst();
+
 						while(next) {
 							//Bukkit.getLogger().info(i+"");
 							uuids.add(UUID.fromString(r.getString(1)));
@@ -732,7 +733,7 @@ public class Scores {
 
 				ResultSet r = con.createStatement().executeQuery("select id,score,time from "+tablename);
 				if(r != null) {
-					boolean next = !r.isAfterLast();
+					boolean next = r.isBeforeFirst();
 					while(next) {
 						UUID uuid = UUID.fromString(r.getString(1));
 						JSONObject o = getJsonObject(r.getString(2));
@@ -774,7 +775,7 @@ public class Scores {
 
 				ResultSet r = con.createStatement().executeQuery("select * from "+table);
 				if(r != null) {
-					boolean next = !r.isAfterLast();
+					boolean next = r.isBeforeFirst();
 					while(next) {
 						//System.out.println("2");
 						UUID uuid = UUID.fromString(r.getString(2));
