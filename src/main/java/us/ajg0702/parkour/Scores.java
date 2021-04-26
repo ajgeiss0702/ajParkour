@@ -397,6 +397,10 @@ public class Scores {
 						try {
 							ResultSet p = conn.createStatement().executeQuery("select score from "+tablename+" where id='"+uuid.toString()+"'");
 
+							if(!p.isBeforeFirst()) {
+								conn.close();
+								return new JSONObject();
+							}
 
 							String raw = p.getString(1);
 							if(isInt(raw)) {
@@ -512,7 +516,7 @@ public class Scores {
 			try {
 				Connection conn = getConnection();
 				ResultSet r = conn.createStatement().executeQuery("select * from "+tablename+" where id='"+uuid.toString()+"'");
-				if(r.isAfterLast()) {
+				if(!r.isBeforeFirst()) {
 					conn.createStatement().executeUpdate("insert into "+tablename+" (id, score, name, material) "
 						+ "values ('"+uuid+"', '{}', '"+Bukkit.getOfflinePlayer(uuid).getName()+"', '"+ mat +"')");
 				} else {
@@ -536,6 +540,10 @@ public class Scores {
 					try {
 						Connection conn = getConnection();
 						ResultSet p = conn.createStatement().executeQuery("select material from "+tablename+" where id='"+uuid.toString()+"'");
+						if(!p.isBeforeFirst()) {
+							conn.close();
+							return "RANDOM";
+						}
 						String r = p.getString(1);
 						conn.close();
 						return r;
@@ -562,7 +570,7 @@ public class Scores {
 			try {
 				Connection conn = getConnection();
 				ResultSet r = conn.createStatement().executeQuery("select name from "+tablename+" where id='"+uuid.toString()+"'");
-				if(r.isAfterLast()) {
+				if(!r.isBeforeFirst()) {
 					return null;
 				}
 				String re = r.getString("name");
@@ -627,7 +635,7 @@ public class Scores {
 					Connection conn = getConnection();
 					ResultSet r = conn.createStatement().executeQuery("select id from "+tablename+" where id='"+uuid.toString()+"'");
 
-					if(!r.isAfterLast()) {
+					if(r.isBeforeFirst()) {
 						conn.createStatement().executeUpdate("update "+tablename+" set name='"+newname+"' where id='"+uuid.toString()+"'");
 					}
 					conn.close();
@@ -648,7 +656,7 @@ public class Scores {
 			try {
 				Connection conn = getConnection();
 				ResultSet r = conn.createStatement().executeQuery("select gamesplayed from "+tablename+" where id='"+uuid.toString()+"'");
-				if(r.isAfterLast()) {
+				if(!r.isBeforeFirst()) {
 					conn.close();
 					return -1;
 				}
@@ -676,7 +684,7 @@ public class Scores {
 				Connection conn = getConnection();
 				ResultSet r = conn.createStatement().executeQuery("select id from "+tablename+" where id='"+uuid.toString()+"'");
 
-				if(!r.isAfterLast()) {
+				if(r.isBeforeFirst()) {
 					conn.createStatement().executeUpdate("update "+tablename+" set gamesplayed='"+newgp+"' where id='"+uuid.toString()+"'");
 				}
 				conn.close();
