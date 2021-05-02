@@ -51,11 +51,11 @@ execute-reward-commands: after
 parkour-inventory: true
 
 # If a world is listed here, the /ajParkour start command will not be usable from that world.
-# World names are seperated by commas (without spaces) and are case-sensitive!
-#  Example: 'disabledworld1,disabledworld2'
-start-disabled-worlds: disabledworld1,disabledworld2
+# World names are separated by commas (without spaces) and are case-sensitive!
+#  Example: 'disabledWorld1,disabledWorld2'
+start-disabled-worlds: disabledWorld1,disabledWorld2
 
-# How long, in seconds, after a player doesnt move should we kick them from the parkour?
+# How long, in seconds, after a player doesn't move should we kick them from the parkour?
 # Set to -1 to disable
 #  Default: 60
 kick-time: 60
@@ -76,7 +76,7 @@ begin-score-per-area: false
 #  Default: true
 enable-portals: true
 
-# Shoud we use a more optimized method to look if players are at a portal?
+# Should we use a more optimized method to look if players are at a portal?
 # It may require the player to be in the block for a little longer
 # Enable this if you have a lot of people on your server and are experiencing lag.
 #  Default: false
@@ -97,7 +97,7 @@ faster-afk-detection: false
 #  Default: CLOUD
 new-block-particle: CLOUD
 
-# Sould we enable the block selector item in the parkour inventory?
+# Should we enable the block selector item in the parkour inventory?
 # If this is disabled, the parkour inventory will just be blank
 #  Default: true
 enable-block-selector-item: true
