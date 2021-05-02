@@ -107,11 +107,6 @@ enable-block-selector-item: true
 #  Default: false
 require-permission-for-block-selector-item: false
 
-# How often should we update the top?
-# In seconds, supports decimals
-#  Default: 5
-top-update-delay: 5
-
 
 # Some things that can help look for issues in the plugin
 #  Default: false

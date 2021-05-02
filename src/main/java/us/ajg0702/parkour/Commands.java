@@ -378,6 +378,10 @@ public class Commands implements CommandExecutor {
 									sender.sendMessage(msgs.get("setup.already-creating", sply));
 									editingoverrideplayer = (Player) sender;
 								} else {
+									if(args[2].equalsIgnoreCase("overall")) {
+										sender.sendMessage(msgs.get("setup.invalid-name", sply));
+										return true;
+									}
 									editing = new HashMap<>();
 									editing.put("name", args[2]);
 									sender.sendMessage(msgs.get("setup.created", sply));

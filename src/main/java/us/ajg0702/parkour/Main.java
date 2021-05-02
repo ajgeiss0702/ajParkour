@@ -6,6 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import us.ajg0702.parkour.game.JumpManager;
 import us.ajg0702.parkour.game.Manager;
+import us.ajg0702.parkour.top.TopManager;
 import us.ajg0702.parkour.utils.Updater;
 import us.ajg0702.utils.spigot.Config;
 
@@ -91,6 +92,8 @@ public class Main extends JavaPlugin {
 		areaStorage = new AreaStorage(this);
 		
 		rewards = new Rewards(this);
+
+		TopManager.getInstance(this);
 
 		JumpManager.getInstance(this);
 		
@@ -208,7 +211,7 @@ public class Main extends JavaPlugin {
 	}
 	
 	
-	final private List<String> reloadable = new LinkedList<>(Arrays.asList("config", "areas", "messages", "blocks", "rewards", "scores", "jumps"));
+	final private List<String> reloadable = new LinkedList<>(Arrays.asList("config", "areas", "messages", "blocks", "rewards", "jumps"));
 	public List<String> getReloadable() {
 		return new ArrayList<>(reloadable);
 	}
@@ -231,9 +234,6 @@ public class Main extends JavaPlugin {
 			break;
 		case "rewards":
 			rewards.reload();
-			break;
-		case "scores":
-			scores.reload();
 			break;
 		case "jumps":
 			JumpManager.getInstance().reload();
