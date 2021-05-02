@@ -241,7 +241,7 @@ public class Commands implements CommandExecutor {
 						if(name == null || name.isEmpty()) {
 							name = msgs.color("&7[Unknown]#"+i);
 						}
-						map.put(name, (double) scores.getScore(uuid, area));
+						map.put(name, (double) scores.getHighScore(uuid, area));
 						if(doTime) {
 							times.add(scores.getTime(uuid));
 						}

@@ -117,7 +117,7 @@ public class PkPlayer implements Listener {
 		}
 		
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-			prevhigh = scores.getScore(ply.getUniqueId(), config.getBoolean("begin-score-per-area") ? area.getName() : null);
+			prevhigh = scores.getHighScore(ply.getUniqueId(), config.getBoolean("begin-score-per-area") ? area.getName() : null);
 			if(prevhigh > 0 && !(prevhigh+"").equalsIgnoreCase("-1")) {
 				p.sendMessage(msgs.get("start.score", p).replaceAll("\\{SCORE}", ""+prevhigh));
 			} else {
@@ -427,7 +427,7 @@ public class PkPlayer implements Listener {
 		ply.sendMessage(msgs.get("fall.normal").replaceAll("\\{SCORE}", score+""));
 
 		String scoreArea = plugin.getAConfig().getBoolean("begin-score-per-area") ? area.getName() : null;
-		int prevscore = scores.getScore(ply.getUniqueId(), scoreArea);
+		int prevscore = scores.getHighScore(ply.getUniqueId(), scoreArea);
 		if(prevscore < score) {
 			int time = (int) (System.currentTimeMillis() - started)/1000;
 			scores.setScore(ply.getUniqueId(), score, time, area.getName());

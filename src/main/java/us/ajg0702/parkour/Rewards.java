@@ -26,7 +26,7 @@ public class Rewards implements Listener {
 	
 	Messages msgs;
 	
-	Map<Player, Map<String, Long>> cooldowns = new HashMap<>();
+	Map<UUID, Map<String, Long>> cooldowns = new HashMap<>();
 	
 	public Rewards(Main plugin) {
 		this.plugin = plugin;
@@ -147,7 +147,7 @@ public class Rewards implements Listener {
 				boolean firstTimeOnly = rw.getBoolean("exceptions."+ec+".first-time-only", false);
 				//p.getPlayer().sendMessage(ec+".first-time-only: "+firstTimeOnly);
 				if(firstTimeOnly) {
-					int highscore = plugin.scores.getScore(p.getPlayer().getUniqueId(), null);
+					int highscore = plugin.scores.getHighScore(p.getPlayer().getUniqueId(), null);
 					if(n <= highscore) {
 						//p.getPlayer().sendMessage(ec+" <= "+highscore);
 						continue;
@@ -196,8 +196,8 @@ public class Rewards implements Listener {
 				
 				
 				int cooldown = rw.getInt("exceptions."+ec+".cooldown", 0);
-				if(cooldowns.containsKey(p.getPlayer())) {
-					Map<String, Long> cds = cooldowns.get(p.getPlayer());
+				if(cooldowns.containsKey(p.getPlayer().getUniqueId())) {
+					Map<String, Long> cds = cooldowns.get(p.getPlayer().getUniqueId());
 					if(cds.containsKey(ec)) {
 						long last = cds.get(ec);
 						long now = System.currentTimeMillis();
@@ -211,7 +211,7 @@ public class Rewards implements Listener {
 						cds.put(ec, System.currentTimeMillis());
 					}
 				} else {
-					cooldowns.put(p.getPlayer(), new HashMap<>());
+					cooldowns.put(p.getPlayer().getUniqueId(), new HashMap<>());
 				}
 				
 				

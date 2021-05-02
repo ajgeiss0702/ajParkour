@@ -319,7 +319,7 @@ public class Placeholders extends PlaceholderExpansion {
         	}
         	//Bukkit.getLogger().info("parsing area highscore on "+player.getName());
         	String area = identifier.split("_")[2];
-        	int score = plugin.scores.getScore(player.getUniqueId(), area);
+        	int score = plugin.scores.getHighScore(player.getUniqueId(), area);
         	if(score < 0) {
         		score = 0;
         	}
@@ -331,7 +331,7 @@ public class Placeholders extends PlaceholderExpansion {
         	if(player == null) {
         		return "0";
         	}
-        	int score = plugin.scores.getScore(player.getUniqueId(), null);
+        	int score = plugin.scores.getHighScore(player.getUniqueId(), null);
         	if(score < 0) {
         		score = 0;
         	}

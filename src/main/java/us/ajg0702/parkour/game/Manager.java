@@ -349,6 +349,11 @@ public class Manager implements Listener {
 			p.setFoodLevel(7);
 		}
 	}
+
+	@EventHandler
+	public void onJoin(PlayerJoinEvent e) {
+		main.scores.updateName(e.getPlayer());
+	}
 	
 	
 
