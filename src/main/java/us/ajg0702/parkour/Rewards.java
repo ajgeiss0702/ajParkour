@@ -16,6 +16,7 @@ import us.ajg0702.parkour.api.events.PlayerEndParkourEvent;
 import us.ajg0702.parkour.api.events.PlayerStartParkourEvent;
 import us.ajg0702.parkour.game.PkArea;
 import us.ajg0702.parkour.game.PkPlayer;
+import us.ajg0702.parkour.top.TopManager;
 
 public class Rewards implements Listener {
 
@@ -112,13 +113,7 @@ public class Rewards implements Listener {
 				int topscore;
 				try {
 					int number = 1;
-					Map<String, Double> scores = plugin.scores.getSortedScores(true, null);
-					Set<String> plys = scores.keySet();
-
-					if(scores.keySet().size() < number || plys.toArray()[number-1] == null) return;
-
-					String playername = plys.toArray()[number-1].toString();
-					topscore = (int) Math.round(scores.get(playername));
+					topscore = TopManager.getInstance().getTop(1, null).getScore();
 
 				} catch(Exception e) {return;}
 				if(score >= topscore) {
@@ -299,7 +294,7 @@ public class Rewards implements Listener {
 			staticExecuteCommands(cmds, p.getPlayer());
 			return;
 		}
-		if(!plugin.config.getString("execute-reward-commands").equalsIgnoreCase("earned")) {
+		if(!plugin.getAConfig().getString("execute-reward-commands").equalsIgnoreCase("earned")) {
 			//Bukkit.getLogger().info("Adding commands to list");
 			p.addCommands(cmds);
 			return;

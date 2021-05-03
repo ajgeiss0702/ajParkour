@@ -83,9 +83,7 @@ public class Scores {
 		}
 	}
 
-	public void convertFromYaml() {
 
-	}
 
 
 
@@ -247,6 +245,16 @@ public class Scores {
 			e.printStackTrace();
 		}
 		conn.close();
+	}
+
+
+	public void convertFromYaml() {
+		File ymlFile = new File(plugin.getDataFolder(), "scores.yml");
+		YamlConfiguration yml = YamlConfiguration.loadConfiguration(ymlFile);
+
+		for(String rawUUID : yml.getKeys(false)) {
+
+		}
 	}
 
 
