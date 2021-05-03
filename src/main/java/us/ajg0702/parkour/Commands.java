@@ -21,6 +21,8 @@ import us.ajg0702.parkour.game.Difficulty;
 import us.ajg0702.parkour.game.Manager;
 import us.ajg0702.parkour.game.PkArea;
 import us.ajg0702.parkour.game.PkPlayer;
+import us.ajg0702.parkour.top.TopEntry;
+import us.ajg0702.parkour.top.TopManager;
 import us.ajg0702.utils.spigot.Config;
 import us.ajg0702.parkour.utils.Updater;
 
@@ -139,22 +141,6 @@ public class Commands implements CommandExecutor {
 						);
 				}
 				return true;
-			case "migrate":
-				if(!sender.hasPermission("ajparkour.migrate")) {
-					sender.sendMessage(msgs.get("noperm", sply));
-					return true;
-				}
-				if(args.length <= 1) {
-					sender.sendMessage(msgs.get("migrate.more-args", sply));
-					return true;
-				}
-				int count = pl.scores.migrate(args[1]);
-				if(count < 0) {
-					sender.sendMessage(msgs.get("migrate.error", sply));
-					return true;
-				}
-				sender.sendMessage(msgs.get("migrate.success", sply).replaceAll("\\{COUNT}", count+""));
-				return true;
 			case "areas":
 				StringBuilder add1 = new StringBuilder();
 				sender.sendMessage(msgs.get("commands.listareas.header", sply));
@@ -219,72 +205,41 @@ public class Commands implements CommandExecutor {
 				sender.sendMessage(msgs.color("&aajParkour &2v&a"+pl.getDescription().getVersion()+" &2by &6ajgeiss0702 &7(https://www.spigotmc.org/members/ajgeiss0702.49935?)"));
 				return true;
 			case "top":
-				final Player fsply = sply;
-				Bukkit.getScheduler().runTaskAsynchronously(pl, () -> {
-					String area = null;
-					if(args.length > 1) {
-						area = args[1];
-					}
+				String area = null;
+				if(args.length > 1) {
+					area = args[1];
+				}
 
-					List<UUID> list = scores.getPlayers();
-					if(list.size() < 1) {
-						sender.sendMessage(msgs.get("nobodys-played-yet", fsply));
-						return;
-					}
-					int maxs = config.getInt("top-shown");
-					HashMap<String, Double> map = new HashMap<>();
-					int i = 0;
-					boolean doTime = msgs.get("top.format", fsply).contains("{TIME}") && (area == null || area.equals("null"));
-					List<Integer> times = new ArrayList<>();
-					for(UUID uuid : list) {
-						String name = scores.getName(uuid);
-						if(name == null || name.isEmpty()) {
-							name = msgs.color("&7[Unknown]#"+i);
+				StringBuilder top = new StringBuilder(area == null ? msgs.get("top.header", sply) : msgs.get("top.header-area", sply));
+				boolean doTime = msgs.get("top.format", sply).contains("{TIME}");
+				for (int i = 1; i < config.getInt("top-shown")+1; i++) {
+					TopEntry entry = TopManager.getInstance().getTop(i, area);
+					if(entry.getName().equalsIgnoreCase("--")) break;
+					String replaced = msgs.get("top.format", sply)
+							.replaceAll("\\{#}", entry.getPosition()+"")
+							.replaceAll("\\{NAME}", entry.getName())
+							.replaceAll("\\{SCORE}", entry.getScore()+"") + "\n";
+					if(doTime) {
+						int time = entry.getTime();
+						int min = time / (60);
+						int sec = time % (60);
+						String timestr = msgs.get("placeholders.stats.time-format", sply)
+								.replaceAll("\\{m}", min+"")
+								.replaceAll("\\{s}", sec+"");
+						if(time < 0) {
+							timestr = msgs.get("placeholders.stats.no-data", sply);
 						}
-						map.put(name, (double) scores.getHighScore(uuid, area));
-						if(doTime) {
-							times.add(scores.getTime(uuid));
-						}
-						i++;
+						replaced = replaced.replaceAll("\\{TIME}", timestr);
 					}
-					map = pl.sortByValue(map);
+					replaced = replaced.replaceAll("\\{TIME}", msgs.get("placeholders.stats.no-data", sply));
 
-					i = 1;
-					StringBuilder addList = new StringBuilder();
-					if(area == null) {
-						addList.append(msgs.get("top.header", fsply)).append("\n");
-					} else {
-						addList.append(msgs.get("top.header-area", fsply).replaceAll("\\{AREA}", area)).append("\n");
+					top.append(replaced);
+					if(i != config.getInt("top-shown")) {
+						top.append("\n");
 					}
-					for( int ai = 0; ai < map.size(); ai++) {
-						String key = (String) map.keySet().toArray()[ai];
-						String replaced = msgs.get("top.format", fsply)
-								.replaceAll("\\{#}", i+"")
-								.replaceAll("\\{NAME}", key.split("#")[0])
-								.replaceAll("\\{SCORE}", ((int)Math.round(map.get(key)))+"") + "\n";
-						if(doTime) {
-							int time = times.get(ai);
-							int min = time / (60);
-							int sec = time % (60);
-							String timestr = msgs.get("placeholders.stats.time-format", fsply)
-									.replaceAll("\\{m}", min+"")
-									.replaceAll("\\{s}", sec+"");
-							if(time < 0) {
-								timestr = msgs.get("placeholders.stats.no-data", fsply);
-							}
-							replaced = replaced.replaceAll("\\{TIME}", timestr);
-						}
-						replaced = replaced.replaceAll("\\{TIME}", msgs.get("placeholders.stats.no-data", fsply));
-						addList.append(replaced);
-						i++;
-						if(i > maxs) {
-							break;
-						} else {
-							addList.append("\n");
-						}
-					}
-					sender.sendMessage(addList.toString());
-				});
+				}
+				sender.sendMessage(top.toString());
+
 				return true;
 			case "list":
 				List<PkPlayer> plys = man.getPlayers();

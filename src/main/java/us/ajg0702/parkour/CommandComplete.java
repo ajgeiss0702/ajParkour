@@ -22,7 +22,7 @@ public class CommandComplete implements TabCompleter {
 		mainCommands.add("list");
 		mainCommands.add("version");
 		mainCommands.add("top");
-		if(sender.hasPermission("ajparkour.migrate")) mainCommands.add("migrate");
+		//if(sender.hasPermission("ajparkour.migrate")) mainCommands.add("migrate");
 		if(sender.hasPermission("ajparkour.update")) mainCommands.add("update");
 		if(sender.hasPermission("ajparkour.setup")) { mainCommands.add("setup"); mainCommands.add("edit"); mainCommands.add("areas"); mainCommands.add("removearea"); }
 		if(sender.hasPermission("ajparkour.reload")) mainCommands.add("reload");
@@ -82,17 +82,6 @@ public class CommandComplete implements TabCompleter {
 		            	}
 		            }
 		        	return finalList11;
-				case "migrate":
-					List<String> ty = new ArrayList<>();
-					ty.add("yaml");
-					ty.add("mysql");
-					List<String> finalty = new ArrayList<>();
-		        	for(String command : ty) {
-		            	if(command.startsWith(args[1].toLowerCase())) {
-		            		finalty.add(command);
-		            	}
-		            }
-		        	return finalty;
 				case "setup":
 					List<String> sc = new ArrayList<>();
 					sc.add("create");

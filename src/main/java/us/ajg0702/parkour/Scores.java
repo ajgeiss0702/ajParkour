@@ -52,6 +52,17 @@ public class Scores {
 
 		String sMethod = storageConfig.getString("method");
 
+		if(sMethod.equalsIgnoreCase("yaml")) {
+			convertFromYaml();
+			storageConfig.set("method", "sqlite");
+			sMethod = "sqlite";
+			try {
+				storageConfig.save(storageConfigFile);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
 
 		if(sMethod.equalsIgnoreCase("mysql")) {
 			try {
@@ -70,6 +81,10 @@ public class Scores {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public void convertFromYaml() {
+
 	}
 
 
