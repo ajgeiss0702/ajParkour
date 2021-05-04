@@ -3,6 +3,7 @@ package us.ajg0702.parkour;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.json.simple.JSONObject;
@@ -52,17 +53,6 @@ public class Scores {
 
 		String sMethod = storageConfig.getString("method");
 
-		if(sMethod.equalsIgnoreCase("yaml")) {
-			convertFromYaml();
-			storageConfig.set("method", "sqlite");
-			sMethod = "sqlite";
-			try {
-				storageConfig.save(storageConfigFile);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
 
 		if(sMethod.equalsIgnoreCase("mysql")) {
 			try {
@@ -73,13 +63,17 @@ public class Scores {
 				sMethod = "sqlite";
 			}
 		}
-		if(sMethod.equalsIgnoreCase("sqlite")) {
+		if(sMethod.equalsIgnoreCase("sqlite") || sMethod.equalsIgnoreCase("yaml")) {
 			try {
 				initSQLite(tablePrefix, minCount, maxCount);
 			} catch(SQLException e) {
 				plugin.getLogger().severe("Unable to create sqlite database. High scores will not work!");
 				e.printStackTrace();
 			}
+		}
+
+		if(method == null) {
+			plugin.getLogger().severe("Unable to find database method! Check storage.yml as you most likely put in an invalid storage method.");
 		}
 	}
 
@@ -155,11 +149,14 @@ public class Scores {
 		ds = new HikariDataSource(hikariConfig);
 		ds.setLeakDetectionThreshold(60 * 1000);
 		String oldTableName = storageConfig.getString("mysql.table");
-		if(oldTableName != null) {
+		if(oldTableName != null && method.equalsIgnoreCase("mysql")) {
 			convertFromOldSQL(oldTableName);
 		}
+		if(method.equalsIgnoreCase("yaml")) {
+			convertFromYaml();
+			method = "sqlite";
+		}
 		createTables();
-		method = "mysql";
 	}
 
 	private void createTables() throws SQLException {
@@ -185,58 +182,15 @@ public class Scores {
 		ResultSet oldData = conn.createStatement().executeQuery("select * from "+oldTable+"_old");
 		while(oldData.next()) {
 			UUID uuid = UUID.fromString(oldData.getString("id"));
-			plugin.getLogger().info("Converting "+uuid.toString());
+			plugin.getLogger().info("Converting " + uuid.toString());
 			String raw = oldData.getString("score");
 			String name = oldData.getString("name");
 			int time = oldData.getInt("time");
 			String mat = oldData.getString("material");
 			int gamesPlayed = oldData.getInt("gamesplayed");
 
-			if(mat == null) {
-				mat = "NULL";
-			} else {
-				mat = "'"+mat+"'";
-			}
-
-			JSONObject scores;
-
-			if(raw == null) {
-				raw = "{}";
-			}
-			if(isInt(raw)) {
-				raw = "{\"null\":"+raw+"}";
-			}
-			try {
-				scores = (JSONObject) new JSONParser().parse(raw);
-			} catch(Exception e) {
-				plugin.getLogger().severe("An error occurred when attempting convert a player's score:");
-				e.printStackTrace();
-				scores = new JSONObject();
-			}
-
-			for(Object a : scores.keySet()) {
-				String area = (String) a;
-				int score = (int) scores.get(a);
-
-				if(area.equals("null")) {
-					area = "overall";
-				}
-
-				int t = 0;
-				if(area.equals("overall")) {
-					t = time;
-				}
-
-				conn.createStatement().executeUpdate("insert into "+tablePrefix+"scores " +
-						"(area, player, score, time) values" +
-						"('"+area+"', '"+uuid+"', "+score+", "+t+")");
-			}
-			conn.createStatement().executeUpdate("insert into "+tablePrefix+"players" +
-					"(id, material, name, gamesplayed) values" +
-					"("+uuid.toString()+", "+mat+", "+name+", "+gamesPlayed+")");
-
+			insertJsonData(uuid, name, raw, time, mat, gamesPlayed);
 		}
-
 		storageConfig.set("mysql.table", null);
 		try {
 			storageConfig.save(storageConfigFile);
@@ -248,16 +202,86 @@ public class Scores {
 	}
 
 
-	public void convertFromYaml() {
+
+
+	public void convertFromYaml() throws SQLException {
 		File ymlFile = new File(plugin.getDataFolder(), "scores.yml");
 		YamlConfiguration yml = YamlConfiguration.loadConfiguration(ymlFile);
 
 		for(String rawUUID : yml.getKeys(false)) {
+			ConfigurationSection oldData = yml.getConfigurationSection(rawUUID);
+			UUID uuid = UUID.fromString(rawUUID);
+			plugin.getLogger().info("Converting "+uuid.toString());
+			String raw = oldData.getString("score");
+			int time = oldData.getInt("time", 0);
+			String mat = oldData.getString("material");
+			int gamesPlayed = oldData.getInt("gamesplayed", 0);
 
+			insertJsonData(uuid, null, raw, time, mat, gamesPlayed);
+		}
+
+		storageConfig.set("method", "sqlite");
+		try {
+			storageConfig.save(storageConfigFile);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
 
+
+	public void insertJsonData(UUID uuid, String name, String raw, int time, String mat, int gamesPlayed) throws SQLException {
+		Connection conn = getConnection();
+		if(mat == null) {
+			mat = "NULL";
+		} else {
+			mat = "'"+mat+"'";
+		}
+		if(name == null) {
+			name = "NULL";
+		} else {
+			name = "'"+name+"'";
+		}
+
+		JSONObject scores;
+
+		if(raw == null) {
+			raw = "{}";
+		}
+		if(isInt(raw)) {
+			raw = "{\"null\":"+raw+"}";
+		}
+		try {
+			scores = (JSONObject) new JSONParser().parse(raw);
+		} catch(Exception e) {
+			plugin.getLogger().severe("An error occurred when attempting convert a player's score:");
+			e.printStackTrace();
+			scores = new JSONObject();
+		}
+
+		for(Object a : scores.keySet()) {
+			String area = (String) a;
+			int score = (int) scores.get(a);
+
+			if(area.equals("null")) {
+				area = "overall";
+			}
+
+			int t = 0;
+			if(area.equals("overall")) {
+				t = time;
+			}
+
+			conn.createStatement().executeUpdate("insert into "+tablePrefix+"scores " +
+					"(area, player, score, time) values" +
+					"('"+area+"', '"+uuid+"', "+score+", "+t+")");
+		}
+		conn.createStatement().executeUpdate("insert into "+tablePrefix+"players" +
+				"(id, material, name, gamesplayed) values" +
+				"("+uuid.toString()+", "+mat+", "+name+", "+gamesPlayed+")");
+
+		conn.close();
+	}
 
 	public int getHighScore(UUID uuid, String area) {
 		if(area == null) {
