@@ -45,7 +45,7 @@ public class Scores {
 		String username = storageConfig.getString("mysql.username");
 		String password = storageConfig.getString("mysql.password");
 		String database = storageConfig.getString("mysql.database");
-		String tablePrefix = storageConfig.getString("mysql.table");
+		String tablePrefix = storageConfig.getString("mysql.tablePrefix");
 		boolean useSSL = storageConfig.getBoolean("mysql.useSSL");
 		boolean allowPublicKeyRetrieval = storageConfig.getBoolean("mysql.allowPublicKeyRetrieval");
 		int minCount = storageConfig.getInt("mysql.minConnections");
@@ -65,7 +65,7 @@ public class Scores {
 		}
 		if(sMethod.equalsIgnoreCase("sqlite") || sMethod.equalsIgnoreCase("yaml")) {
 			try {
-				initSQLite(tablePrefix, minCount, maxCount);
+				initDatabase(sMethod, null, null, null, null, tablePrefix, false, false, minCount, maxCount);
 			} catch(SQLException e) {
 				plugin.getLogger().severe("Unable to create sqlite database. High scores will not work!");
 				e.printStackTrace();
@@ -128,9 +128,6 @@ public class Scores {
 		}
 	}
 
-	private void initSQLite(String tablePrefix, int minConnections, int maxConnections) throws SQLException {
-		initDatabase("sqlite", null, null, null, null, tablePrefix, false, false, minConnections, maxConnections);
-	}
 	private void initDatabase(String method, String ip, String username, String password, String database, String tablePrefix, boolean useSSL, boolean allowPublicKeyRetrieval, int minConnections, int maxConnections) throws SQLException {
 		String url;
 		if(method.equals("mysql")) {
@@ -140,6 +137,7 @@ public class Scores {
 			url = "jdbc:sqlite:"+plugin.getDataFolder().getAbsolutePath()+File.separator+"scores.db";
 			hikariConfig.setDriverClassName("org.sqlite.JDBC");
 		}
+		this.method = method;
 		hikariConfig.setJdbcUrl(url);
 		hikariConfig.setUsername(username);
 		hikariConfig.setPassword(password);
@@ -153,13 +151,21 @@ public class Scores {
 			convertFromOldSQL(oldTableName);
 		}
 		if(method.equalsIgnoreCase("yaml")) {
-			convertFromYaml();
-			method = "sqlite";
+			this.method = "sqlite";
 		}
 		createTables();
+		if(method.equalsIgnoreCase("yaml")) {
+			convertFromYaml();
+		}
 	}
 
 	private void createTables() throws SQLException {
+		String autoIncrement = "AUTO_INCREMENT";
+		String integer = "INT";
+		if(method.equalsIgnoreCase("sqlite")) {
+			autoIncrement = "AUTOINCREMENT";
+			integer = "INTEGER";
+		}
 		Connection conn = getConnection();
 		conn.createStatement().executeUpdate(
 				"create table if not exists "+ tablePrefix +"players " +
@@ -167,7 +173,7 @@ public class Scores {
 		);
 		conn.createStatement().executeUpdate(
 				"create table if not exists "+ tablePrefix +"scores " +
-						"(id INT PRIMARY KEY AUTO_INCREMENT, area TINYTEXT, player VARCHAR(36), score INT, time INT)"
+						"(id "+integer+" PRIMARY KEY "+autoIncrement+", area TINYTEXT, player VARCHAR(36), score INT, time INT)"
 		);
 		conn.close();
 	}
@@ -207,6 +213,7 @@ public class Scores {
 	public void convertFromYaml() throws SQLException {
 		File ymlFile = new File(plugin.getDataFolder(), "scores.yml");
 		YamlConfiguration yml = YamlConfiguration.loadConfiguration(ymlFile);
+		plugin.getLogger().info("Starting yaml conversion (moving to sqlite)");
 
 		for(String rawUUID : yml.getKeys(false)) {
 			ConfigurationSection oldData = yml.getConfigurationSection(rawUUID);
@@ -259,9 +266,13 @@ public class Scores {
 			scores = new JSONObject();
 		}
 
+		int largest = 0;
+		int largestTime = 0;
+		boolean insertedOverall = false;
+
 		for(Object a : scores.keySet()) {
 			String area = (String) a;
-			int score = (int) scores.get(a);
+			int score = Math.round((long)scores.get(a));
 
 			if(area.equals("null")) {
 				area = "overall";
@@ -270,15 +281,24 @@ public class Scores {
 			int t = 0;
 			if(area.equals("overall")) {
 				t = time;
+				insertedOverall = true;
+			} else if(score > largest) {
+				largest = score;
+				largestTime = time;
 			}
 
 			conn.createStatement().executeUpdate("insert into "+tablePrefix+"scores " +
 					"(area, player, score, time) values" +
 					"('"+area+"', '"+uuid+"', "+score+", "+t+")");
 		}
+		if(!insertedOverall) {
+			conn.createStatement().executeUpdate("insert into "+tablePrefix+"scores " +
+					"(area, player, score, time) values" +
+					"('overall', '"+uuid+"', "+largest+", "+largestTime+")");
+		}
 		conn.createStatement().executeUpdate("insert into "+tablePrefix+"players" +
 				"(id, material, name, gamesplayed) values" +
-				"("+uuid.toString()+", "+mat+", "+name+", "+gamesPlayed+")");
+				"('"+uuid.toString()+"', "+mat+", "+name+", "+gamesPlayed+")");
 
 		conn.close();
 	}
@@ -296,8 +316,9 @@ public class Scores {
 				conn.close();
 				return 0;
 			}
+			int s = rs.getInt("score");
 			conn.close();
-			return rs.getInt("score");
+			return s;
 		} catch(SQLException e) {
 			plugin.getLogger().warning("Unable to get score for "+uuid.toString()+":");
 			e.printStackTrace();
@@ -334,30 +355,32 @@ public class Scores {
 	public void setScore(UUID uuid, int score, int time, final String area) {
 		Runnable r = () -> {
 			String ar = area;
-			if(ar == null) {
+			if(ar == null || ar.equals("null")) {
 				ar = "overall";
 			}
 			try {
 				Connection conn = getConnection();
 				ResultSet r1 = conn.createStatement().executeQuery(
-						"select id from "+ tablePrefix +"scores where player='"+uuid.toString()+"' and area='"+area+"'"
+						"select id from "+ tablePrefix +"scores where player='"+uuid.toString()+"' and area='"+ar+"'"
 				);
 				if(r1.isAfterLast()) {
 					if(!(score == 0 && time == 0)) {
 						conn.createStatement().executeUpdate("insert into "+ tablePrefix +"scores " +
 								"(area, player, score, time) values " +
-								"("+ar+", "+uuid.toString()+", "+score+", "+time+")");
+								"('"+ar+"', '"+uuid.toString()+"', "+score+", "+time+")");
+					} else {
+						plugin.getLogger().info("Nothing "+uuid.toString()+": "+score+" in "+time+"s on "+ar);
 					}
 				} else {
 					if(score == 0 && time == 0) {
 						conn.createStatement().executeUpdate(
-								"delete from `"+ tablePrefix +"scores` where player='"+uuid.toString()+"' and area='"+area+"'"
+								"delete from `"+ tablePrefix +"scores` where player='"+uuid.toString()+"' and area='"+ar+"'"
 						);
 					} else {
 						conn.createStatement().executeUpdate(
 								"update "+ tablePrefix +"scores set " +
-										"score="+score+", time="+time +
-										"where player='"+uuid.toString()+"' and area='"+area+"'"
+										"score="+score+", time="+time+" " +
+										"where player='"+uuid.toString()+"' and area='"+ar+"'"
 						);
 					}
 				}
@@ -443,7 +466,7 @@ public class Scores {
 			} else {
 				conn.createStatement().executeUpdate("insert into "+tablePrefix+"players" +
 						"(id, material, name, gamesplayed) values" +
-						"("+uuid.toString()+", NULL, "+player.getName()+", 0)");
+						"('"+uuid.toString()+"', NULL, '"+player.getName()+"', 0)");
 			}
 			conn.close();
 		} catch (SQLException e) {
@@ -465,7 +488,7 @@ public class Scores {
 		try {
 			Connection conn = getConnection();
 			ResultSet r = conn.createStatement().executeQuery(
-					"select * from "+tablePrefix+"scores where area='"+area+"' order by value desc limit "+(position-1)+","+position
+					"select * from "+tablePrefix+"scores where area='"+area+"' order by score desc limit "+(position-1)+","+position
 			);
 			if(!r.next()) {
 				conn.close();
@@ -473,6 +496,12 @@ public class Scores {
 			}
 			UUID uuid = UUID.fromString(r.getString("player"));
 			String name = getName(uuid);
+			if(name == null) {
+				name = Bukkit.getOfflinePlayer(uuid).getName();
+			}
+			if(name == null) {
+				name = "Unknown";
+			}
 			int score = r.getInt("score");
 			int time = r.getInt("time");
 
@@ -507,10 +536,10 @@ public class Scores {
 		int newGP = getGamesPlayed(uuid)+1;
 		try {
 			Connection conn = getConnection();
-			ResultSet r = conn.createStatement().executeQuery("select id from "+ tablePrefix +" where id='"+uuid.toString()+"'");
+			ResultSet r = conn.createStatement().executeQuery("select id from "+ tablePrefix +"players where id='"+uuid.toString()+"'");
 
 			if(r.isBeforeFirst()) {
-				conn.createStatement().executeUpdate("update "+ tablePrefix +" set gamesplayed='"+newGP+"' where id='"+uuid.toString()+"'");
+				conn.createStatement().executeUpdate("update "+ tablePrefix +"players set gamesplayed='"+newGP+"' where id='"+uuid.toString()+"'");
 			}
 			conn.close();
 		} catch (SQLException e) {

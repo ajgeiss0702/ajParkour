@@ -210,9 +210,12 @@ public class Commands implements CommandExecutor {
 					area = args[1];
 				}
 
-				StringBuilder top = new StringBuilder(area == null ? msgs.get("top.header", sply) : msgs.get("top.header-area", sply));
+				StringBuilder top = new StringBuilder((area == null ?
+						msgs.get("top.header", sply) :
+						msgs.get("top.header-area", sply).replaceAll("\\{AREA}", area))+"\n");
 				boolean doTime = msgs.get("top.format", sply).contains("{TIME}");
-				for (int i = 1; i < config.getInt("top-shown")+1; i++) {
+				int i;
+				for (i = 1; i < config.getInt("top-shown")+1; i++) {
 					TopEntry entry = TopManager.getInstance().getTop(i, area);
 					if(entry.getName().equalsIgnoreCase("--")) break;
 					String replaced = msgs.get("top.format", sply)
@@ -237,6 +240,9 @@ public class Commands implements CommandExecutor {
 					if(i != config.getInt("top-shown")) {
 						top.append("\n");
 					}
+				}
+				if(i == 1 && TopManager.getInstance().getTop(1, area).getName().equals("--")) {
+					sender.sendMessage(msgs.get("nobodys-played-yet", sply));
 				}
 				sender.sendMessage(top.toString());
 
