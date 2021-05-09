@@ -206,6 +206,7 @@ public class Main extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		man.disable();
+		scores.disable();
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',
 				"&cajParkour &4v" + this.getDescription().getVersion() + " by ajgeiss0702 has been &cdisabled!"));
 	}

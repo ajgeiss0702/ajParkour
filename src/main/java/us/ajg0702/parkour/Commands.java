@@ -243,6 +243,7 @@ public class Commands implements CommandExecutor {
 				}
 				if(i == 1 && TopManager.getInstance().getTop(1, area).getName().equals("--")) {
 					sender.sendMessage(msgs.get("nobodys-played-yet", sply));
+					return true;
 				}
 				sender.sendMessage(top.toString());
 

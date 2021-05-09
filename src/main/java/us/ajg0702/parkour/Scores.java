@@ -91,7 +91,7 @@ public class Scores {
 		v.put("mysql.tablePrefix", "ajparkour_");
 		v.put("mysql.allowPublicKeyRetrieval", false);
 		v.put("mysql.useSSL", false);
-		v.put("mysql.minConnections", 1);
+		v.put("mysql.minConnections", 2);
 		v.put("mysql.maxConnections", 10);
 
 		boolean save = false;
@@ -120,6 +120,12 @@ public class Scores {
 	public Connection getConnection() {
 		if(ds == null) return null;
 		try {
+			if(method.equals("sqlite")) {
+				if (sqliteConn == null || sqliteConn.isClosed()) {
+					sqliteConn = ds.getConnection();
+				}
+				return sqliteConn;
+			}
 			return ds.getConnection();
 		} catch (SQLException e) {
 			plugin.getLogger().warning("Unable to get sql connection:");
@@ -128,12 +134,15 @@ public class Scores {
 		}
 	}
 
+	Connection sqliteConn;
 	private void initDatabase(String method, String ip, String username, String password, String database, String tablePrefix, boolean useSSL, boolean allowPublicKeyRetrieval, int minConnections, int maxConnections) throws SQLException {
 		String url;
 		if(method.equals("mysql")) {
 			url = "jdbc:mysql://"+ip+"/"+database+"?useSSL="+useSSL+"&allowPublicKeyRetrieval="+allowPublicKeyRetrieval+"";
 			hikariConfig.setDriverClassName("com.mysql.jdbc.Driver");
 		} else {
+			maxConnections = 1;
+			minConnections = 1;
 			url = "jdbc:sqlite:"+plugin.getDataFolder().getAbsolutePath()+File.separator+"scores.db";
 			hikariConfig.setDriverClassName("org.sqlite.JDBC");
 		}
@@ -145,24 +154,30 @@ public class Scores {
 		hikariConfig.setMinimumIdle(minConnections);
 		this.tablePrefix = tablePrefix;
 		ds = new HikariDataSource(hikariConfig);
-		ds.setLeakDetectionThreshold(60 * 1000);
+		if(!method.equals("sqlite")) {
+			ds.setLeakDetectionThreshold(60 * 1000);
+		}
 		String oldTableName = storageConfig.getString("mysql.table");
 		if(oldTableName != null && method.equalsIgnoreCase("mysql")) {
 			convertFromOldSQL(oldTableName);
-		}
-		if(method.equalsIgnoreCase("yaml")) {
-			this.method = "sqlite";
 		}
 		createTables();
 		if(method.equalsIgnoreCase("yaml")) {
 			convertFromYaml();
 		}
+		if(method.equalsIgnoreCase("yaml")) {
+			this.method = "sqlite";
+		}
+	}
+
+	public void disable() {
+		ds.close();
 	}
 
 	private void createTables() throws SQLException {
 		String autoIncrement = "AUTO_INCREMENT";
 		String integer = "INT";
-		if(method.equalsIgnoreCase("sqlite")) {
+		if(method.equalsIgnoreCase("sqlite") || method.equalsIgnoreCase("yaml")) {
 			autoIncrement = "AUTOINCREMENT";
 			integer = "INTEGER";
 		}
@@ -363,13 +378,11 @@ public class Scores {
 				ResultSet r1 = conn.createStatement().executeQuery(
 						"select id from "+ tablePrefix +"scores where player='"+uuid.toString()+"' and area='"+ar+"'"
 				);
-				if(r1.isAfterLast()) {
+				if(!r1.next()) {
 					if(!(score == 0 && time == 0)) {
 						conn.createStatement().executeUpdate("insert into "+ tablePrefix +"scores " +
 								"(area, player, score, time) values " +
 								"('"+ar+"', '"+uuid.toString()+"', "+score+", "+time+")");
-					} else {
-						plugin.getLogger().info("Nothing "+uuid.toString()+": "+score+" in "+time+"s on "+ar);
 					}
 				} else {
 					if(score == 0 && time == 0) {
@@ -456,24 +469,25 @@ public class Scores {
 
 
 	public void updateName(Player player) {
-		UUID uuid = player.getUniqueId();
-		try {
-			Connection conn = getConnection();
-			ResultSet r = conn.createStatement().executeQuery("select id from "+ tablePrefix +"players where id='"+uuid.toString()+"'");
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+			UUID uuid = player.getUniqueId();
+			try {
+				Connection conn = getConnection();
+				ResultSet r = conn.createStatement().executeQuery("select id from "+ tablePrefix +"players where id='"+uuid.toString()+"'");
 
-			if(r.next()) {
-				conn.createStatement().executeUpdate("update "+ tablePrefix +"players set name='"+player.getName()+"' where id='"+uuid.toString()+"'");
-			} else {
-				conn.createStatement().executeUpdate("insert into "+tablePrefix+"players" +
-						"(id, material, name, gamesplayed) values" +
-						"('"+uuid.toString()+"', NULL, '"+player.getName()+"', 0)");
+				if(r.next()) {
+					conn.createStatement().executeUpdate("update "+ tablePrefix +"players set name='"+player.getName()+"' where id='"+uuid.toString()+"'");
+				} else {
+					conn.createStatement().executeUpdate("insert into "+tablePrefix+"players" +
+							"(id, material, name, gamesplayed) values" +
+							"('"+uuid.toString()+"', NULL, '"+player.getName()+"', 0)");
+				}
+				conn.close();
+			} catch (SQLException e) {
+				Bukkit.getLogger().severe("[ajParkour] An error occurred while trying to update name for player " + player.getName()+":");
+				e.printStackTrace();
 			}
-			conn.close();
-		} catch (SQLException e) {
-			Bukkit.getLogger().severe("[ajParkour] An error occurred while trying to update name for player " + player.getName()+":");
-			e.printStackTrace();
-		}
-
+		});
 	}
 
 	/**
@@ -495,6 +509,8 @@ public class Scores {
 				return new TopEntry(position, "--", -1, -1);
 			}
 			UUID uuid = UUID.fromString(r.getString("player"));
+			int score = r.getInt("score");
+			int time = r.getInt("time");
 			String name = getName(uuid);
 			if(name == null) {
 				name = Bukkit.getOfflinePlayer(uuid).getName();
@@ -502,8 +518,6 @@ public class Scores {
 			if(name == null) {
 				name = "Unknown";
 			}
-			int score = r.getInt("score");
-			int time = r.getInt("time");
 
 			conn.close();
 			return new TopEntry(position, name, score, time);
@@ -519,7 +533,7 @@ public class Scores {
 		try {
 			Connection conn = getConnection();
 			ResultSet r = conn.createStatement().executeQuery("select gamesplayed from "+ tablePrefix +"players where id='"+uuid.toString()+"'");
-			if(!r.isBeforeFirst()) {
+			if(!r.next()) {
 				conn.close();
 				return 0;
 			}

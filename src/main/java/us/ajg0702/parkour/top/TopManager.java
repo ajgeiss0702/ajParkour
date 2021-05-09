@@ -22,7 +22,7 @@ public class TopManager {
         plugin = pl;
     }
 
-    private long lastGet = 0;
+    private HashMap<String, HashMap<Integer, Long>> lastGet = new HashMap<>();
     HashMap<String, HashMap<Integer, TopEntry>> cache = new HashMap<>();
     public TopEntry getTop(int position, String area) {
         if(area == null) {
@@ -32,15 +32,19 @@ public class TopManager {
         if(!cache.containsKey(area)) {
             cache.put(area, new HashMap<>());
         }
+        if(!lastGet.containsKey(area)) {
+            lastGet.put(area, new HashMap<>());
+        }
 
         if(cache.get(area).containsKey(position)) {
-            if(System.currentTimeMillis() - lastGet > 1000) {
-                lastGet = System.currentTimeMillis();
+            if(System.currentTimeMillis() - lastGet.get(area).get(position) > 1000) {
+                lastGet.get(area).put(position, System.currentTimeMillis());
                 fetchPositionAsync(position, area);
             }
             return cache.get(area).get(position);
         }
 
+        lastGet.get(area).put(position, System.currentTimeMillis());
         return fetchPosition(position, area);
     }
 
