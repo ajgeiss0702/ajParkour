@@ -104,7 +104,7 @@ public class PkPlayer implements Listener {
 		
 		afkkick = config.getInt("kick-time");
 		
-		fasterAfkCheck = config.getBoolean("faster-jump-detection");
+		fasterAfkCheck = config.getBoolean("faster-afk-detection");
 		
 		PrePlayerStartParkourEvent preevent = new PrePlayerStartParkourEvent(p);
 		Bukkit.getPluginManager().callEvent(preevent);
