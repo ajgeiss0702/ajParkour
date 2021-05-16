@@ -13,6 +13,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import us.ajg0702.parkour.Main;
 import us.ajg0702.parkour.Messages;
+import us.ajg0702.parkour.top.TopManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -305,9 +306,7 @@ public class Manager implements Listener {
 	@EventHandler
 	public void onPlayerLeave(PlayerQuitEvent e) {
 		kickPlayer(e.getPlayer());
-		if(main.papi) {
-			main.placeholders.cleanCache();
-		}
+		TopManager.getInstance().clearPlayerCache(e.getPlayer());
 	}
 	
 	@EventHandler
@@ -348,6 +347,11 @@ public class Manager implements Listener {
 			e.setCancelled(true);
 			p.setFoodLevel(7);
 		}
+	}
+
+	@EventHandler
+	public void onJoin(PlayerJoinEvent e) {
+		main.scores.updateName(e.getPlayer());
 	}
 	
 	

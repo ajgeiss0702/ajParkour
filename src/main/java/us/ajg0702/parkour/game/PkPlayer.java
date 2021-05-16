@@ -104,7 +104,7 @@ public class PkPlayer implements Listener {
 		
 		afkkick = config.getInt("kick-time");
 		
-		fasterAfkCheck = config.getBoolean("faster-jump-detection");
+		fasterAfkCheck = config.getBoolean("faster-afk-detection");
 		
 		PrePlayerStartParkourEvent preevent = new PrePlayerStartParkourEvent(p);
 		Bukkit.getPluginManager().callEvent(preevent);
@@ -117,7 +117,7 @@ public class PkPlayer implements Listener {
 		}
 		
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-			prevhigh = scores.getScore(ply.getUniqueId(), config.getBoolean("begin-score-per-area") ? area.getName() : null);
+			prevhigh = scores.getHighScore(ply.getUniqueId(), config.getBoolean("begin-score-per-area") ? area.getName() : null);
 			if(prevhigh > 0 && !(prevhigh+"").equalsIgnoreCase("-1")) {
 				p.sendMessage(msgs.get("start.score", p).replaceAll("\\{SCORE}", ""+prevhigh));
 			} else {
@@ -425,12 +425,20 @@ public class PkPlayer implements Listener {
 			ply.sendMessage(msgs.get("fall.force.base")+reason);
 		}
 		ply.sendMessage(msgs.get("fall.normal").replaceAll("\\{SCORE}", score+""));
-		
-		int prevscore = scores.getScore(ply.getUniqueId(), area.getName());
-		if(prevscore < score) {
-			int time = (int) (System.currentTimeMillis() - started)/1000;
-			scores.setScore(ply.getUniqueId(), score, time, area.getName());
-			ply.sendMessage(msgs.get("beatrecord", ply).replaceAll("\\{SCORE}", prevscore+""));
+
+		Runnable hsTask = () -> {
+			String scoreArea = plugin.getAConfig().getBoolean("begin-score-per-area") ? area.getName() : null;
+			int prevscore = scores.getHighScore(ply.getUniqueId(), scoreArea);
+			if(prevscore < score) {
+				int time = (int) (System.currentTimeMillis() - started)/1000;
+				scores.setScore(ply.getUniqueId(), score, time, area.getName());
+				ply.sendMessage(msgs.get("beatrecord", ply).replaceAll("\\{SCORE}", prevscore+""));
+			}
+		};
+		if(man.pluginDisabling) {
+			hsTask.run();
+		} else {
+			Bukkit.getScheduler().runTaskAsynchronously(plugin, hsTask);
 		}
 		
 		

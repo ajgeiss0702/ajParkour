@@ -172,6 +172,7 @@ public class Messages {
 		msgDefaults.put("not-from-console", "&cYou cannot run this command from the console!");
 		
 		msgDefaults.put("setup.no-name", "&cYou must name your area!");
+		msgDefaults.put("setup.invalid-name", "&cYou can't name your arena that.");
 		msgDefaults.put("setup.edit.no-name", "&cPlease enter the name of an area to edit!");
 		msgDefaults.put("setup.edit.loaded", "&aArea loaded for editing! Re-set positions using /{CMD} setup");
 		msgDefaults.put("setup.edit.no-area", "&cAn area with that name does not exist!");
