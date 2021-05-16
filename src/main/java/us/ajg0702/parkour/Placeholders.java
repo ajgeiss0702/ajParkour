@@ -201,26 +201,6 @@ public class Placeholders extends PlaceholderExpansion {
 
 
 
-
-		if(identifier.matches("stats_highscore_.+$")) {
-			if(player == null) {
-				return "0";
-			}
-
-			String area = identifier.split("_")[2];
-			return plugin.scores.getHighScore(player.getUniqueId(), area)+"";
-		}
-
-		if(identifier.equals("stats_highscore")) {
-			if(player == null) {
-				return "0";
-			}
-			return plugin.scores.getHighScore(player.getUniqueId(), null)+"";
-		}
-
-
-
-
 		if(identifier.equals("current")) {
 			if(player == null) return "0";
 			PkPlayer p = plugin.man.getPlayer(player);
@@ -241,6 +221,23 @@ public class Placeholders extends PlaceholderExpansion {
 				return "!";
 			}
 			return plugin.man.getPlayerCounts(area)+"";
+		}
+
+
+		if(identifier.equals("stats_highscore")) {
+			if(player == null) {
+				return "0";
+			}
+			return TopManager.getInstance().getHighScore(player, null)+"";
+		}
+
+		if(identifier.matches("stats_highscore_.+$")) {
+			if(player == null) {
+				return "0";
+			}
+
+			String area = identifier.split("_")[2];
+			return plugin.scores.getHighScore(player.getUniqueId(), area)+"";
 		}
 
 
