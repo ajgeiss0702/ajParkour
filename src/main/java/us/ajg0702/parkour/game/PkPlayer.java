@@ -426,13 +426,15 @@ public class PkPlayer implements Listener {
 		}
 		ply.sendMessage(msgs.get("fall.normal").replaceAll("\\{SCORE}", score+""));
 
-		String scoreArea = plugin.getAConfig().getBoolean("begin-score-per-area") ? area.getName() : null;
-		int prevscore = scores.getHighScore(ply.getUniqueId(), scoreArea);
-		if(prevscore < score) {
-			int time = (int) (System.currentTimeMillis() - started)/1000;
-			scores.setScore(ply.getUniqueId(), score, time, area.getName());
-			ply.sendMessage(msgs.get("beatrecord", ply).replaceAll("\\{SCORE}", prevscore+""));
-		}
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+			String scoreArea = plugin.getAConfig().getBoolean("begin-score-per-area") ? area.getName() : null;
+			int prevscore = scores.getHighScore(ply.getUniqueId(), scoreArea);
+			if(prevscore < score) {
+				int time = (int) (System.currentTimeMillis() - started)/1000;
+				scores.setScore(ply.getUniqueId(), score, time, area.getName());
+				ply.sendMessage(msgs.get("beatrecord", ply).replaceAll("\\{SCORE}", prevscore+""));
+			}
+		});
 		
 		
 		
