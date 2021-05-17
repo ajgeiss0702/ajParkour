@@ -14,6 +14,7 @@ import us.ajg0702.parkour.top.TopEntry;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -121,9 +122,6 @@ public class Scores {
 		if(ds == null) return null;
 		try {
 			if(method.equals("sqlite")) {
-				if (sqliteConn == null || sqliteConn.isClosed()) {
-					sqliteConn = ds.getConnection();
-				}
 				return sqliteConn;
 			}
 			return ds.getConnection();
@@ -140,23 +138,26 @@ public class Scores {
 		if(method.equals("mysql")) {
 			url = "jdbc:mysql://"+ip+"/"+database+"?useSSL="+useSSL+"&allowPublicKeyRetrieval="+allowPublicKeyRetrieval+"";
 			hikariConfig.setDriverClassName("com.mysql.jdbc.Driver");
+			hikariConfig.setJdbcUrl(url);
+			hikariConfig.setUsername(username);
+			hikariConfig.setPassword(password);
+			hikariConfig.setMaximumPoolSize(maxConnections);
+			hikariConfig.setMinimumIdle(minConnections);
+			this.tablePrefix = tablePrefix;
+			ds = new HikariDataSource(hikariConfig);
+			ds.setLeakDetectionThreshold(60 * 1000);
 		} else {
-			maxConnections = 1;
-			minConnections = 1;
 			url = "jdbc:sqlite:"+plugin.getDataFolder().getAbsolutePath()+File.separator+"scores.db";
-			hikariConfig.setDriverClassName("org.sqlite.JDBC");
+			try {
+				Class.forName("org.sqlite.JDBC");
+			} catch (ClassNotFoundException e1) {
+				e1.printStackTrace();
+			}
+
+			sqliteConn = DriverManager.getConnection(url);
 		}
 		this.method = method;
-		hikariConfig.setJdbcUrl(url);
-		hikariConfig.setUsername(username);
-		hikariConfig.setPassword(password);
-		hikariConfig.setMaximumPoolSize(maxConnections);
-		hikariConfig.setMinimumIdle(minConnections);
-		this.tablePrefix = tablePrefix;
-		ds = new HikariDataSource(hikariConfig);
-		if(!method.equals("sqlite")) {
-			ds.setLeakDetectionThreshold(60 * 1000);
-		}
+
 		String oldTableName = storageConfig.getString("mysql.table");
 		if(oldTableName != null && method.equalsIgnoreCase("mysql")) {
 			convertFromOldSQL(oldTableName);
