@@ -196,6 +196,20 @@ public class Scores {
 	private void convertFromOldSQL(String oldTable) throws SQLException {
 		plugin.getLogger().info("Starting database conversion (getting rid of the json in MySQL :puke:)");
 		Connection conn = getConnection();
+
+		ResultSet teCheck = conn.createStatement().executeQuery("show tables like "+oldTable+"_old");
+		if(teCheck.next()) {
+			plugin.getLogger().info("Conversion seems to already be done. Marking it as done.");
+			storageConfig.set("mysql.table", null);
+			try {
+				storageConfig.save(storageConfigFile);
+			} catch (IOException e) {
+				plugin.getLogger().severe("Unable to remove old data from storage config. Conversion may happen again on next restart!");
+				e.printStackTrace();
+			}
+			return;
+		}
+		teCheck.close();
 		conn.createStatement().executeUpdate("alter table "+oldTable+" rename "+oldTable+"_old");
 
 		createTables();
