@@ -119,11 +119,11 @@ public class Scores {
 
 
 	public Connection getConnection() {
-		if(ds == null) return null;
 		try {
 			if(method.equals("sqlite")) {
 				return sqliteConn;
 			}
+			if(ds == null) return null;
 			return ds.getConnection();
 		} catch (SQLException e) {
 			plugin.getLogger().warning("Unable to get sql connection:");
