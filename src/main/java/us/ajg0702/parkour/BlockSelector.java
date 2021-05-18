@@ -326,9 +326,23 @@ public class BlockSelector implements Listener {
 		}
 		return o;
 	}
-	
+
+
+	private HashMap<Player, String> blockCache = new HashMap<>();
+	private HashMap<Player, Long> blockFetch = new HashMap<>();
 	public String getBlock(Player p, PkArea area) {
+
+		if(!blockFetch.containsKey(p)) {
+			blockFetch.put(p, 0L);
+		}
+
+		if(System.currentTimeMillis() - blockFetch.get(area) < 5000) {
+			return blockCache.get(p);
+		}
+
 		String raw = scores.getMaterial(p.getUniqueId());
+		blockCache.put(p, raw);
+		blockFetch.put(p, System.currentTimeMillis());
 		if(raw == null || raw.equalsIgnoreCase("random") || raw.equalsIgnoreCase(plugin.config.getString("random-item"))) {
 			List<String> ftypes = new ArrayList<>();
 			for(String b : types) {
