@@ -120,7 +120,10 @@ public class Scores {
 
 	public Connection getConnection() {
 		try {
-			if(method.equals("sqlite")) {
+			if(method.equals("sqlite") || method.equals("yaml")) {
+				if(sqliteConn == null || sqliteConn.isClosed()) {
+					sqliteConn = DriverManager.getConnection(url);
+				}
 				return sqliteConn;
 			}
 			if(ds == null) return null;
@@ -133,8 +136,8 @@ public class Scores {
 	}
 
 	Connection sqliteConn;
+	String url;
 	private void initDatabase(String method, String ip, String username, String password, String database, String tablePrefix, boolean useSSL, boolean allowPublicKeyRetrieval, int minConnections, int maxConnections) throws SQLException {
-		String url;
 		if(method.equals("mysql")) {
 			url = "jdbc:mysql://"+ip+"/"+database+"?useSSL="+useSSL+"&allowPublicKeyRetrieval="+allowPublicKeyRetrieval+"";
 			hikariConfig.setDriverClassName("com.mysql.jdbc.Driver");
