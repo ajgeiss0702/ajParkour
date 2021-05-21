@@ -336,13 +336,15 @@ public class BlockSelector implements Listener {
 			blockFetch.put(p, 0L);
 		}
 
-		if(System.currentTimeMillis() - blockFetch.get(area) < 5000) {
-			return blockCache.get(p);
+		String raw;
+		if(System.currentTimeMillis() - blockFetch.get(p) > 5000) {
+			raw = scores.getMaterial(p.getUniqueId());
+			blockCache.put(p, raw);
+			blockFetch.put(p, System.currentTimeMillis());
+		} else {
+			raw = blockCache.get(p);
 		}
 
-		String raw = scores.getMaterial(p.getUniqueId());
-		blockCache.put(p, raw);
-		blockFetch.put(p, System.currentTimeMillis());
 		if(raw == null || raw.equalsIgnoreCase("random") || raw.equalsIgnoreCase(plugin.config.getString("random-item"))) {
 			List<String> ftypes = new ArrayList<>();
 			for(String b : types) {
