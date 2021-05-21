@@ -136,8 +136,7 @@ public class Updater implements Listener {
 				}
 				ready = true;
 			} catch (IOException e) {
-				// TODO: handle exception
-				e.printStackTrace();
+				pl.getLogger().warning("Unable to check for an update! "+e.getMessage());
 			}
 		});
 	}
