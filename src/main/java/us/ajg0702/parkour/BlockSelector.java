@@ -328,8 +328,8 @@ public class BlockSelector implements Listener {
 	}
 
 
-	private HashMap<Player, String> blockCache = new HashMap<>();
-	private HashMap<Player, Long> blockFetch = new HashMap<>();
+	private final HashMap<Player, String> blockCache = new HashMap<>();
+	private final HashMap<Player, Long> blockFetch = new HashMap<>();
 	public String getBlock(Player p, PkArea area) {
 
 		if(!blockFetch.containsKey(p)) {
@@ -338,9 +338,14 @@ public class BlockSelector implements Listener {
 
 		String raw;
 		if(System.currentTimeMillis() - blockFetch.get(p) > 5000) {
-			raw = scores.getMaterial(p.getUniqueId());
-			blockCache.put(p, raw);
-			blockFetch.put(p, System.currentTimeMillis());
+			if(blockCache.get(p) == null) {
+				raw = scores.getMaterial(p.getUniqueId());
+				blockCache.put(p, raw);
+				blockFetch.put(p, System.currentTimeMillis());
+			} else {
+				raw = blockCache.get(p);
+				cacheBlock(p);
+			}
 		} else {
 			raw = blockCache.get(p);
 		}
@@ -387,4 +392,13 @@ public class BlockSelector implements Listener {
 		}
 	}
 
+	private void cacheBlock(Player p) {
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+			final String raw = scores.getMaterial(p.getUniqueId());
+			Bukkit.getScheduler().runTask(plugin, () -> {
+				blockCache.put(p, raw);
+				blockFetch.put(p, System.currentTimeMillis());
+			});
+		});
+	}
 }
