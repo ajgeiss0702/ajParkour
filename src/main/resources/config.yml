@@ -1,5 +1,5 @@
 # Don't change this please
-config-version: 4
+config-version: 5
 
 # The method to fill multiple multiple parkour areas.
 # If you only have one, this option is ignored.
@@ -79,8 +79,8 @@ enable-portals: true
 # Should we use a more optimized method to look if players are at a portal?
 # It may require the player to be in the block for a little longer
 # Enable this if you have a lot of people on your server and are experiencing lag.
-#  Default: false
-faster-portals: false
+#  Default: true
+faster-portals: true
 
 # Should the updater be enabled?
 # If this is disabled, the plugin will not attempt to check for updates, and you will have to download new updates manually
@@ -89,8 +89,8 @@ faster-portals: false
 enable-updater: true
 
 # Should we apply faster-portals to the afk detections?
-#  Default: false
-faster-afk-detection: false
+#  Default: true
+faster-afk-detection: true
 
 # The particle to use when a new block is placed.
 # See the list of particles here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Particle.html
