@@ -1,10 +1,6 @@
 package us.ajg0702.parkour;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -140,6 +136,23 @@ public class Commands implements CommandExecutor {
 							.replaceAll("\\{AREA}", a.getName())
 						);
 				}
+				return true;
+			case "cachedebug":
+				if(!sender.hasPermission("ajparkour.debug")) {
+					sender.sendMessage(msgs.get("noperm", sply));
+					return true;
+				}
+				TopManager.getInstance().getHighScores().forEach((key, value) -> {
+					StringBuilder sb = new StringBuilder();
+					value.forEach((key1, value1) -> sb.append("\n ").append(key1).append(": ").append(value1));
+					sender.sendMessage("HS: " + key.getName() + ":" + sb);
+				});
+				TopManager.getInstance().getLastGetHS().forEach((key, value) -> {
+					StringBuilder sb = new StringBuilder();
+					value.forEach((key1, value1) -> sb.append("\n ").append(key1).append(": ").append(value1));
+					sender.sendMessage("HSLG: " + key.getName() + ":" + sb);
+				});
+
 				return true;
 			case "areas":
 				StringBuilder add1 = new StringBuilder();

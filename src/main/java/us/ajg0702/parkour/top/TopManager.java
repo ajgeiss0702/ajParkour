@@ -84,17 +84,54 @@ public class TopManager {
         return fetchHighScore(player, area);
     }
 
+    long lastClean = 0;
+
     private void fetchHighScoreAsync(Player player, String area) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> fetchHighScore(player, area));
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            if(System.currentTimeMillis() - lastClean > 300e3) {
+                lastClean = System.currentTimeMillis();
+
+                for(Player key : highScores.keySet()) {
+                    if(!key.isOnline()) {
+                        highScores.put(player, null);
+                    }
+                }
+                for(Player key : lastGetHS.keySet()) {
+                    if(!key.isOnline()) {
+                        lastGetHS.put(player, null);
+                    }
+                }
+            }
+        });
     }
     private int fetchHighScore(Player player, String area) {
         int hs = plugin.scores.getHighScore(player.getUniqueId(), area);
+        if(!highScores.containsKey(player)) {
+            highScores.put(player, new HashMap<>());
+        }
         highScores.get(player).put(area, hs);
         return hs;
     }
 
     public void clearPlayerCache(Player ply) {
         highScores.remove(ply);
+    }
+
+
+
+    public HashMap<Player, HashMap<String, Integer>> getHighScores() {
+        return highScores;
+    }
+    public HashMap<Player, HashMap<String, Long>> getLastGetHS() {
+        return lastGetHS;
+    }
+
+    public HashMap<String, HashMap<Integer, Long>> getLastGet() {
+        return lastGet;
+    }
+    public HashMap<String, HashMap<Integer, TopEntry>> getCache() {
+        return cache;
     }
 }
 
