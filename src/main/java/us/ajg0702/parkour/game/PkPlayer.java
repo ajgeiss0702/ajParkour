@@ -427,11 +427,14 @@ public class PkPlayer implements Listener {
 		ply.sendMessage(msgs.get("fall.normal").replaceAll("\\{SCORE}", score+""));
 
 		Runnable hsTask = () -> {
-			String scoreArea = plugin.getAConfig().getBoolean("begin-score-per-area") ? area.getName() : null;
-			int prevscore = scores.getHighScore(ply.getUniqueId(), scoreArea);
+			int prevscore = scores.getHighScore(ply.getUniqueId(), area.getName());
 			if(prevscore < score) {
 				int time = (int) (System.currentTimeMillis() - started)/1000;
 				scores.setScore(ply.getUniqueId(), score, time, area.getName());
+			}
+			String scoreArea = plugin.getAConfig().getBoolean("begin-score-per-area") ? area.getName() : null;
+			int messageScore = scores.getHighScore(ply.getUniqueId(), scoreArea);
+			if(messageScore < score) {
 				ply.sendMessage(msgs.get("beatrecord", ply).replaceAll("\\{SCORE}", prevscore+""));
 			}
 		};
