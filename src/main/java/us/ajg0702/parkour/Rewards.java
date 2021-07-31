@@ -318,14 +318,14 @@ public class Rewards implements Listener {
 	@EventHandler
 	public void onFall(PlayerEndParkourEvent e) {
 		Player p = e.getPlayer();
-		String m = rw.getString("specials.end.message");
+		String m = rw.getString("specials.end.message").replaceAll("\\{SCORE}", e.getFallScore()+"");
 		if(!m.isEmpty()) {
 			if(plugin.papi) {
 				m = PlaceholderAPI.setPlaceholders(p, m);
 			}
 			p.getPlayer().sendMessage(m);
 		}
-		staticExecuteCommands(rw.getStringList("specials.end.commands"), p);
+		staticExecuteCommands(rw.getStringList("specials.end.commands").replaceAll("\\{SCORE}", e.getFallScore()+""), p);
 	}
 	
 	public static void staticExecuteCommands(List<String> cmds, Player p) {
