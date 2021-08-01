@@ -31,7 +31,7 @@ public class Messages {
 			"placeholders.current.no-data",
 			"palceholders.stats.time-format",
 			"fall.force.reasons.teleport",
-			"fall.force.afk",
+			"fall.force.reasons.afk",
 			"gui.selector.title",
 			"gui.selector.items.random.title",
 			"gui.selector.items.random.lore",
@@ -112,7 +112,7 @@ public class Messages {
 		msgDefaults.put("fall.normal", "&cYou fell! &7Your score was &r{SCORE}");
 		msgDefaults.put("fall.force.base", "&cYour parkour game was ended because ");
 		msgDefaults.put("fall.force.reasons.teleport", "you teleported");
-		msgDefaults.put("fall.force.afk", "you went AFK.");
+		msgDefaults.put("fall.force.reasons.afk", "you went AFK.");
 		
 		msgDefaults.put("errors.blocknotair.base", "&c&lAn error occured:&r&c The block is not air!");
 		msgDefaults.put("errors.blocknotair.player", "&6Tell an admin, and try again later.");
@@ -131,13 +131,7 @@ public class Messages {
 		msgDefaults.put("placeholders.stats.no-data", "---");
 		msgDefaults.put("placeholders.current.no-data", "0");
 		msgDefaults.put("placeholders.stats.time-format", "{m}m {s}s");
-		
-		msgDefaults.put("max-score-reached", "&cYou reached the max score! Your game has been ended.");
-		
-		msgDefaults.put("console-warn-confirm", "&cIf you do this command, you will only be able to set it again in-game!\n"
-				+ "&7To run the command anyway, run this command: &f{COMMAND} confirm");
-		
-		
+
 		msgDefaults.put("commands.help.header", "&aajParkour made by &2ajgeiss0702&a!");
 		msgDefaults.put("commands.help.start", "&6 /{CMD} start &7- &9Start parkour!");
 		msgDefaults.put("commands.help.startarea", "&6 /{CMD} start <area> &7- &9Start parkour in a certain area.");
@@ -244,6 +238,7 @@ public class Messages {
 		mv.put("list-header", "list.header");
 		mv.put("block-potion", "block.potion");
 		mv.put("startfirst", "start.first");
+		mv.put("fall.force.afk", "fall.force.reasons.afk");
 		
 		for(String key : mv.keySet()) {
 			if(msgs.isSet(key)) {
