@@ -116,7 +116,7 @@ public class Rewards implements Listener {
 					topscore = TopManager.getInstance().getTop(1, null).getScore();
 
 				} catch(Exception e) {return;}
-				if(score >= topscore) {
+				if(score > topscore) {
 					String message = msgs.color(rw.getString("specials.beat-server-record.message", ""));
 					if(!message.isEmpty()) {
 						player.sendMessage(message);
