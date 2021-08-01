@@ -1,18 +1,19 @@
 plugins {
     java
     id("com.github.johnrengelman.shadow").version("6.1.0")
+    `maven-publish`
 }
 
 group = "us.ajg0702"
-version = "2.12.3"
+version = "2.12.4"
 
 repositories {
   mavenCentral()
 
   maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots") }
   maven { url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") }
-  maven { url = uri("http://repo.extendedclip.com/content/repositories/placeholderapi/") }
-  maven { url = uri("http://maven.enginehub.org/repo/") }
+  maven { url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/") }
+  maven { url = uri("https://maven.enginehub.org/repo/") }
   maven { url = uri("https://gitlab.com/api/v4/projects/19978391/packages/maven") }
 }
 
@@ -40,10 +41,36 @@ tasks.shadowJar {
     relocate("us.ajg0702.utils", "us.ajg0702.parkour.utils")
     relocate("com.zaxxer.hikari", "us.ajg0702.parkour.hikari")
 
-    archiveFileName.set("${baseName}-${version}.${extension}")
+    archiveClassifier.set("")
 }
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
 }
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            artifact(tasks["jar"])
+        }
+    }
+
+    repositories {
+
+        val mavenUrl = "https://repo.ajg0702.us/releases"
+
+        if(!System.getenv("REPO_TOKEN").isNullOrEmpty()) {
+            maven {
+                url = uri(mavenUrl)
+                name = "ajRepo"
+
+                credentials {
+                    username = "plugins"
+                    password = System.getenv("REPO_TOKEN")
+                }
+            }
+        }
+    }
+}
+

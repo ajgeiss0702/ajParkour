@@ -73,7 +73,9 @@ public class TopManager {
         }
 
         if(highScores.get(player).containsKey(area)) {
-            if(System.currentTimeMillis() - lastGetHS.get(player).get(area) > 1000) {
+            if(System.currentTimeMillis() -
+                    lastGetHS.get(player).get(area)
+                    > 1000) {
                 lastGetHS.get(player).put(area, System.currentTimeMillis());
                 fetchHighScoreAsync(player, area);
             }
@@ -94,12 +96,12 @@ public class TopManager {
 
                 for(Player key : highScores.keySet()) {
                     if(!key.isOnline()) {
-                        highScores.put(player, null);
+                        highScores.remove(player);
                     }
                 }
                 for(Player key : lastGetHS.keySet()) {
                     if(!key.isOnline()) {
-                        lastGetHS.put(player, null);
+                        lastGetHS.remove(player);
                     }
                 }
             }

@@ -116,13 +116,13 @@ public class Rewards implements Listener {
 					topscore = TopManager.getInstance().getTop(1, null).getScore();
 
 				} catch(Exception e) {return;}
-				if(score >= topscore) {
+				if(score > topscore) {
 					String message = msgs.color(rw.getString("specials.beat-server-record.message", ""));
 					if(!message.isEmpty()) {
 						player.sendMessage(message);
 					}
-					@SuppressWarnings("unchecked")
-					List<String> cmds = (List<String>) rw.getList("specials.beat-server-record.commands", new ArrayList<String>());
+					List<String> cmds = rw.getStringList("specials.beat-server-record.commands"	);
+					cmds.replaceAll(s -> s.replaceAll("\\{SCORE}", score+""));
 					if(cmds.size() != 0) {
 						Bukkit.getScheduler().runTask(plugin, () -> executeCommands(cmds, p));
 					}
@@ -214,9 +214,9 @@ public class Rewards implements Listener {
 				if(!message.isEmpty()) {
 					p.getPlayer().sendMessage(msgs.color(message.replaceAll("\\{SCORE}", score+"")));
 				}
-				
-				@SuppressWarnings("unchecked")
-				List<String> cmds = (List<String>) rw.getList("exceptions."+ec+".commands", new ArrayList<String>());
+
+				List<String> cmds = rw.getStringList("exceptions."+ec+".commands");
+				cmds.replaceAll(s -> s.replaceAll("\\{SCORE}", score+""));
 				executeCommands(cmds, p);
 				break;
 			}
@@ -273,9 +273,9 @@ public class Rewards implements Listener {
 				if(!message.isEmpty()) {
 					p.getPlayer().sendMessage(msgs.color(message));
 				}
-				
-				@SuppressWarnings("unchecked")
-				List<String> cmds = (List<String>) rw.getList("intervals."+ic+".commands", new ArrayList<String>());
+
+				List<String> cmds = rw.getStringList("intervals."+ic+".commands");
+				cmds.replaceAll(s -> s.replaceAll("\\{SCORE}", score+""));
 				executeCommands(cmds, p);
 			}
 		}
@@ -318,14 +318,16 @@ public class Rewards implements Listener {
 	@EventHandler
 	public void onFall(PlayerEndParkourEvent e) {
 		Player p = e.getPlayer();
-		String m = rw.getString("specials.end.message");
+		String m = rw.getString("specials.end.message").replaceAll("\\{SCORE}", e.getFallScore()+"");
 		if(!m.isEmpty()) {
 			if(plugin.papi) {
 				m = PlaceholderAPI.setPlaceholders(p, m);
 			}
 			p.getPlayer().sendMessage(m);
 		}
-		staticExecuteCommands(rw.getStringList("specials.end.commands"), p);
+		List<String> commands = rw.getStringList("specials.end.commands");
+		commands.replaceAll(s -> s.replaceAll("\\{SCORE}", e.getFallScore()+""));
+		staticExecuteCommands(commands, p);
 	}
 	
 	public static void staticExecuteCommands(List<String> cmds, Player p) {
