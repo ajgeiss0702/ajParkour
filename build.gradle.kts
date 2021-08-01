@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "us.ajg0702"
-version = "2.12.3"
+version = "2.12.4"
 
 repositories {
   mavenCentral()
@@ -41,7 +41,7 @@ tasks.shadowJar {
     relocate("us.ajg0702.utils", "us.ajg0702.parkour.utils")
     relocate("com.zaxxer.hikari", "us.ajg0702.parkour.hikari")
 
-    archiveFileName.set("${baseName}-${version}.${extension}")
+    archiveClassifier.set("")
 }
 
 java {
