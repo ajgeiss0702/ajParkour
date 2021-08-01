@@ -25,7 +25,7 @@ public class CommandHandler implements Listener {
 	Messages msgs;
 	
 	List<String> cmds;
-
+	
 	public CommandHandler(Main pl) {
 		this.pl = pl;
 		msgs = pl.msgs;
@@ -45,9 +45,6 @@ public class CommandHandler implements Listener {
 	}
 	
 	@SuppressWarnings("unchecked")
-	/**
-	 * Reloads the comand whitelist.
-	 */
 	public void reload() {
 		cmds = (List<String>) cmd.getList("whitelist");
 	}
@@ -64,6 +61,7 @@ public class CommandHandler implements Listener {
 	
 	@EventHandler
 	public void command(PlayerCommandPreprocessEvent e) {
+		if(cmds.size() == 0) return;
 		Player p = e.getPlayer();
 		if(pl.man.inParkour(p)) {
 			if(!cmd.contains(e.getMessage().split(" ")[0].replace("/", ""))) {
