@@ -68,7 +68,7 @@ public class TopManager {
         if(!highScores.containsKey(player)) {
             highScores.put(player, new HashMap<>());
         }
-        if(!lastGetHS.containsKey(player)) {
+        if(!lastGetHS.containsKey(player) || lastGetHS.get(player) == null) {
             lastGetHS.put(player, new HashMap<>());
         }
 
