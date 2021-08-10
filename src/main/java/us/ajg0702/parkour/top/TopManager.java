@@ -4,6 +4,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import us.ajg0702.parkour.Main;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -74,7 +76,7 @@ public class TopManager {
         }
 
         if(highScores.get(player).containsKey(area)) {
-            if(System.currentTimeMillis() -
+            if(Calendar.getInstance().getTimeInMillis() -
                     lastGetHS.get(player).get(area)
                     > 1000) {
                 lastGetHS.get(player).put(area, System.currentTimeMillis());
