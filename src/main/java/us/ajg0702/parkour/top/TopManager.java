@@ -4,7 +4,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import us.ajg0702.parkour.Main;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TopManager {
     private static TopManager instance;
@@ -60,8 +63,8 @@ public class TopManager {
 
 
 
-    private HashMap<Player, HashMap<String, Integer>> highScores = new HashMap<>();
-    private HashMap<Player, HashMap<String, Long>> lastGetHS = new HashMap<>();
+    private ConcurrentHashMap<Player, HashMap<String, Integer>> highScores = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Player, HashMap<String, Long>> lastGetHS = new ConcurrentHashMap<>();
     public int getHighScore(Player player, String area) {
         if(area == null) area = "overall";
 
@@ -73,7 +76,7 @@ public class TopManager {
         }
 
         if(highScores.get(player).containsKey(area)) {
-            if(System.currentTimeMillis() -
+            if(Calendar.getInstance().getTimeInMillis() -
                     lastGetHS.get(player).get(area)
                     > 1000) {
                 lastGetHS.get(player).put(area, System.currentTimeMillis());
@@ -123,10 +126,10 @@ public class TopManager {
 
 
     public HashMap<Player, HashMap<String, Integer>> getHighScores() {
-        return highScores;
+        return new HashMap<>(highScores);
     }
     public HashMap<Player, HashMap<String, Long>> getLastGetHS() {
-        return lastGetHS;
+        return new HashMap<>(lastGetHS);
     }
 
     public HashMap<String, HashMap<Integer, Long>> getLastGet() {
