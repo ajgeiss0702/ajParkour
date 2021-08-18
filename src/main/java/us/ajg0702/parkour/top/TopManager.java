@@ -75,7 +75,7 @@ public class TopManager {
             lastGetHS.put(player, new HashMap<>());
         }
 
-        if(highScores.get(player).containsKey(area)) {
+        if(highScores.get(player).containsKey(area) && lastGetHS.get(player).containsKey(area)) {
             if(Calendar.getInstance().getTimeInMillis() -
                     lastGetHS.get(player).get(area)
                     > 1000) {
