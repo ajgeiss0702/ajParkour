@@ -139,7 +139,7 @@ public class Scores {
 	String url;
 	private void initDatabase(String method, String ip, String username, String password, String database, String tablePrefix, boolean useSSL, boolean allowPublicKeyRetrieval, int minConnections, int maxConnections) throws SQLException {
 		if(method.equals("mysql")) {
-			url = "jdbc:mysql://"+ip+"/"+database+"?useSSL="+useSSL+"&allowPublicKeyRetrieval="+allowPublicKeyRetrieval+"";
+			url = "jdbc:mysql://"+ip+"/"+database+"?useSSL="+useSSL+"&allowPublicKeyRetrieval="+allowPublicKeyRetrieval+"&characterEncoding=utf8";
 			hikariConfig.setDriverClassName("com.mysql.jdbc.Driver");
 			hikariConfig.setJdbcUrl(url);
 			hikariConfig.setUsername(username);
