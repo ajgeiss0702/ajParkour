@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -328,9 +329,19 @@ public class BlockSelector implements Listener {
 	}
 
 
-	private final HashMap<Player, String> blockCache = new HashMap<>();
-	private final HashMap<Player, Long> blockFetch = new HashMap<>();
+	private final ConcurrentHashMap<Player, String> blockCache = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<Player, Long> blockFetch = new ConcurrentHashMap<>();
 	public String getBlock(Player p, PkArea area) {
+		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+			for(Player player : blockCache.keySet()) {
+				if(player.isOnline()) continue;
+				blockCache.remove(player);
+			}
+			for(Player player : blockFetch.keySet()) {
+				if(player.isOnline()) continue;
+				blockFetch.remove(player);
+			}
+		});
 
 		if(!blockFetch.containsKey(p)) {
 			blockFetch.put(p, 0L);
