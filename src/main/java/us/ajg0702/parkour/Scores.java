@@ -146,6 +146,9 @@ public class Scores {
 			hikariConfig.setPassword(password);
 			hikariConfig.setMaximumPoolSize(maxConnections);
 			hikariConfig.setMinimumIdle(minConnections);
+
+			hikariConfig.setTransactionIsolation("transaction_isolation");
+
 			this.tablePrefix = tablePrefix;
 			ds = new HikariDataSource(hikariConfig);
 			ds.setLeakDetectionThreshold(60 * 1000);
