@@ -319,7 +319,7 @@ public class PkPlayer implements Listener {
 	 */
 	public PkJump getHighestBlock() {
 		PkJump highest = null;
-		int y = 0;
+		int y = Integer.MIN_VALUE;
 		for(PkJump j : jumps) {
 			int jy = j.getTo().getBlockY();
 			if(jy > y) {
