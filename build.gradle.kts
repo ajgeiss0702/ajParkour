@@ -23,7 +23,7 @@ dependencies {
   compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.0.1")
   compileOnly(files("libs/InfiniteJump.jar"))
 
-  implementation("com.zaxxer:HikariCP:5.0.0")
+  implementation("com.zaxxer:HikariCP:3.4.5")
   implementation("org.slf4j:slf4j-simple:1.6.4")
   implementation("us.ajg0702:ajUtils:1.0.0")
 }
