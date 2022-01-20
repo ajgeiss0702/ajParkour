@@ -47,6 +47,7 @@ public class Scores {
 		String password = storageConfig.getString("mysql.password");
 		String database = storageConfig.getString("mysql.database");
 		String tablePrefix = storageConfig.getString("mysql.tablePrefix");
+		String tx_isolation = storageConfig.getString("mysql.tx_isolation");
 		boolean useSSL = storageConfig.getBoolean("mysql.useSSL");
 		boolean allowPublicKeyRetrieval = storageConfig.getBoolean("mysql.allowPublicKeyRetrieval");
 		int minCount = storageConfig.getInt("mysql.minConnections");
@@ -57,7 +58,7 @@ public class Scores {
 
 		if(sMethod.equalsIgnoreCase("mysql")) {
 			try {
-				initDatabase("mysql", ip, username, password, database, tablePrefix, useSSL, allowPublicKeyRetrieval, minCount, maxCount);
+				initDatabase("mysql", ip, username, password, database, tablePrefix, useSSL, allowPublicKeyRetrieval, minCount, maxCount, tx_isolation);
 			} catch (Exception e) {
 				plugin.getLogger().warning("Could not connect to database! Switching to sqlite storage. Error: ");
 				e.printStackTrace();
@@ -66,7 +67,7 @@ public class Scores {
 		}
 		if(sMethod.equalsIgnoreCase("sqlite") || sMethod.equalsIgnoreCase("yaml")) {
 			try {
-				initDatabase(sMethod, null, null, null, null, tablePrefix, false, false, minCount, maxCount);
+				initDatabase(sMethod, null, null, null, null, tablePrefix, false, false, minCount, maxCount, tx_isolation);
 			} catch(SQLException e) {
 				plugin.getLogger().severe("Unable to create sqlite database. High scores will not work!");
 				e.printStackTrace();
@@ -94,6 +95,7 @@ public class Scores {
 		v.put("mysql.useSSL", false);
 		v.put("mysql.minConnections", 2);
 		v.put("mysql.maxConnections", 10);
+		v.put("mysql.tx_isolation", "");
 
 		boolean save = false;
 
@@ -137,7 +139,7 @@ public class Scores {
 
 	Connection sqliteConn;
 	String url;
-	private void initDatabase(String method, String ip, String username, String password, String database, String tablePrefix, boolean useSSL, boolean allowPublicKeyRetrieval, int minConnections, int maxConnections) throws SQLException {
+	private void initDatabase(String method, String ip, String username, String password, String database, String tablePrefix, boolean useSSL, boolean allowPublicKeyRetrieval, int minConnections, int maxConnections, String tx_isolation) throws SQLException {
 		if(method.equals("mysql")) {
 			url = "jdbc:mysql://"+ip+"/"+database+"?useSSL="+useSSL+"&allowPublicKeyRetrieval="+allowPublicKeyRetrieval+"&characterEncoding=utf8";
 			hikariConfig.setDriverClassName("com.mysql.jdbc.Driver");
@@ -147,7 +149,9 @@ public class Scores {
 			hikariConfig.setMaximumPoolSize(maxConnections);
 			hikariConfig.setMinimumIdle(minConnections);
 
-			hikariConfig.setTransactionIsolation("transaction_isolation");
+			if(!tx_isolation.isEmpty()) {
+				hikariConfig.setTransactionIsolation(tx_isolation);
+			}
 
 			this.tablePrefix = tablePrefix;
 			ds = new HikariDataSource(hikariConfig);
