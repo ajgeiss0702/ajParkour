@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "us.ajg0702"
-version = "2.12.10"
+version = "3.0.0"
 
 repositories {
   mavenCentral()
@@ -18,14 +18,17 @@ repositories {
 }
 
 dependencies {
-  compileOnly("org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT")
-  compileOnly("me.clip:placeholderapi:2.10.4")
-  compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.0.1")
-  compileOnly(files("libs/InfiniteJump.jar"))
+    compileOnly("org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT")
 
-  implementation("com.zaxxer:HikariCP:3.4.5")
-  implementation("org.slf4j:slf4j-simple:1.6.4")
-  implementation("us.ajg0702:ajUtils:1.0.0")
+    implementation("org.bstats:bstats-bukkit:1.7")
+
+    implementation("net.kyori:adventure-api:4.12.0")
+    implementation("net.kyori:adventure-text-minimessage:4.12.0")
+    implementation("net.kyori:adventure-platform-bukkit:4.2.0")
+
+    implementation("us.ajg0702:ajUtils:1.2.13")
+    implementation("us.ajg0702.commands.platforms.bukkit:bukkit:1.0.0")
+    implementation("us.ajg0702.commands.api:api:1.0.0")
 }
 
 tasks.withType<ProcessResources> {
