@@ -1,5 +1,5 @@
 # ajParkour
-This is the repository for [ajParkour](https://www.spigotmc.org/resources/ajparkour.60909/)
+This is the repository for [ajParkour](https://about.ajg0702.us/project/ajParkour)
 
 # Contributing
 If you would like to contribute, please open a merge request. (aka pull request)
