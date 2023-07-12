@@ -1,7 +1,9 @@
 # Don't change this please
 config-version: 5
 
-# The method to fill multiple multiple parkour areas.
+allow-diagonal-jumps: true
+
+# The method to fill multiple parkour areas.
 # If you only have one, this option is ignored.
 #  Default: lowest
 area-selection: lowest
