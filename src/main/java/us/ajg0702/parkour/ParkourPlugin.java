@@ -11,8 +11,11 @@ import us.ajg0702.commands.platforms.bukkit.BukkitCommand;
 import us.ajg0702.commands.platforms.bukkit.BukkitSender;
 import us.ajg0702.parkour.commands.main.MainCommand;
 import us.ajg0702.parkour.game.Manager;
+import us.ajg0702.parkour.game.difficulties.DifficultyManager;
 import us.ajg0702.utils.common.Config;
+import us.ajg0702.utils.common.ConfigFile;
 import us.ajg0702.utils.common.Messages;
+import us.ajg0702.utils.common.SimpleConfig;
 
 import java.util.logging.Level;
 
@@ -21,6 +24,12 @@ public class ParkourPlugin extends JavaPlugin {
     private Manager manager;
 
     private Config config;
+
+    private ConfigFile jumpsConfig;
+
+    private SimpleConfig positionsConfig;
+
+    private DifficultyManager difficultyManager;
 
     @Override
     public void onEnable() {
@@ -33,6 +42,27 @@ public class ParkourPlugin extends JavaPlugin {
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
+        try {
+            jumpsConfig = new ConfigFile(getDataFolder(), getLogger(), "jumps.yml");
+        } catch (ConfigurateException e) {
+            getLogger().log(Level.SEVERE, "An error occurred while loading your jumps config:", e);
+            getLogger().severe("Disabling because the jumps config failed to load. See above error on why.");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+        try {
+            String positionsHeader =
+                    "This is where the plugin stores all the areas and portals.\n" +
+                            "Be careful when editing this file, it could cause some areas or portals to fail to load!";
+            positionsConfig = new SimpleConfig(getDataFolder(), "positions.yml", getLogger(), positionsHeader);
+        } catch (ConfigurateException e) {
+            getLogger().log(Level.SEVERE, "An error occurred while loading your positions (areas/portals) config:", e);
+            getLogger().severe("Disabling because the positions (areas/portals) config failed to load. See above error on why.");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+
+        difficultyManager = new DifficultyManager(this);
 
         manager = new Manager(this);
 
@@ -56,8 +86,20 @@ public class ParkourPlugin extends JavaPlugin {
         return config;
     }
 
+    public ConfigFile getJumpsConfig() {
+        return jumpsConfig;
+    }
+
     public Manager getManager() {
         return manager;
+    }
+
+    public DifficultyManager getDifficultyManager() {
+        return difficultyManager;
+    }
+
+    public SimpleConfig getPositionsConfig() {
+        return positionsConfig;
     }
 
     @Override

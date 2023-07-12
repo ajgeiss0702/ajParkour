@@ -5,6 +5,8 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public class WorldPosition {
 
     private final String world;
@@ -61,5 +63,23 @@ public class WorldPosition {
                 y + yChange,
                 z + zChange
         );
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof WorldPosition)) return false;
+        WorldPosition that = (WorldPosition) o;
+        return getX() == that.getX() && getY() == that.getY() && getZ() == that.getZ() && Objects.equals(getWorld(), that.getWorld());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getWorld(), getX(), getY(), getZ());
+    }
+
+    public static WorldPosition of(Location location) {
+        if(location == null) return null;
+        return new WorldPosition(location);
     }
 }

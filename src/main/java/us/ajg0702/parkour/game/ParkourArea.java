@@ -1,11 +1,12 @@
 package us.ajg0702.parkour.game;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import us.ajg0702.parkour.ParkourPlugin;
 import us.ajg0702.parkour.game.difficulties.Difficulty;
+import us.ajg0702.parkour.game.difficulties.StaticDifficulty;
 import us.ajg0702.parkour.utils.BoxArea;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -17,13 +18,16 @@ public class ParkourArea {
     private BoxArea box;
     private Difficulty difficulty;
 
+    private Location fallPosition;
+
     private final List<ParkourPlayer> players = new CopyOnWriteArrayList<>();
 
-    public ParkourArea(ParkourPlugin plugin, String name, BoxArea box, Difficulty difficulty) {
+    public ParkourArea(ParkourPlugin plugin, String name, BoxArea box, Difficulty difficulty, Location fallPosition) {
         this.plugin = plugin;
         this.name = name;
         this.box = box;
         this.difficulty = difficulty;
+        this.fallPosition = fallPosition;
     }
 
     public BoxArea getBox() {
@@ -40,6 +44,22 @@ public class ParkourArea {
 
     public List<ParkourPlayer> getPlayers() {
         return players;
+    }
+
+    public Location getFallPosition() {
+        return fallPosition;
+    }
+
+    public void setBox(BoxArea box) {
+        this.box = box;
+    }
+
+    public void setDifficulty(Difficulty difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    public void setFallPosition(Location fallPosition) {
+        this.fallPosition = fallPosition;
     }
 
     public void startPlayer(Player player) {

@@ -120,21 +120,21 @@ public enum BlockDirection {
         // this is probably wrong. sorry future me
         switch(this) {
             case NORTH:
-                return 0;
+                return 180;
             case NORTH_EAST:
-                return 315;
+                return 225;
             case EAST:
                 return 270;
             case SOUTH_EAST:
-                return 255;
+                return 315;
             case SOUTH:
-                return 180;
+                return 0;
             case SOUTH_WEST:
-                return 135;
+                return 45;
             case WEST:
                 return 90;
             case NORTH_WEST:
-                return 45;
+                return 135;
         }
         throw new IllegalStateException(this.toString());
     }

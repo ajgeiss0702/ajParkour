@@ -20,6 +20,8 @@ public class ParkourBlock {
     private WorldPosition position;
     private BlockDirection direction;
 
+    private BlockPossibility selected;
+
     public ParkourBlock(@Nullable ParkourBlock previous, ParkourPlugin plugin, ParkourArea area, ParkourPlayer player) {
         this.plugin = plugin;
         WorldPosition start;
@@ -33,13 +35,13 @@ public class ParkourBlock {
             direction = previous.getDirection();
         }
 
-        long calcStart = System.currentTimeMillis();
 
         List<BlockPossibility> possibilities = new ArrayList<>();
-        int minDistance = area.getDifficulty().getMinimumDistance();
-        int maxDistance = area.getDifficulty().getMaximumDistance();
-        for (int distance = minDistance; distance <= maxDistance; distance++) {
-            for (int y = -1; y <= 1; y++) {
+        int minDistance = area.getDifficulty().getMinimumDistance(player.getScore());
+        int maxDistance = area.getDifficulty().getMaximumDistance(player.getScore());
+        for (int y = -1; y <= 1; y++) {
+            int possibleMax = y == 1 ? 4 : 5;
+            for (int distance = minDistance; distance <= Math.min(maxDistance, possibleMax); distance++) {
                 possibilities.addAll(Arrays.asList(
                         new BlockPossibility(player, previous, start, BlockDirection.NORTH, 0, y, distance * -1),
                         new BlockPossibility(player, previous, start, BlockDirection.EAST, distance, y, 0),
@@ -58,6 +60,8 @@ public class ParkourBlock {
             }
         }
 
+
+
         possibilities.sort((a, b) -> b.getScore() - a.getScore());
 
         int highestScore = possibilities.get(0).getScore();
@@ -67,12 +71,10 @@ public class ParkourBlock {
             acceptableBlocks.add(possibility);
         }
 
-        BlockPossibility selected = acceptableBlocks.get((int) Math.floor(Math.random() * acceptableBlocks.size()));
+        selected = acceptableBlocks.get((int) Math.floor(Math.random() * acceptableBlocks.size()));
 
         direction = selected.getDirection();
         position = selected.getPosition();
-
-        plugin.getLogger().info("Block possibility calculations took " + (System.currentTimeMillis() - calcStart) + "ms");
 
         this.area = area;
         this.player = player;
