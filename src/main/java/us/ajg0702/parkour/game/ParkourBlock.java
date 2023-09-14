@@ -24,9 +24,11 @@ public class ParkourBlock {
 
     public ParkourBlock(@Nullable ParkourBlock previous, ParkourPlugin plugin, ParkourArea area, ParkourPlayer player) {
         this.plugin = plugin;
-        WorldPosition start;
+        WorldPosition start = null;
         if(previous == null) {
-            start = area.getBox().randomPoint();
+            while(start == null || start.getLocation().getBlock().getType().isSolid()) {
+                start = area.getBox().randomPoint();
+            }
             direction = BlockDirection.randomDirection(
                     !plugin.getAConfig().getBoolean("allow-diagonal-jumps")
             );
@@ -92,7 +94,7 @@ public class ParkourBlock {
 
     public void remove() {
         Runnable placeTask =
-                () -> position.getLocation().getBlock().setType(Material.AIR);
+                () -> position.getLocation().getBlock().setType(Material.AIR, false);
         if(Bukkit.isPrimaryThread()) {
             placeTask.run();
         } else {

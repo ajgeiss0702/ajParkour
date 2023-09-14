@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static us.ajg0702.parkour.utils.Utils.getBlocksInLine;
+
 public class BlockPossibility {
 
     private final WorldPosition position;
@@ -71,11 +73,22 @@ public class BlockPossibility {
             }
         }
 
-        List<WorldPosition> nearby = getNearbyJumpables(position);
+        List<WorldPosition> shouldBeAir = new ArrayList<>();
+        if(previous != null) {
+            List<WorldPosition> previousJumpables = getNearbyJumpables(previous.getPosition());
+            List<WorldPosition> jumpables = getNearbyJumpables(position);
+            for (int i = 0; i < jumpables.size(); i++) {
+                WorldPosition previousPosition = previousJumpables.get(i);
+                WorldPosition currentPosition = jumpables.get(i);
+                shouldBeAir.addAll(getBlocksInLine(previousPosition, currentPosition));
+            }
+        } else {
+            shouldBeAir = getNearbyJumpables(position);
+        }
         if(position.getLocation().getBlock().getType().isSolid()) {
             score -= 50;
         }
-        for (WorldPosition jumpable : nearby) {
+        for (WorldPosition jumpable : shouldBeAir) {
             if(jumpable.getLocation().getBlock().getType().isSolid()) {
                 score -= 10;
             }

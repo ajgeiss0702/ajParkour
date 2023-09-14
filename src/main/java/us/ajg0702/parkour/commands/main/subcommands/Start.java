@@ -5,6 +5,7 @@ import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.SubCommand;
 import us.ajg0702.parkour.ParkourPlugin;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,11 +19,11 @@ public class Start extends SubCommand {
 
     @Override
     public List<String> autoComplete(CommandSender sender, String[] args) {
-        return Collections.emptyList();
+        return filterCompletion(new ArrayList<>(plugin.getManager().getAreaNames()), args[0]);
     }
 
     @Override
     public void execute(CommandSender sender, String[] args, String label) {
-        plugin.getManager().start((Player) sender.getHandle());
+        plugin.getManager().start((Player) sender.getHandle(), args[0]);
     }
 }

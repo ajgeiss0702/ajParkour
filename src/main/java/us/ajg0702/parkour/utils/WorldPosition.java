@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.Nullable;
+import us.ajg0702.utils.spigot.LocUtils;
 
 import java.util.Objects;
 
@@ -63,6 +64,10 @@ public class WorldPosition {
                 y + yChange,
                 z + zChange
         );
+    }
+
+    public Location centerLocation() {
+        return LocUtils.center(new Location(getWorld(), x, y, z));
     }
 
     @Override

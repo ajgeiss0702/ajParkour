@@ -87,8 +87,14 @@ public class Manager {
         }
     }
 
-    public void start(Player player) {
-        areas.get(0).startPlayer(player);
+    public void start(Player player, ParkourArea area) {
+        area.startPlayer(player);
+    }
+
+    public void start(Player player, String areaName) {
+        ParkourArea area = getAreaMap().get(areaName);
+        if(area == null) throw new IllegalArgumentException("Area does not exist!");
+        start(player, area);
     }
 
 
