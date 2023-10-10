@@ -18,6 +18,7 @@ public class DebugCommands extends SubCommand {
         setShowInTabComplete(false);
 
         addSubCommand(new Line());
+        addSubCommand(new Papi());
     }
 
     @Override

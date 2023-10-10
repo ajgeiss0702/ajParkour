@@ -15,6 +15,8 @@ repositories {
   maven { url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/") }
   maven { url = uri("https://maven.enginehub.org/repo/") }
   maven { url = uri("https://repo.ajg0702.us/releases") }
+
+  mavenLocal()
 }
 
 dependencies {
@@ -26,7 +28,7 @@ dependencies {
     implementation("net.kyori:adventure-text-minimessage:4.13.0")
     implementation("net.kyori:adventure-platform-bukkit:4.3.0")
 
-    implementation("us.ajg0702:ajUtils:1.2.14")
+    implementation("us.ajg0702:ajUtils:1.2.24")
     implementation("us.ajg0702.commands.platforms.bukkit:bukkit:1.1.0")
     implementation("us.ajg0702.commands.api:api:1.1.0")
 

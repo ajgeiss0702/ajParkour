@@ -17,6 +17,7 @@ import us.ajg0702.utils.common.ConfigFile;
 import us.ajg0702.utils.common.Messages;
 import us.ajg0702.utils.common.SimpleConfig;
 
+import java.util.HashMap;
 import java.util.logging.Level;
 
 public class ParkourPlugin extends JavaPlugin {
@@ -30,6 +31,8 @@ public class ParkourPlugin extends JavaPlugin {
     private SimpleConfig positionsConfig;
 
     private DifficultyManager difficultyManager;
+
+    private Messages messages;
 
     @Override
     public void onEnable() {
@@ -65,6 +68,8 @@ public class ParkourPlugin extends JavaPlugin {
         difficultyManager = new DifficultyManager(this);
 
         manager = new Manager(this);
+
+        messages = new Messages(getDataFolder(), getLogger(), new HashMap<>());
 
         Bukkit.getPluginManager().registerEvents(new GameListeners(this), this);
 
