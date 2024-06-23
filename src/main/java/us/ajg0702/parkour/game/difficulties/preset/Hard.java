@@ -10,4 +10,9 @@ public class Hard extends StaticDifficulty {
         super(plugin.getJumpsConfig().getInt("hard-min"), plugin.getJumpsConfig().getInt("hard-max"));
         this.plugin = plugin;
     }
+
+    @Override
+    public String getName() {
+        return "hard";
+    }
 }

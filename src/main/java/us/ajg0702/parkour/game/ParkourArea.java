@@ -2,6 +2,7 @@ package us.ajg0702.parkour.game;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import us.ajg0702.parkour.ParkourPlugin;
 import us.ajg0702.parkour.game.difficulties.Difficulty;
 import us.ajg0702.parkour.game.difficulties.StaticDifficulty;
@@ -15,6 +16,7 @@ public class ParkourArea {
     private final ParkourPlugin plugin;
 
     private String name;
+    @NotNull
     private BoxArea box;
     private Difficulty difficulty;
 
@@ -22,7 +24,7 @@ public class ParkourArea {
 
     private final List<ParkourPlayer> players = new CopyOnWriteArrayList<>();
 
-    public ParkourArea(ParkourPlugin plugin, String name, BoxArea box, Difficulty difficulty, Location fallPosition) {
+    public ParkourArea(ParkourPlugin plugin, String name, @NotNull BoxArea box, Difficulty difficulty, Location fallPosition) {
         this.plugin = plugin;
         this.name = name;
         this.box = box;
@@ -30,7 +32,7 @@ public class ParkourArea {
         this.fallPosition = fallPosition;
     }
 
-    public BoxArea getBox() {
+    public @NotNull BoxArea getBox() {
         return box;
     }
 

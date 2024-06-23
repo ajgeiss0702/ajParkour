@@ -10,4 +10,9 @@ public class Medium extends StaticDifficulty {
         super(plugin.getJumpsConfig().getInt("medium-min"), plugin.getJumpsConfig().getInt("medium-max"));
         this.plugin = plugin;
     }
+
+    @Override
+    public String getName() {
+        return "medium";
+    }
 }

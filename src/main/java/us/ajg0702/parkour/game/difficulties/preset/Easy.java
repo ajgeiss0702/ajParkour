@@ -10,4 +10,9 @@ public class Easy extends StaticDifficulty {
         super(plugin.getJumpsConfig().getInt("easy-min"), plugin.getJumpsConfig().getInt("easy-max"));
         this.plugin = plugin;
     }
+
+    @Override
+    public String getName() {
+        return "easy";
+    }
 }

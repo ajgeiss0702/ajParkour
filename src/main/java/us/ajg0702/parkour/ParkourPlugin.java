@@ -12,6 +12,8 @@ import us.ajg0702.commands.platforms.bukkit.BukkitSender;
 import us.ajg0702.parkour.commands.main.MainCommand;
 import us.ajg0702.parkour.game.Manager;
 import us.ajg0702.parkour.game.difficulties.DifficultyManager;
+import us.ajg0702.parkour.loaders.MessageLoader;
+import us.ajg0702.parkour.setup.SetupManager;
 import us.ajg0702.utils.common.Config;
 import us.ajg0702.utils.common.ConfigFile;
 import us.ajg0702.utils.common.Messages;
@@ -23,6 +25,8 @@ import java.util.logging.Level;
 public class ParkourPlugin extends JavaPlugin {
 
     private Manager manager;
+
+    private SetupManager setupManager;
 
     private Config config;
 
@@ -69,7 +73,9 @@ public class ParkourPlugin extends JavaPlugin {
 
         manager = new Manager(this);
 
-        messages = new Messages(getDataFolder(), getLogger(), new HashMap<>());
+        setupManager = new SetupManager(this);
+
+        messages = MessageLoader.loadMessages(this);
 
         Bukkit.getPluginManager().registerEvents(new GameListeners(this), this);
 
@@ -99,6 +105,10 @@ public class ParkourPlugin extends JavaPlugin {
         return manager;
     }
 
+    public SetupManager getSetupManager() {
+        return setupManager;
+    }
+
     public DifficultyManager getDifficultyManager() {
         return difficultyManager;
     }
@@ -110,6 +120,10 @@ public class ParkourPlugin extends JavaPlugin {
     @Override
     public FileConfiguration getConfig() {
         throw new IllegalStateException("Bukkit config system is not used for ajParkour! Use the getAConfig method instead!");
+    }
+
+    public Messages getMessages() {
+        return messages;
     }
 
     private static BukkitAudiences adventure;

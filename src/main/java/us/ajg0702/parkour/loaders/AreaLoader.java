@@ -2,6 +2,8 @@ package us.ajg0702.parkour.loaders;
 
 import org.bukkit.Location;
 import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.serialize.SerializationException;
 import us.ajg0702.parkour.ParkourPlugin;
 import us.ajg0702.parkour.game.ParkourArea;
 import us.ajg0702.parkour.game.difficulties.Difficulty;
@@ -12,6 +14,7 @@ import us.ajg0702.utils.common.ConfigFile;
 import us.ajg0702.utils.common.SimpleConfig;
 import us.ajg0702.utils.spigot.LocUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -66,5 +69,33 @@ public class AreaLoader {
 
         }
         return createdAreas;
+    }
+
+    public static boolean saveAreas(ParkourPlugin plugin, SimpleConfig positions, List<ParkourArea> areas) {
+
+        for (ParkourArea area : areas) {
+            ConfigurationNode node = positions.getNode("areas").node(area.getName());
+
+            try {
+                node.node("pos1").set(area.getBox().getPosition1());
+                node.node("pos2").set(area.getBox().getPosition2());
+                node.node("difficulty").set(area.getDifficulty().getName());
+
+                Location fallPosition = area.getFallPosition();
+                if(fallPosition != null) {
+                    node.node("fallpos").set(LocUtils.locToString(fallPosition));
+                }
+            } catch (SerializationException e) {
+                plugin.getLogger().log(Level.WARNING, "Error while saving area " + area.getName() + ":", e);
+            }
+        }
+
+        try {
+            positions.save();
+            return true;
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.WARNING, "Error while saving areas file:", e);
+            return false;
+        }
     }
 }

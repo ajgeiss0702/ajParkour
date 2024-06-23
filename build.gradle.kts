@@ -26,7 +26,7 @@ dependencies {
 
     implementation("net.kyori:adventure-api:4.13.0")
     implementation("net.kyori:adventure-text-minimessage:4.13.0")
-    implementation("net.kyori:adventure-platform-bukkit:4.3.0")
+    implementation("net.kyori:adventure-platform-bukkit:4.3.3")
 
     implementation("us.ajg0702:ajUtils:1.2.24")
     implementation("us.ajg0702.commands.platforms.bukkit:bukkit:1.1.0")

@@ -10,4 +10,9 @@ public class Expert extends StaticDifficulty {
         super(plugin.getJumpsConfig().getInt("expert-min"), plugin.getJumpsConfig().getInt("expert-max"));
         this.plugin = plugin;
     }
+
+    @Override
+    public String getName() {
+        return "expert";
+    }
 }

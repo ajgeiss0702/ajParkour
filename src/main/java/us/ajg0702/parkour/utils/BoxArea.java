@@ -88,4 +88,12 @@ public class BoxArea {
     private int distance(int a, int b) {
         return Math.abs(a - b);
     }
+
+    public WorldPosition getPosition1() {
+        return position1;
+    }
+
+    public WorldPosition getPosition2() {
+        return position2;
+    }
 }

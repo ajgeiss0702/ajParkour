@@ -13,6 +13,11 @@ public class Balanced implements Difficulty {
     }
 
     @Override
+    public String getName() {
+        return "balanced";
+    }
+
+    @Override
     public int getMaximumDistance(int score) {
         return select(score).getMaximumDistance(score);
     }

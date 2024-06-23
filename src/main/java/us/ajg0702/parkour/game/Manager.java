@@ -66,6 +66,15 @@ public class Manager {
         return areaMap;
     }
 
+    public @Nullable ParkourArea getArea(String areaName) {
+        for (ParkourArea area : areas) {
+            if (area.getName().equals(areaName)) {
+                return area;
+            }
+        }
+        return null;
+    }
+
     public Set<String> getAreaNames() {
         return getAreaMap().keySet();
     }

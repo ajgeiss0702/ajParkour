@@ -1,5 +1,6 @@
 package us.ajg0702.parkour.commands.main;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import us.ajg0702.commands.BaseCommand;
 import us.ajg0702.commands.CommandSender;
@@ -8,6 +9,8 @@ import us.ajg0702.parkour.commands.main.subcommands.End;
 import us.ajg0702.parkour.commands.main.subcommands.Reload;
 import us.ajg0702.parkour.commands.main.subcommands.Start;
 import us.ajg0702.parkour.commands.main.subcommands.debug.DebugCommands;
+import us.ajg0702.parkour.commands.main.subcommands.setup.Create;
+import us.ajg0702.parkour.commands.main.subcommands.setup.Setup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +24,7 @@ public class MainCommand extends BaseCommand {
 
         addSubCommand(new Start(plugin));
         addSubCommand(new End(plugin));
+        addSubCommand(new Setup(plugin));
         addSubCommand(new Reload(plugin));
 
         addSubCommand(new DebugCommands(plugin));
@@ -37,6 +41,7 @@ public class MainCommand extends BaseCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args, String label) {
-        subCommandExecute(sender, args, label);
+        if(subCommandExecute(sender, args, label)) return;
+        sender.sendMessage(Component.text("ajParkour in progress :)"));
     }
 }
