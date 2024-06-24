@@ -4,6 +4,7 @@ import us.ajg0702.parkour.ParkourPlugin;
 import us.ajg0702.parkour.game.difficulties.preset.*;
 
 import java.util.HashMap;
+import java.util.Set;
 
 public class DifficultyManager {
     private final ParkourPlugin plugin;
@@ -23,5 +24,13 @@ public class DifficultyManager {
 
     public Difficulty getNamed(String name) {
         return difficulties.get(name);
+    }
+
+    public Set<String> getNames() {
+        return difficulties.keySet();
+    }
+
+    public boolean hasNamed(String name) {
+        return difficulties.containsKey(name);
     }
 }

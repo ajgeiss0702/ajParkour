@@ -9,6 +9,7 @@ import us.ajg0702.parkour.ParkourPlugin;
 import us.ajg0702.parkour.setup.InProgressArea;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,6 +30,14 @@ public class Setup extends SubCommand {
             autoComplete.addAll(plugin.getManager().getAreaNames());
             for (String name : plugin.getSetupManager().getNames()) {
                 if(!autoComplete.contains(name)) autoComplete.add(name);
+            }
+        }
+
+        if(autoComplete.size() == 0 && !(args[0].equalsIgnoreCase("create") || args[0].equalsIgnoreCase("createArea"))) {
+            if(args.length == 2) {
+                autoComplete.addAll(Arrays.asList("pos1", "pos2", "difficulty", "fallpos"));
+            } else if(args.length == 3 && args[1].equalsIgnoreCase("difficulty")) {
+                autoComplete.addAll(plugin.getDifficultyManager().getNames());
             }
         }
 
@@ -68,11 +77,20 @@ public class Setup extends SubCommand {
                         return;
                     case "difficulty":
                         if(args.length < 3) {
-                            sender.sendMessage(Component.text("need args"));
+                            sender.sendMessage(
+                                    plugin.getMessages().getComponent("setup.difficulty.usage", "LABEL:"+label, "AREA:" + areaName)
+                            );
                             return;
                         }
-                        // todo: verify input (and auto complete)
-                        inProgressArea.setDifficultyString(args[2]);
+                        String difficulty = args[2].toLowerCase();
+                        if(!plugin.getDifficultyManager().hasNamed(difficulty)) {
+                            sender.sendMessage(
+                                    plugin.getMessages().getComponent("setup.difficulty.invalid-difficulty", "DIFFICULTY:"+difficulty)
+                            );
+                            return;
+                        }
+                        inProgressArea.setDifficultyString(difficulty);
+                        sender.sendMessage(Component.text("set"));
                         return;
                     case "fallpos":
                         inProgressArea.setFallPos(player.getLocation());

@@ -22,6 +22,8 @@ public class MessageLoader {
                 "setup.progress.difficulty.set", "&adifficulty&7 - {DIFFICULTY}",
                 "setup.progress.fallpos.unset", "&7fallpos - /ajp setup {NAME} fallpos",
                 "setup.progress.fallpos.set", "&afallpos",
+                "setup.difficulty.usage", "&cUsage: &f/{LABEL} setup {AREA} difficulty <difficulty>",
+                "setup.difficulty.invalid-difficulty", "&cUnable to find a difficulty called \"&f{DIFFICULTY}&c\".",
                 "ingame", "&cYou must be in-game to run this command!"
         ));
     }
