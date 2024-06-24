@@ -77,8 +77,8 @@ public class AreaLoader {
             ConfigurationNode node = positions.getNode("areas").node(area.getName());
 
             try {
-                node.node("pos1").set(area.getBox().getPosition1());
-                node.node("pos2").set(area.getBox().getPosition2());
+                node.node("pos1").set(LocUtils.locToString(area.getBox().getPosition1().getLocation()));
+                node.node("pos2").set(LocUtils.locToString(area.getBox().getPosition2().getLocation()));
                 node.node("difficulty").set(area.getDifficulty().getName());
 
                 Location fallPosition = area.getFallPosition();

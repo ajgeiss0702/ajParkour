@@ -24,6 +24,13 @@ public class MessageLoader {
                 "setup.progress.fallpos.set", "&afallpos",
                 "setup.difficulty.usage", "&cUsage: &f/{LABEL} setup {AREA} difficulty <difficulty>",
                 "setup.difficulty.invalid-difficulty", "&cUnable to find a difficulty called \"&f{DIFFICULTY}&c\".",
+                "setup.set.pos1", "&aSet the first position for &f{NAME}&a at your feet!",
+                "setup.set.pos2", "&aSet the second position for &f{NAME}&a at your feet!",
+                "setup.set.difficulty", "&aSet the difficulty for &f{NAME}&a to &f{DIFFICULTY}&a!",
+                "setup.set.fallpos", "&aSet the fall position for &f{NAME}&a to where you are standing!",
+                "setup.save.missing-required", "&f{NAME}&c is missing some required settings! &7See &f/{LABEL} setup {NAME} &7to see what is missing.",
+                "setup.save.success", "&aSuccessfully saved and enabled &f{NAME}&a!",
+                "setup.save.error.unknown", "&cSomething went wrong when saving &f{NAME}&c. &7There might be more info in the console.",
                 "ingame", "&cYou must be in-game to run this command!"
         ));
     }

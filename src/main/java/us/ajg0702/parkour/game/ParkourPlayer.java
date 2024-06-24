@@ -1,5 +1,6 @@
 package us.ajg0702.parkour.game;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import us.ajg0702.parkour.ParkourPlugin;
@@ -61,6 +62,7 @@ public class ParkourPlayer {
             block.remove();
         }
         area.getPlayers().remove(this);
+        if(area.getFallPosition() != null) Bukkit.getScheduler().runTask(plugin, () -> player.teleport(area.getFallPosition()));
     }
 
     public synchronized void checkMadeIt() {

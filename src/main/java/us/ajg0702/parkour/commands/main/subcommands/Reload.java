@@ -32,8 +32,9 @@ public class Reload extends SubCommand {
         try {
             plugin.getAConfig().reload();
             sender.sendMessage(message("&asuccess"));
+            // TODO: reload areas file and update any corresponding InProgressAreas
         } catch (ConfigurateException e) {
-            plugin.getLogger().log(Level.WARNING, "An error ocurred while reloading the config");
+            plugin.getLogger().log(Level.WARNING, "An error occurred while reloading the config");
             sender.sendMessage(message("&cfailed (see console)"));
         }
     }

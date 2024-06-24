@@ -2,11 +2,16 @@ package us.ajg0702.parkour.commands.main.subcommands.setup;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentBuilder;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.SubCommand;
 import us.ajg0702.parkour.ParkourPlugin;
+import us.ajg0702.parkour.game.ParkourArea;
+import us.ajg0702.parkour.loaders.AreaLoader;
 import us.ajg0702.parkour.setup.InProgressArea;
+import us.ajg0702.parkour.utils.BoxArea;
+import us.ajg0702.parkour.utils.WorldPosition;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,11 +74,11 @@ public class Setup extends SubCommand {
                 switch(args[1].toLowerCase()) {
                     case "pos1":
                         inProgressArea.setPos1(player.getLocation());
-                        sender.sendMessage(Component.text("set"));
+                        sender.sendMessage(plugin.getMessages().getComponent("setup.set.pos1", "NAME:"+areaName));
                         return;
                     case "pos2":
                         inProgressArea.setPos2(player.getLocation());
-                        sender.sendMessage(Component.text("set"));
+                        sender.sendMessage(plugin.getMessages().getComponent("setup.set.pos2", "NAME:"+areaName));
                         return;
                     case "difficulty":
                         if(args.length < 3) {
@@ -90,12 +95,43 @@ public class Setup extends SubCommand {
                             return;
                         }
                         inProgressArea.setDifficultyString(difficulty);
-                        sender.sendMessage(Component.text("set"));
+                        sender.sendMessage(plugin.getMessages().getComponent("setup.set.difficulty", "NAME:"+areaName, "DIFFICULTY:"+difficulty));
                         return;
                     case "fallpos":
                         inProgressArea.setFallPos(player.getLocation());
-                        sender.sendMessage(Component.text("set"));
+                        sender.sendMessage(plugin.getMessages().getComponent("setup.set.fallpos", "NAME:"+areaName));
                         return;
+                    case "save":
+                        Location pos1 = inProgressArea.getPos1();
+                        Location pos2 = inProgressArea.getPos2();
+                        if(pos1 == null || pos2 == null) {
+                            sender.sendMessage(plugin.getMessages().getComponent("setup.save.missing-required", "NAME:"+areaName, "LABEL:"+label));
+                            return;
+                        }
+
+                        BoxArea box = new BoxArea(WorldPosition.of(pos1), WorldPosition.of(pos2));
+
+                        String difficultyString = inProgressArea.getDifficultyString();
+                        if(difficultyString == null) difficultyString = "balanced";
+
+                        ParkourArea area = new ParkourArea(
+                                plugin,
+                                inProgressArea.getName(),
+                                box,
+                                plugin.getDifficultyManager().getNamed(difficultyString),
+                                inProgressArea.getFallPos()
+                        );
+
+                        plugin.getManager().addArea(area);
+                        AreaLoader.saveAreas(plugin, plugin.getPositionsConfig(), plugin.getManager().getAreas());
+                        plugin.getManager().reloadAreas();
+
+                        if(plugin.getManager().getAreaNames().contains(areaName)) {
+                            sender.sendMessage(plugin.getMessages().getComponent("setup.save.success", "NAME:"+areaName));
+                        } else {
+                            sender.sendMessage(plugin.getMessages().getComponent("setup.save.error.unknown", "NAME:"+areaName));
+                        }
+
                 }
             }
 

@@ -28,6 +28,10 @@ public class InProgressArea {
         this.difficulty = difficulty;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public @Nullable Location getPos1() {
         return pos1;
     }

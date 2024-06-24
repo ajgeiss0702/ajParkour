@@ -8,10 +8,7 @@ import us.ajg0702.parkour.loaders.AreaLoader;
 import us.ajg0702.parkour.utils.BoxArea;
 import us.ajg0702.parkour.utils.WorldPosition;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Manager {
 
@@ -73,6 +70,14 @@ public class Manager {
             }
         }
         return null;
+    }
+
+    public void addArea(ParkourArea area) {
+        areas.add(area);
+    }
+
+    public List<ParkourArea> getAreas() {
+        return new ArrayList<>(areas);
     }
 
     public Set<String> getAreaNames() {
