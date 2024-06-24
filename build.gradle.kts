@@ -24,8 +24,8 @@ dependencies {
 
     implementation("org.bstats:bstats-bukkit:3.0.1")
 
-    implementation("net.kyori:adventure-api:4.13.0")
-    implementation("net.kyori:adventure-text-minimessage:4.13.0")
+    implementation("net.kyori:adventure-api:4.17.0")
+    implementation("net.kyori:adventure-text-minimessage:4.17.0")
     implementation("net.kyori:adventure-platform-bukkit:4.3.3")
 
     implementation("us.ajg0702:ajUtils:1.2.24")
@@ -48,7 +48,8 @@ tasks.withType<ProcessResources> {
 
 tasks.shadowJar {
     relocate("us.ajg0702.utils", "us.ajg0702.parkour.utils")
-    relocate("com.zaxxer.hikari", "us.ajg0702.parkour.hikari")
+    relocate("com.zaxxer.hikari", "us.ajg0702.parkour.libs.hikari")
+    relocate("net.kyori", "us.ajg0702.parkour.libs.kyori")
 
     archiveClassifier.set("")
 }

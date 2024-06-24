@@ -1,6 +1,8 @@
 package us.ajg0702.parkour.commands.main.subcommands.setup;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentBuilder;
+import org.bukkit.entity.Player;
 import us.ajg0702.commands.CommandSender;
 import us.ajg0702.commands.SubCommand;
 import us.ajg0702.parkour.ParkourPlugin;
@@ -46,9 +48,51 @@ public class Setup extends SubCommand {
                 return;
             }
 
-            sender.sendMessage(Component.text("next stuff will go here"));
+            if(args.length > 1) {
+
+                if(!sender.isPlayer()) {
+                    sender.sendMessage(plugin.getMessages().getComponent("ingame"));
+                    return;
+                }
+
+                Player player = (Player) sender.getHandle();
+
+                switch(args[1].toLowerCase()) {
+                    case "pos1":
+                        inProgressArea.setPos1(player.getLocation());
+                        sender.sendMessage(Component.text("set"));
+                        return;
+                    case "pos2":
+                        inProgressArea.setPos2(player.getLocation());
+                        sender.sendMessage(Component.text("set"));
+                        return;
+                    case "difficulty":
+                        if(args.length < 3) {
+                            sender.sendMessage(Component.text("need args"));
+                            return;
+                        }
+                        // todo: verify input (and auto complete)
+                        inProgressArea.setDifficultyString(args[2]);
+                        return;
+                    case "fallpos":
+                        inProgressArea.setFallPos(player.getLocation());
+                        sender.sendMessage(Component.text("set"));
+                        return;
+                }
+            }
+
+
+            sender.sendMessage(
+                    plugin.getMessages().getComponent("setup.progress.header", "NAME:"+areaName).appendNewline()
+                            .appendNewline()
+                            .append(plugin.getMessages().getComponent(inProgressArea.getPos1() == null ? "setup.progress.pos1.unset" : "setup.progress.pos1.set", "NAME:"+areaName)).appendNewline()
+                            .append(plugin.getMessages().getComponent(inProgressArea.getPos2() == null ? "setup.progress.pos2.unset" : "setup.progress.pos2.set", "NAME:"+areaName)).appendNewline()
+                            .append(plugin.getMessages().getComponent(inProgressArea.getDifficultyString() == null ? "setup.progress.difficulty.unset" : "setup.progress.difficulty.set", "DIFFICULTY:"+inProgressArea.getDifficultyString(), "NAME:"+areaName)).appendNewline()
+                            .append(plugin.getMessages().getComponent(inProgressArea.getFallPos() == null ? "setup.progress.fallpos.unset" : "setup.progress.fallpos.set", "NAME:"+areaName))
+            );
         } else {
             sender.sendMessage(Component.text("Setup commands :)"));
         }
     }
+
 }

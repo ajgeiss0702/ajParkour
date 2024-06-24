@@ -1,7 +1,6 @@
 package us.ajg0702.parkour.utils;
 
 import com.cryptomorin.xseries.XMaterial;
-import com.cryptomorin.xseries.particles.XParticle;
 import org.bukkit.block.Block;
 import org.bukkit.util.NumberConversions;
 import us.ajg0702.utils.spigot.VersionSupport;
