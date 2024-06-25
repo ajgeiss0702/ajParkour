@@ -40,7 +40,7 @@ public class Setup extends SubCommand {
 
         if(autoComplete.size() == 0 && !(args[0].equalsIgnoreCase("create") || args[0].equalsIgnoreCase("createArea"))) {
             if(args.length == 2) {
-                autoComplete.addAll(Arrays.asList("pos1", "pos2", "difficulty", "fallpos"));
+                autoComplete.addAll(Arrays.asList("pos1", "pos2", "difficulty", "fallpos", "save"));
             } else if(args.length == 3 && args[1].equalsIgnoreCase("difficulty")) {
                 autoComplete.addAll(plugin.getDifficultyManager().getNames());
             }
@@ -131,6 +131,7 @@ public class Setup extends SubCommand {
                         } else {
                             sender.sendMessage(plugin.getMessages().getComponent("setup.save.error.unknown", "NAME:"+areaName));
                         }
+                        return;
 
                 }
             }
@@ -144,6 +145,7 @@ public class Setup extends SubCommand {
                             .append(plugin.getMessages().getComponent(inProgressArea.getDifficultyString() == null ? "setup.progress.difficulty.unset" : "setup.progress.difficulty.set", "DIFFICULTY:"+inProgressArea.getDifficultyString(), "NAME:"+areaName)).appendNewline()
                             .append(plugin.getMessages().getComponent(inProgressArea.getFallPos() == null ? "setup.progress.fallpos.unset" : "setup.progress.fallpos.set", "NAME:"+areaName))
             );
+            // TODO: Add message saying save command if required settings are set
         } else {
             sender.sendMessage(Component.text("Setup commands :)"));
         }
