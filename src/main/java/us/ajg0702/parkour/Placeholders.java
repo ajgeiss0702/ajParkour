@@ -228,7 +228,7 @@ public class Placeholders extends PlaceholderExpansion {
 			if(player == null) {
 				return "0";
 			}
-			return TopManager.getInstance().getHighScore(player, null)+"";
+			return TopManager.getInstance().getHighScore(player.getUniqueId(), null)+"";
 		}
 
 		if(identifier.matches("stats_highscore_.+$")) {

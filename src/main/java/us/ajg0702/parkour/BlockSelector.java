@@ -29,7 +29,7 @@ import us.ajg0702.parkour.utils.VersionSupport;
 
 public class BlockSelector implements Listener {
 
-	private final Map<Player, Inventory> plys = new HashMap<>();
+	private final Map<UUID, Inventory> plys = new HashMap<>();
 	Main plugin;
 	Messages msgs;
 	Scores scores;
@@ -157,14 +157,15 @@ public class BlockSelector implements Listener {
 		}
 	}
 	
-	HashMap<Player, Integer> pages = new HashMap<>();
+	HashMap<UUID, Integer> pages = new HashMap<>();
 	
 	public Inventory openSelector(Player ply) {
 		Inventory inv = Bukkit.createInventory(ply, 54, msgs.get("gui.selector.title", ply));
 
 		inv = addBlocks(ply, inv, 0);
-		plys.put(ply, inv);
-		pages.put(ply, 0);
+		UUID uuid = ply.getUniqueId();
+		plys.put(uuid, inv);
+		pages.put(uuid, 0);
 		ply.openInventory(inv);
 		return inv;
 	}
@@ -272,13 +273,14 @@ public class BlockSelector implements Listener {
 	public void onInvClick(InventoryClickEvent e) {
 		Player p = (Player) e.getWhoClicked();
 		ItemStack clicked = e.getCurrentItem();
+		UUID uuid = p.getUniqueId();
 		
 		Inventory inv = e.getInventory();
-		if(!inv.equals(plys.get(p))) {
+		if(!inv.equals(plys.get(uuid))) {
 			return;
 		}
 		e.setCancelled(true);
-		if(clicked == null || clicked.getType() == null || clicked.getType() == Material.AIR || p.getUniqueId() == null) {
+		if(clicked == null || clicked.getType() == null || clicked.getType() == Material.AIR || uuid == null) {
 			return;
 		}
 		if(clicked.getType().toString().equals("FLOWER_POT_ITEM")) {
@@ -286,26 +288,26 @@ public class BlockSelector implements Listener {
 		}
 		String matname;
 		if(e.getSlot() >= 9) {
-			matname = types.get(((e.getSlot())-9)-((pages.get(p)*-45)));
+			matname = types.get(((e.getSlot())-9)-((pages.get(uuid)*-45)));
 		} else {
 			if(e.getSlot() == 8) {
-				pages.put(p, pages.get(p)+1);
+				pages.put(uuid, pages.get(uuid)+1);
 				inv.clear();
-				plys.put(p, addBlocks(p, inv, pages.get(p)));
+				plys.put(uuid, addBlocks(p, inv, pages.get(uuid)));
 				return;
 			}
 			if(e.getSlot() == 0) {
-				if(pages.get(p) <= 0) return;
-				pages.put(p, pages.get(p)-1);
+				if(pages.get(uuid) <= 0) return;
+				pages.put(uuid, pages.get(uuid)-1);
 				inv.clear();
-				plys.put(p, addBlocks(p, inv, pages.get(p)));
+				plys.put(uuid, addBlocks(p, inv, pages.get(uuid)));
 				return;
 			}
 			matname = "random";
 		}
-		scores.setMaterial(p.getUniqueId(), matname);
+		scores.setMaterial(uuid, matname);
 		inv.clear();
-		plys.put(p, addBlocks(p, inv, pages.get(p)));
+		plys.put(uuid, addBlocks(p, inv, pages.get(uuid)));
 		e.setCancelled(true);
 	}
 	
@@ -313,8 +315,10 @@ public class BlockSelector implements Listener {
 	public void onClose(InventoryCloseEvent e) {
 		Player p = (Player) e.getPlayer();
 		Inventory inv = e.getInventory();
-		if(inv.equals(plys.get(p))) {
-			plys.remove(p);
+		UUID uuid = p.getUniqueId();
+		if(inv.equals(plys.get(uuid))) {
+			plys.remove(uuid);
+			pages.remove(uuid);
 		}
 	}
 	
@@ -329,36 +333,39 @@ public class BlockSelector implements Listener {
 	}
 
 
-	private final ConcurrentHashMap<Player, String> blockCache = new ConcurrentHashMap<>();
-	private final ConcurrentHashMap<Player, Long> blockFetch = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<UUID, String> blockCache = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<UUID, Long> blockFetch = new ConcurrentHashMap<>();
 	public String getBlock(Player p, PkArea area) {
+		final UUID uuid = p.getUniqueId();
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-			for(Player player : blockCache.keySet()) {
-				if(player.isOnline()) continue;
-				blockCache.remove(player);
+			for(UUID playerId : blockCache.keySet()) {
+				Player player = Bukkit.getPlayer(playerId);
+				if(player != null && player.isOnline()) continue;
+				blockCache.remove(playerId);
 			}
-			for(Player player : blockFetch.keySet()) {
-				if(player.isOnline()) continue;
-				blockFetch.remove(player);
+			for(UUID playerId : blockFetch.keySet()) {
+				Player player = Bukkit.getPlayer(playerId);
+				if(player != null && player.isOnline()) continue;
+				blockFetch.remove(playerId);
 			}
 		});
 
-		if(!blockFetch.containsKey(p)) {
-			blockFetch.put(p, 0L);
+		if(!blockFetch.containsKey(uuid)) {
+			blockFetch.put(uuid, 0L);
 		}
 
 		String raw;
-		if(System.currentTimeMillis() - blockFetch.get(p) > 5000) {
-			if(blockCache.get(p) == null) {
-				raw = scores.getMaterial(p.getUniqueId());
-				blockCache.put(p, raw);
-				blockFetch.put(p, System.currentTimeMillis());
+		if(System.currentTimeMillis() - blockFetch.get(uuid) > 5000) {
+			if(blockCache.get(uuid) == null) {
+				raw = scores.getMaterial(uuid);
+				blockCache.put(uuid, raw);
+				blockFetch.put(uuid, System.currentTimeMillis());
 			} else {
-				raw = blockCache.get(p);
-				cacheBlock(p);
+				raw = blockCache.get(uuid);
+				cacheBlock(uuid);
 			}
 		} else {
-			raw = blockCache.get(p);
+			raw = blockCache.get(uuid);
 		}
 
 		if(raw == null || raw.equalsIgnoreCase("random") || raw.equalsIgnoreCase(plugin.config.getString("random-item"))) {
@@ -403,13 +410,24 @@ public class BlockSelector implements Listener {
 		}
 	}
 
-	private void cacheBlock(Player p) {
+	private void cacheBlock(final UUID uuid) {
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-			final String raw = scores.getMaterial(p.getUniqueId());
+			final String raw = scores.getMaterial(uuid);
 			Bukkit.getScheduler().runTask(plugin, () -> {
-				blockCache.put(p, raw);
-				blockFetch.put(p, System.currentTimeMillis());
+				blockCache.put(uuid, raw);
+				blockFetch.put(uuid, System.currentTimeMillis());
 			});
 		});
+	}
+
+	/**
+	 * Remove a player from all internal caches. Call this on player quit.
+	 * @param uuid The UUID of the player to remove
+	 */
+	public void removePlayer(UUID uuid) {
+		plys.remove(uuid);
+		pages.remove(uuid);
+		blockCache.remove(uuid);
+		blockFetch.remove(uuid);
 	}
 }
