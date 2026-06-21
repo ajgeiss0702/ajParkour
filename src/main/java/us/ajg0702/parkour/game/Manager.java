@@ -314,7 +314,8 @@ public class Manager implements Listener {
 	@EventHandler
 	public void onPlayerLeave(PlayerQuitEvent e) {
 		kickPlayer(e.getPlayer());
-		TopManager.getInstance().clearPlayerCache(e.getPlayer());
+		TopManager.getInstance().clearPlayerCache(e.getPlayer().getUniqueId());
+		main.selector.removePlayer(e.getPlayer().getUniqueId());
 	}
 
 	@EventHandler

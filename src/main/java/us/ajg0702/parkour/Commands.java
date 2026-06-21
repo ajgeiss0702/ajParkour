@@ -40,7 +40,7 @@ public class Commands implements CommandExecutor {
 	}
 	
 	HashMap<String, Object> editing = new HashMap<>();
-	Player editingoverrideplayer = null;
+	UUID editingoverrideplayer = null;
 	
 	@SuppressWarnings("deprecation")
 	@Override
@@ -145,16 +145,20 @@ public class Commands implements CommandExecutor {
 				TopManager.getInstance().getHighScores().forEach((key, value) -> {
 					StringBuilder sb = new StringBuilder();
 					value.forEach((key1, value1) -> sb.append("\n ").append(key1).append(": ").append(value1));
-					sender.sendMessage("HS: " + key.getName() + ":" + sb);
-				});
-				TopManager.getInstance().getLastGetHS().forEach((key, value) -> {
-					StringBuilder sb = new StringBuilder();
-					value.forEach((key1, value1) -> sb.append("\n ").append(key1).append(": ").append(value1));
-					sender.sendMessage("HSLG: " + key.getName() + ":" + sb);
-				});
+				String name = Bukkit.getOfflinePlayer(key).getName();
+				if(name == null) name = key.toString();
+				sender.sendMessage("HS: " + name + ":" + sb);
+			});
+			TopManager.getInstance().getLastGetHS().forEach((key, value) -> {
+				StringBuilder sb = new StringBuilder();
+				value.forEach((key1, value1) -> sb.append("\n ").append(key1).append(": ").append(value1));
+				String name = Bukkit.getOfflinePlayer(key).getName();
+				if(name == null) name = key.toString();
+				sender.sendMessage("HSLG: " + name + ":" + sb);
+			});
 
-				return true;
-			case "areas":
+			return true;
+		case "areas":
 				StringBuilder add1 = new StringBuilder();
 				sender.sendMessage(msgs.get("commands.listareas.header", sply));
 				for(PkArea a : man.getAreas()) {
@@ -303,9 +307,9 @@ public class Commands implements CommandExecutor {
 				}
 				
 				if(args.length >= 2) {
-					if(editing.keySet().size() != 0 && editingoverrideplayer != sply) {
+					if(editing.keySet().size() != 0 && (editingoverrideplayer == null || !editingoverrideplayer.equals(sply.getUniqueId()))) {
 						sender.sendMessage(msgs.get("setup.already-creating", sply));
-						editingoverrideplayer = (Player) sender;
+						editingoverrideplayer = sply.getUniqueId();
 					} else {
 						PkArea a = man.getArea(args[1]);
 						if(a != null) {
@@ -349,9 +353,9 @@ public class Commands implements CommandExecutor {
 					switch(args[1].toLowerCase()) {
 						case "create":
 							if(args.length >= 3) {
-								if(editing.keySet().size() != 0 && editingoverrideplayer != sender) {
-									sender.sendMessage(msgs.get("setup.already-creating", sply));
-									editingoverrideplayer = (Player) sender;
+							if(editing.keySet().size() != 0 && (editingoverrideplayer == null || !editingoverrideplayer.equals(sply.getUniqueId()))) {
+								sender.sendMessage(msgs.get("setup.already-creating", sply));
+								editingoverrideplayer = sply.getUniqueId();
 								} else {
 									if(args[2].equalsIgnoreCase("overall")) {
 										sender.sendMessage(msgs.get("setup.invalid-name", sply));
