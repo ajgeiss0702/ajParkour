@@ -17,7 +17,6 @@ import us.ajg0702.parkour.Scores;
 import us.ajg0702.parkour.api.events.PlayerEndParkourEvent;
 import us.ajg0702.parkour.api.events.PlayerJumpEvent;
 import us.ajg0702.parkour.api.events.PlayerStartParkourEvent;
-import us.ajg0702.parkour.api.events.PrePlayerStartParkourEvent;
 import us.ajg0702.parkour.utils.InvManager;
 import us.ajg0702.parkour.utils.VersionSupport;
 import us.ajg0702.utils.spigot.Config;
@@ -105,16 +104,6 @@ public class PkPlayer implements Listener {
 		afkkick = config.getInt("kick-time");
 		
 		fasterAfkCheck = config.getBoolean("faster-afk-detection");
-		
-		PrePlayerStartParkourEvent preevent = new PrePlayerStartParkourEvent(p);
-		Bukkit.getPluginManager().callEvent(preevent);
-		if(preevent.isCancelled()) {
-			active = false;
-			if(!man.pluginDisabling) {
-				man.checkActive();
-			}
-			return;
-		}
 		
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
 			prevhigh = scores.getHighScore(ply.getUniqueId(), config.getBoolean("begin-score-per-area") ? area.getName() : null);
@@ -256,7 +245,7 @@ public class PkPlayer implements Listener {
 		if(
 				!config.getString("new-block-particle").equalsIgnoreCase("none")
 				&& particles > 0
-				&& VersionSupport.getMinorVersion() >= 9
+				&& (VersionSupport.getMajorVersion() >= 26 || VersionSupport.getMinorVersion() >= 9)
 		) {
 			Location njl = nj.getTo();
 			ply.spawnParticle(Particle.valueOf(config.getString("new-block-particle")), njl.getBlockX()+0.5, njl.getBlockY()+0.5, njl.getBlockZ()+0.5, particles, 0.005, 0.001, 0.005);
@@ -277,7 +266,7 @@ public class PkPlayer implements Listener {
 	}
 	private void playSound(String configkey, Player ply, Location loc) {
 		String soundraw = plugin.getAConfig().getString(configkey);
-		if(VersionSupport.getMinorVersion() <= 8 && soundraw.equalsIgnoreCase("ENTITY_CHICKEN_EGG")) {
+		if(VersionSupport.getMajorVersion() == 1 && VersionSupport.getMinorVersion() <= 8 && soundraw.equalsIgnoreCase("ENTITY_CHICKEN_EGG")) {
 			soundraw = "CHICKEN_EGG_POP";
 		}
 		if(soundraw == null) return;
@@ -287,7 +276,7 @@ public class PkPlayer implements Listener {
 				sound = Sound.valueOf(soundraw);
 			} catch(IllegalArgumentException ignored) { }
 			if(sound != null) {
-				if(VersionSupport.getMinorVersion() >= 12) {
+				if(VersionSupport.getMajorVersion() >= 26 || VersionSupport.getMinorVersion() >= 12) {
 					ply.playSound(loc, sound, SoundCategory.MASTER, 1, 1);
 				} else {
 					ply.playSound(loc, sound, 1, 1);

@@ -51,7 +51,7 @@ public class Main extends JavaPlugin {
 		/*String popSound = "ENTITY_CHICKEN_EGG";
 		//System.out.println("Minor Version: 1."+VersionSupport.getMinorVersion());
 		
-		if(VersionSupport.getMinorVersion() <= 8) {
+		if(VersionSupport.getMajorVersion() == 1 && VersionSupport.getMinorVersion() <= 8) {
 			popSound = "CHICKEN_EGG_POP";
 		}
 		

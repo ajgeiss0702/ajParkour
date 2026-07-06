@@ -85,7 +85,7 @@ public class BlockSelector implements Listener {
 				"RED_WOOL",
 				"WHITE_WOOL",
 				"YELLOW_WOOL");
-		if(VersionSupport.getMinorVersion() <= 12) {
+		if(VersionSupport.getMajorVersion() == 1 && VersionSupport.getMinorVersion() <= 12) {
 			defBlocksList = Arrays.asList(
 					"MOSSY_COBBLESTONE",
 					"NETHER_BRICK",
@@ -210,7 +210,7 @@ public class BlockSelector implements Listener {
 		randomImeta.setLore(Arrays.asList(msgs.get("gui.selector.items.random.lore").split("\n")));
 		if(selected != null && selected.equals(randomMat)) {
 			randomImeta.addEnchant(Enchantment.DAMAGE_ALL, 1, false);
-			if(VersionSupport.getMinorVersion() >= 8) {
+			if(VersionSupport.getMajorVersion() >= 26 || VersionSupport.getMinorVersion() >= 8) {
 				randomImeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 			}
 		}
@@ -241,7 +241,7 @@ public class BlockSelector implements Listener {
 			s++;
 			int slot = 8+s;
 			ItemStack it;
-			if(VersionSupport.getMinorVersion() > 12) {
+			if(VersionSupport.getMajorVersion() >= 26 || VersionSupport.getMinorVersion() > 12) {
 				it = new ItemStack(Material.valueOf(m.split(";")[0].split(":")[0]), 1);
 			} else {
 				
@@ -255,7 +255,7 @@ public class BlockSelector implements Listener {
 			if(m.split(":")[0].equals(selected+"") && d == selectedd) {
 				ItemMeta iMeta = it.getItemMeta();
 				iMeta.addEnchant(Enchantment.DAMAGE_ALL, 1, false);
-				if(VersionSupport.getMinorVersion() >= 8) {
+				if(VersionSupport.getMajorVersion() >= 26 || VersionSupport.getMinorVersion() >= 8) {
 					iMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 				}
 				iMeta.setLore(Arrays.asList(msgs.get("gui.selector.items.selected.lore").split("\n")));

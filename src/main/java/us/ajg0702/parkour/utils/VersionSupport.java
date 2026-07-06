@@ -11,6 +11,9 @@ public class VersionSupport {
 	public static String getVersion() {
 		return Bukkit.getVersion().split("\\(MC: ")[1].split("\\)")[0];
 	}
+	public static int getMajorVersion() {
+		return Integer.parseInt(getVersion().split("\\.")[0]);
+	}
 	public static int getMinorVersion() {
 		return Integer.parseInt(getVersion().split("\\.")[1]);
 	}
@@ -22,7 +25,7 @@ public class VersionSupport {
 	 */
 	public static void sendActionBar(Player ply, String message) {
 		// Use spigot version if available, otherwise use packets.
-		if(getMinorVersion() >= 11) {
+		if(getMajorVersion() >= 26 || getMinorVersion() >= 11) {
 			ply.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
 		} else if(getMinorVersion() >= 8) {
 			ActionBar.send(ply, message);

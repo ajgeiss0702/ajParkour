@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -296,16 +297,6 @@ public class Scores {
 
 	public void insertJsonData(UUID uuid, String name, String raw, int time, String mat, int gamesPlayed) throws SQLException {
 		Connection conn = getConnection();
-		if(mat == null) {
-			mat = "NULL";
-		} else {
-			mat = "'"+mat+"'";
-		}
-		if(name == null) {
-			name = "NULL";
-		} else {
-			name = "'"+name+"'";
-		}
 
 		JSONObject scores;
 
@@ -327,6 +318,9 @@ public class Scores {
 		int largestTime = 0;
 		boolean insertedOverall = false;
 
+		PreparedStatement psScore = conn.prepareStatement("insert into "+tablePrefix+"scores " +
+				"(area, player, score, time) values" +
+				"(?, ?, ?, ?)");
 		for(Object a : scores.keySet()) {
 			String area = (String) a;
 			int score = Math.round((long)scores.get(a));
@@ -344,18 +338,30 @@ public class Scores {
 				largestTime = time;
 			}
 
-			conn.createStatement().executeUpdate("insert into "+tablePrefix+"scores " +
-					"(area, player, score, time) values" +
-					"('"+area+"', '"+uuid+"', "+score+", "+t+")");
+			psScore.setString(1, area);
+			psScore.setString(2, uuid.toString());
+			psScore.setInt(3, score);
+			psScore.setInt(4, t);
+			psScore.executeUpdate();
 		}
 		if(!insertedOverall) {
-			conn.createStatement().executeUpdate("insert into "+tablePrefix+"scores " +
-					"(area, player, score, time) values" +
-					"('overall', '"+uuid+"', "+largest+", "+largestTime+")");
+			psScore.setString(1, "overall");
+			psScore.setString(2, uuid.toString());
+			psScore.setInt(3, largest);
+			psScore.setInt(4, largestTime);
+			psScore.executeUpdate();
 		}
-		conn.createStatement().executeUpdate("insert into "+tablePrefix+"players" +
+		psScore.close();
+
+		PreparedStatement psPlayer = conn.prepareStatement("insert into "+tablePrefix+"players" +
 				"(id, material, name, gamesplayed) values" +
-				"('"+uuid.toString()+"', "+mat+", "+name+", "+gamesPlayed+")");
+				"(?, ?, ?, ?)");
+		psPlayer.setString(1, uuid.toString());
+		psPlayer.setString(2, mat);
+		psPlayer.setString(3, name);
+		psPlayer.setInt(4, gamesPlayed);
+		psPlayer.executeUpdate();
+		psPlayer.close();
 
 		closeConn(conn);
 	}
@@ -366,15 +372,22 @@ public class Scores {
 		}
 		try {
 			Connection conn = getConnection();
-			ResultSet rs = conn.createStatement().executeQuery(
-					"select score from "+tablePrefix+"scores where player='"+uuid.toString()+"' and area='"+area+"'"
+			PreparedStatement ps = conn.prepareStatement(
+					"select score from "+tablePrefix+"scores where player=? and area=?"
 			);
+			ps.setString(1, uuid.toString());
+			ps.setString(2, area);
+			ResultSet rs = ps.executeQuery();
 			if(!rs.next()) {
-				closeConn(conn, rs);
+				rs.close();
+				ps.close();
+				closeConn(conn);
 				return 0;
 			}
 			int s = rs.getInt("score");
-			closeConn(conn, rs);
+			rs.close();
+			ps.close();
+			closeConn(conn);
 			return s;
 		} catch(SQLException e) {
 			plugin.getLogger().warning("Unable to get score for "+uuid.toString()+":");
@@ -389,14 +402,22 @@ public class Scores {
 		}
 		try {
 			Connection conn = getConnection();
-			ResultSet p = conn.createStatement().executeQuery(
-					"select time from "+ tablePrefix +"scores where player='"+uuid.toString()+"' and area='"+area+"'"
+			PreparedStatement ps = conn.prepareStatement(
+					"select time from "+ tablePrefix +"scores where player=? and area=?"
 			);
+			ps.setString(1, uuid.toString());
+			ps.setString(2, area);
+			ResultSet p = ps.executeQuery();
 			if(!p.isBeforeFirst()) {
+				p.close();
+				ps.close();
+				closeConn(conn);
 				return 0;
 			}
 			int r = p.getInt(1);
-			closeConn(conn, p);
+			p.close();
+			ps.close();
+			closeConn(conn);
 			return r;
 		} catch (SQLException e) {
 			Bukkit.getLogger().severe("[ajParkour] An error occurred when attempting to get a players time:");
@@ -417,29 +438,51 @@ public class Scores {
 			}
 			try {
 				Connection conn = getConnection();
-				ResultSet r1 = conn.createStatement().executeQuery(
-						"select id from "+ tablePrefix +"scores where player='"+uuid.toString()+"' and area='"+ar+"'"
+				PreparedStatement psSelect = conn.prepareStatement(
+						"select id from "+ tablePrefix +"scores where player=? and area=?"
 				);
+				psSelect.setString(1, uuid.toString());
+				psSelect.setString(2, ar);
+				ResultSet r1 = psSelect.executeQuery();
 				if(!r1.next()) {
+					r1.close();
 					if(!(score == 0 && time == 0)) {
-						conn.createStatement().executeUpdate("insert into "+ tablePrefix +"scores " +
+						PreparedStatement psInsert = conn.prepareStatement("insert into "+ tablePrefix +"scores " +
 								"(area, player, score, time) values " +
-								"('"+ar+"', '"+uuid.toString()+"', "+score+", "+time+")");
+								"(?, ?, ?, ?)");
+						psInsert.setString(1, ar);
+						psInsert.setString(2, uuid.toString());
+						psInsert.setInt(3, score);
+						psInsert.setInt(4, time);
+						psInsert.executeUpdate();
+						psInsert.close();
 					}
 				} else {
+					r1.close();
 					if(score == 0 && time == 0) {
-						conn.createStatement().executeUpdate(
-								"delete from `"+ tablePrefix +"scores` where player='"+uuid.toString()+"' and area='"+ar+"'"
+						PreparedStatement psDelete = conn.prepareStatement(
+								"delete from `"+ tablePrefix +"scores` where player=? and area=?"
 						);
+						psDelete.setString(1, uuid.toString());
+						psDelete.setString(2, ar);
+						psDelete.executeUpdate();
+						psDelete.close();
 					} else {
-						conn.createStatement().executeUpdate(
+						PreparedStatement psUpdate = conn.prepareStatement(
 								"update "+ tablePrefix +"scores set " +
-										"score="+score+", time="+time+" " +
-										"where player='"+uuid.toString()+"' and area='"+ar+"'"
+										"score=?, time=? " +
+										"where player=? and area=?"
 						);
+						psUpdate.setInt(1, score);
+						psUpdate.setInt(2, time);
+						psUpdate.setString(3, uuid.toString());
+						psUpdate.setString(4, ar);
+						psUpdate.executeUpdate();
+						psUpdate.close();
 					}
 				}
 
+				psSelect.close();
 				closeConn(conn);
 				if(!ar.equals("overall")) {
 					if(score > getHighScore(uuid, null)) {
@@ -462,9 +505,13 @@ public class Scores {
 	public void setMaterial(UUID uuid, String mat) {
 		try {
 			Connection conn = getConnection();
-			conn.createStatement().executeUpdate(
-					"update "+tablePrefix+"players set material='"+mat+"' where id='"+uuid.toString()+"'"
+			PreparedStatement ps = conn.prepareStatement(
+					"update "+tablePrefix+"players set material=? where id=?"
 			);
+			ps.setString(1, mat);
+			ps.setString(2, uuid.toString());
+			ps.executeUpdate();
+			ps.close();
 			closeConn(conn);
 		} catch(SQLException e) {
 			plugin.getLogger().warning("Unable to set material for player:");
@@ -476,14 +523,20 @@ public class Scores {
 	public String getMaterial(UUID uuid) {
 		try {
 			Connection conn = getConnection();
-			ResultSet r = conn.createStatement().executeQuery("select material from "+tablePrefix+"players where id='"+uuid.toString()+"'");
+			PreparedStatement ps = conn.prepareStatement("select material from "+tablePrefix+"players where id=?");
+			ps.setString(1, uuid.toString());
+			ResultSet r = ps.executeQuery();
 			if(!r.next()) {
-				closeConn(conn, r);
+				r.close();
+				ps.close();
+				closeConn(conn);
 				return "RANDOM";
 			}
 			String mat = r.getString("material");
 			if(mat == null) mat = "RANDOM";
-			closeConn(conn, r);
+			r.close();
+			ps.close();
+			closeConn(conn);
 			return mat;
 		} catch(SQLException e) {
 			plugin.getLogger().warning("Unable to get block material for player:");
@@ -495,13 +548,19 @@ public class Scores {
 	public String getName(UUID uuid) {
 		try {
 			Connection conn = getConnection();
-			ResultSet r = conn.createStatement().executeQuery("select name from "+ tablePrefix +"players where id='"+uuid.toString()+"'");
+			PreparedStatement ps = conn.prepareStatement("select name from "+ tablePrefix +"players where id=?");
+			ps.setString(1, uuid.toString());
+			ResultSet r = ps.executeQuery();
 			if(!r.next()) {
-				closeConn(conn, r);
+				r.close();
+				ps.close();
+				closeConn(conn);
 				return null;
 			}
 			String re = r.getString("name");
-			closeConn(conn, r);
+			r.close();
+			ps.close();
+			closeConn(conn);
 			return re;
 		} catch (SQLException e) {
 			Bukkit.getLogger().severe("[ajParkour] An error occurred when attempting to get a players name:");
@@ -516,16 +575,28 @@ public class Scores {
 			UUID uuid = player.getUniqueId();
 			try {
 				Connection conn = getConnection();
-				ResultSet r = conn.createStatement().executeQuery("select id from "+ tablePrefix +"players where id='"+uuid.toString()+"'");
+				PreparedStatement psSelect = conn.prepareStatement("select id from "+ tablePrefix +"players where id=?");
+				psSelect.setString(1, uuid.toString());
+				ResultSet r = psSelect.executeQuery();
 
 				if(r.next()) {
-					conn.createStatement().executeUpdate("update "+ tablePrefix +"players set name='"+player.getName()+"' where id='"+uuid.toString()+"'");
+					PreparedStatement psUpdate = conn.prepareStatement("update "+ tablePrefix +"players set name=? where id=?");
+					psUpdate.setString(1, player.getName());
+					psUpdate.setString(2, uuid.toString());
+					psUpdate.executeUpdate();
+					psUpdate.close();
 				} else {
-					conn.createStatement().executeUpdate("insert into "+tablePrefix+"players" +
+					PreparedStatement psInsert = conn.prepareStatement("insert into "+tablePrefix+"players" +
 							"(id, material, name, gamesplayed) values" +
-							"('"+uuid.toString()+"', NULL, '"+player.getName()+"', 0)");
+							"(?, NULL, ?, 0)");
+					psInsert.setString(1, uuid.toString());
+					psInsert.setString(2, player.getName());
+					psInsert.executeUpdate();
+					psInsert.close();
 				}
-				closeConn(conn, r);
+				r.close();
+				psSelect.close();
+				closeConn(conn);
 			} catch (SQLException e) {
 				Bukkit.getLogger().severe("[ajParkour] An error occurred while trying to update name for player " + player.getName()+":");
 				e.printStackTrace();
@@ -544,17 +615,24 @@ public class Scores {
 		}
 		try {
 			Connection conn = getConnection();
-			ResultSet r = conn.createStatement().executeQuery(
-					"select * from "+tablePrefix+"scores where area='"+area+"' order by score desc limit "+(position-1)+","+position
+			PreparedStatement ps = conn.prepareStatement(
+					"select * from "+tablePrefix+"scores where area=? order by score desc limit ?,1"
 			);
+			ps.setString(1, area);
+			ps.setInt(2, position - 1);
+			ResultSet r = ps.executeQuery();
 			if(!r.next()) {
-				closeConn(conn, r);
+				r.close();
+				ps.close();
+				closeConn(conn);
 				return new TopEntry(position, "--", -1, -1);
 			}
 			UUID uuid = UUID.fromString(r.getString("player"));
 			int score = r.getInt("score");
 			int time = r.getInt("time");
-			closeConn(conn, r);
+			r.close();
+			ps.close();
+			closeConn(conn);
 			String name = getName(uuid);
 
 			if(name == null) {
@@ -575,13 +653,19 @@ public class Scores {
 	public int getGamesPlayed(UUID uuid) {
 		try {
 			Connection conn = getConnection();
-			ResultSet r = conn.createStatement().executeQuery("select gamesplayed from "+ tablePrefix +"players where id='"+uuid.toString()+"'");
+			PreparedStatement ps = conn.prepareStatement("select gamesplayed from "+ tablePrefix +"players where id=?");
+			ps.setString(1, uuid.toString());
+			ResultSet r = ps.executeQuery();
 			if(!r.next()) {
-				closeConn(conn, r);
+				r.close();
+				ps.close();
+				closeConn(conn);
 				return 0;
 			}
 			int re = r.getInt("gamesplayed");
-			closeConn(conn, r);
+			r.close();
+			ps.close();
+			closeConn(conn);
 			return re;
 		} catch (SQLException e) {
 			Bukkit.getLogger().severe("[ajParkour] An error occurred when attempting to read from database:");
@@ -593,12 +677,20 @@ public class Scores {
 		int newGP = getGamesPlayed(uuid)+1;
 		try {
 			Connection conn = getConnection();
-			ResultSet r = conn.createStatement().executeQuery("select id from "+ tablePrefix +"players where id='"+uuid.toString()+"'");
+			PreparedStatement psSelect = conn.prepareStatement("select id from "+ tablePrefix +"players where id=?");
+			psSelect.setString(1, uuid.toString());
+			ResultSet r = psSelect.executeQuery();
 
 			if(r.next()) {
-				conn.createStatement().executeUpdate("update "+ tablePrefix +"players set gamesplayed='"+newGP+"' where id='"+uuid.toString()+"'");
+				PreparedStatement psUpdate = conn.prepareStatement("update "+ tablePrefix +"players set gamesplayed=? where id=?");
+				psUpdate.setInt(1, newGP);
+				psUpdate.setString(2, uuid.toString());
+				psUpdate.executeUpdate();
+				psUpdate.close();
 			}
-			closeConn(conn, r);
+			r.close();
+			psSelect.close();
+			closeConn(conn);
 		} catch (SQLException e) {
 			Bukkit.getLogger().severe("[ajParkour] An error occurred while trying to update gamesplayed for uuid " + uuid +":");
 			e.printStackTrace();

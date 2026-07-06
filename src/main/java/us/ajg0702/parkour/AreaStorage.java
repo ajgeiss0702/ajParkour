@@ -32,6 +32,9 @@ public class AreaStorage implements Listener {
 	Config mainConfig;
 	
 	Messages msgs;
+
+	private List<Portal> cachedPortals = null;
+	private boolean migrationChecked = false;
 	
 	
 	public AreaStorage(Main plugin) {
@@ -75,6 +78,8 @@ public class AreaStorage implements Listener {
 	public void reload() {
 		configfile = new File(plugin.getDataFolder(), "positions.yml");
 		config = YamlConfiguration.loadConfiguration(configfile);
+		cachedPortals = null;
+		migrationChecked = false;
 	}
 	
 	public List<PkArea> getAreas() {
@@ -120,40 +125,47 @@ public class AreaStorage implements Listener {
 		}
 	
 		config.set("portals."+portal.getName(), d);
+		cachedPortals = null;
 		saveFile();
 	}
 	
 	public List<Portal> getPortals() {
+		if(cachedPortals != null) {
+			return cachedPortals;
+		}
 		if(!config.isSet("portals")) {
-			YamlConfiguration oldconfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "config.yml"));
-			if(oldconfig.isSet("area.portals")) {
-				@SuppressWarnings("unchecked")
-				List<HashMap<String, Object>> oldportals = (List<HashMap<String, Object>>) oldconfig.getList("area.portals");
-				int i = 0;
-				for(HashMap<String, Object> p : oldportals) {
-					i++;
-					World world = Bukkit.getWorld(p.get("world").toString());
-					if(world == null) {
-						Bukkit.getLogger().warning("[ajParkour] Could not convert portal: Unknown world '" + p.get("world").toString()+"'!");
+			if(!migrationChecked) {
+				migrationChecked = true;
+				YamlConfiguration oldconfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "config.yml"));
+				if(oldconfig.isSet("area.portals")) {
+					@SuppressWarnings("unchecked")
+					List<HashMap<String, Object>> oldportals = (List<HashMap<String, Object>>) oldconfig.getList("area.portals");
+					int i = 0;
+					for(HashMap<String, Object> p : oldportals) {
+						i++;
+						World world = Bukkit.getWorld(p.get("world").toString());
+						if(world == null) {
+							Bukkit.getLogger().warning("[ajParkour] Could not convert portal: Unknown world '" + p.get("world").toString()+"'!");
+						}
+						int x = Integer.parseInt(p.get("x").toString());
+						int y = Integer.parseInt(p.get("y").toString());
+						int z = Integer.parseInt(p.get("z").toString());
+						Location ploc = new Location(world, x, y, z);
+						save(new Portal(i+"", ploc, null));
 					}
-					int x = Integer.parseInt(p.get("x").toString());
-					int y = Integer.parseInt(p.get("y").toString());
-					int z = Integer.parseInt(p.get("z").toString());
-					Location ploc = new Location(world, x, y, z);
-					save(new Portal(i+"", ploc, null));
+					Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, this::reload, 20);
 				}
-				Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, this::reload, 20);
-			} else {
-				return new ArrayList<>();
 			}
+			cachedPortals = new ArrayList<>();
+			return cachedPortals;
 		}
 		ConfigurationSection s = (ConfigurationSection) config.get("portals");
 		if(s == null) {
-			return new ArrayList<>();
+			cachedPortals = new ArrayList<>();
+			return cachedPortals;
 		}
 		List<Portal> list = new ArrayList<>();
 		for(String name : s.getKeys(false)) {
-			//Bukkit.getLogger().info("[ajParkour] Portal: "+name);
 			Location loc = parseLoc(s.getString(name+".loc"));
 			String arearaw = s.getString(name+".area");
 			
@@ -167,10 +179,10 @@ public class AreaStorage implements Listener {
 				}
 			}
 
-			//Bukkit.getLogger().info("[ajParkour] adding portal "+name+" to list");
 			list.add(new Portal(name, loc, area));
 		}
-		return list;
+		cachedPortals = list;
+		return cachedPortals;
 	}
 	
 	@SuppressWarnings("unused")
@@ -280,6 +292,7 @@ public class AreaStorage implements Listener {
 			Set<String> portals = config.getConfigurationSection("portals").getKeys(false);
 			if(portals.contains(portalname)) {
 				config.set("portals."+portalname, null);
+				cachedPortals = null;
 				p.sendMessage(msgs.get("portals.remove.success", p).replaceAll("\\{NAME}", portalname));
 				saveFile();
 				Manager.getInstance().reloadPositions();

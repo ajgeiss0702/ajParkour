@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "us.ajg0702"
-version = "2.12.10"
+version = "2.12.11"
 
 repositories {
 	maven { url = uri("https://repo.codemc.io/repository/maven-public/") }
@@ -13,7 +13,8 @@ repositories {
 
   maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots") }
   maven { url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") }
-  maven { url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/") }
+  maven { url = uri("https://repo.extendedclip.com/releases/") }
+  maven { url = uri("https://repo.papermc.io/repository/maven-public/") }
   maven { url = uri("https://maven.enginehub.org/repo/") }
   maven { url = uri("https://gitlab.com/api/v4/projects/19978391/packages/maven") }
 }
