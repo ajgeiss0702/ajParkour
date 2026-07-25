@@ -13,7 +13,7 @@ public class MaterialParser {
 		blockname = blockname.split(";")[0];
 		Material mat;
 		int data = -1;
-		if(blockname.contains(":") && VersionSupport.getMinorVersion() <= 12) {
+		if(blockname.contains(":") && VersionSupport.getMajorVersion() == 1 && VersionSupport.getMinorVersion() <= 12) {
 			String sd = blockname.split(":")[1];
 			if(sd.equalsIgnoreCase("true")) {
 				data = Main.random(0, 16);
