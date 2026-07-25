@@ -145,12 +145,12 @@ public class Commands implements CommandExecutor {
 				TopManager.getInstance().getHighScores().forEach((key, value) -> {
 					StringBuilder sb = new StringBuilder();
 					value.forEach((key1, value1) -> sb.append("\n ").append(key1).append(": ").append(value1));
-					sender.sendMessage("HS: " + key.getName() + ":" + sb);
+					sender.sendMessage("HS: " + playerName(key) + ":" + sb);
 				});
 				TopManager.getInstance().getLastGetHS().forEach((key, value) -> {
 					StringBuilder sb = new StringBuilder();
 					value.forEach((key1, value1) -> sb.append("\n ").append(key1).append(": ").append(value1));
-					sender.sendMessage("HSLG: " + key.getName() + ":" + sb);
+					sender.sendMessage("HSLG: " + playerName(key) + ":" + sb);
 				});
 
 				return true;
@@ -623,6 +623,13 @@ public class Commands implements CommandExecutor {
 		} catch(NumberFormatException e) {
 			return false;
 		}
+	}
+
+	private static String playerName(UUID uuid) {
+		Player online = Bukkit.getPlayer(uuid);
+		if(online != null) return online.getName();
+		OfflinePlayer offline = Bukkit.getOfflinePlayer(uuid);
+		return offline != null ? offline.getName() : uuid.toString();
 	}
 
 }

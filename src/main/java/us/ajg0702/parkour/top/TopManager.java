@@ -7,6 +7,7 @@ import us.ajg0702.parkour.Main;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TopManager {
@@ -63,29 +64,29 @@ public class TopManager {
 
 
 
-    private ConcurrentHashMap<Player, HashMap<String, Integer>> highScores = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<Player, HashMap<String, Long>> lastGetHS = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<UUID, HashMap<String, Integer>> highScores = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<UUID, HashMap<String, Long>> lastGetHS = new ConcurrentHashMap<>();
     public int getHighScore(Player player, String area) {
         if(area == null) area = "overall";
 
-        if(!highScores.containsKey(player)) {
-            highScores.put(player, new HashMap<>());
+        if(!highScores.containsKey(player.getUniqueId())) {
+            highScores.put(player.getUniqueId(), new HashMap<>());
         }
-        if(!lastGetHS.containsKey(player) || lastGetHS.get(player) == null) {
-            lastGetHS.put(player, new HashMap<>());
+        if(!lastGetHS.containsKey(player.getUniqueId()) || lastGetHS.get(player.getUniqueId()) == null) {
+            lastGetHS.put(player.getUniqueId(), new HashMap<>());
         }
 
-        if(highScores.get(player).containsKey(area) && lastGetHS.get(player).containsKey(area)) {
+        if(highScores.get(player.getUniqueId()).containsKey(area) && lastGetHS.get(player.getUniqueId()).containsKey(area)) {
             if(Calendar.getInstance().getTimeInMillis() -
-                    lastGetHS.get(player).get(area)
+                    lastGetHS.get(player.getUniqueId()).get(area)
                     > 1000) {
-                lastGetHS.get(player).put(area, System.currentTimeMillis());
+                lastGetHS.get(player.getUniqueId()).put(area, System.currentTimeMillis());
                 fetchHighScoreAsync(player, area);
             }
-            return highScores.get(player).get(area);
+            return highScores.get(player.getUniqueId()).get(area);
         }
 
-        lastGetHS.get(player).put(area, System.currentTimeMillis());
+        lastGetHS.get(player.getUniqueId()).put(area, System.currentTimeMillis());
         return fetchHighScore(player, area);
     }
 
@@ -96,40 +97,37 @@ public class TopManager {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             if(System.currentTimeMillis() - lastClean > 300e3) {
                 lastClean = System.currentTimeMillis();
-
-                for(Player key : highScores.keySet()) {
-                    if(!key.isOnline()) {
-                        highScores.remove(player);
-                    }
-                }
-                for(Player key : lastGetHS.keySet()) {
-                    if(!key.isOnline()) {
-                        lastGetHS.remove(player);
-                    }
-                }
+                highScores.keySet().removeIf(uuid -> {
+                    Player p = Bukkit.getPlayer(uuid);
+                    return p == null || !p.isOnline();
+                });
+                lastGetHS.keySet().removeIf(uuid -> {
+                    Player p = Bukkit.getPlayer(uuid);
+                    return p == null || !p.isOnline();
+                });
             }
         });
     }
     private int fetchHighScore(Player player, String area) {
         int hs = plugin.scores.getHighScore(player.getUniqueId(), area);
-        if(!highScores.containsKey(player)) {
-            highScores.put(player, new HashMap<>());
+        if(!highScores.containsKey(player.getUniqueId())) {
+            highScores.put(player.getUniqueId(), new HashMap<>());
         }
-        highScores.get(player).put(area, hs);
+        highScores.get(player.getUniqueId()).put(area, hs);
         return hs;
     }
 
     public void clearPlayerCache(Player ply) {
-        highScores.remove(ply);
-        lastGetHS.remove(ply);
+        highScores.remove(ply.getUniqueId());
+        lastGetHS.remove(ply.getUniqueId());
     }
 
 
 
-    public HashMap<Player, HashMap<String, Integer>> getHighScores() {
+    public HashMap<UUID, HashMap<String, Integer>> getHighScores() {
         return new HashMap<>(highScores);
     }
-    public HashMap<Player, HashMap<String, Long>> getLastGetHS() {
+    public HashMap<UUID, HashMap<String, Long>> getLastGetHS() {
         return new HashMap<>(lastGetHS);
     }
 

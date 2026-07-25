@@ -19,6 +19,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -29,7 +30,7 @@ import us.ajg0702.parkour.utils.VersionSupport;
 
 public class BlockSelector implements Listener {
 
-	private final Map<Player, Inventory> plys = new HashMap<>();
+	private final Map<UUID, Inventory> plys = new HashMap<>();
 	Main plugin;
 	Messages msgs;
 	Scores scores;
@@ -157,14 +158,14 @@ public class BlockSelector implements Listener {
 		}
 	}
 	
-	HashMap<Player, Integer> pages = new HashMap<>();
+	HashMap<UUID, Integer> pages = new HashMap<>();
 	
 	public Inventory openSelector(Player ply) {
 		Inventory inv = Bukkit.createInventory(ply, 54, msgs.get("gui.selector.title", ply));
 
 		inv = addBlocks(ply, inv, 0);
-		plys.put(ply, inv);
-		pages.put(ply, 0);
+		plys.put(ply.getUniqueId(), inv);
+		pages.put(ply.getUniqueId(), 0);
 		ply.openInventory(inv);
 		return inv;
 	}
@@ -274,7 +275,7 @@ public class BlockSelector implements Listener {
 		ItemStack clicked = e.getCurrentItem();
 		
 		Inventory inv = e.getInventory();
-		if(!inv.equals(plys.get(p))) {
+		if(!inv.equals(plys.get(p.getUniqueId()))) {
 			return;
 		}
 		e.setCancelled(true);
@@ -286,26 +287,26 @@ public class BlockSelector implements Listener {
 		}
 		String matname;
 		if(e.getSlot() >= 9) {
-			matname = types.get(((e.getSlot())-9)-((pages.get(p)*-45)));
+			matname = types.get(((e.getSlot())-9)-((pages.get(p.getUniqueId())*-45)));
 		} else {
 			if(e.getSlot() == 8) {
-				pages.put(p, pages.get(p)+1);
+				pages.put(p.getUniqueId(), pages.get(p.getUniqueId())+1);
 				inv.clear();
-				plys.put(p, addBlocks(p, inv, pages.get(p)));
+				plys.put(p.getUniqueId(), addBlocks(p, inv, pages.get(p.getUniqueId())));
 				return;
 			}
 			if(e.getSlot() == 0) {
-				if(pages.get(p) <= 0) return;
-				pages.put(p, pages.get(p)-1);
+				if(pages.get(p.getUniqueId()) <= 0) return;
+				pages.put(p.getUniqueId(), pages.get(p.getUniqueId())-1);
 				inv.clear();
-				plys.put(p, addBlocks(p, inv, pages.get(p)));
+				plys.put(p.getUniqueId(), addBlocks(p, inv, pages.get(p.getUniqueId())));
 				return;
 			}
 			matname = "random";
 		}
 		scores.setMaterial(p.getUniqueId(), matname);
 		inv.clear();
-		plys.put(p, addBlocks(p, inv, pages.get(p)));
+		plys.put(p.getUniqueId(), addBlocks(p, inv, pages.get(p.getUniqueId())));
 		e.setCancelled(true);
 	}
 	
@@ -313,8 +314,8 @@ public class BlockSelector implements Listener {
 	public void onClose(InventoryCloseEvent e) {
 		Player p = (Player) e.getPlayer();
 		Inventory inv = e.getInventory();
-		if(inv.equals(plys.get(p))) {
-			plys.remove(p);
+		if(inv.equals(plys.get(p.getUniqueId()))) {
+			plys.remove(p.getUniqueId());
 		}
 	}
 	
@@ -329,36 +330,25 @@ public class BlockSelector implements Listener {
 	}
 
 
-	private final ConcurrentHashMap<Player, String> blockCache = new ConcurrentHashMap<>();
-	private final ConcurrentHashMap<Player, Long> blockFetch = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<UUID, String> blockCache = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<UUID, Long> blockFetch = new ConcurrentHashMap<>();
 	public String getBlock(Player p, PkArea area) {
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-			for(Player player : blockCache.keySet()) {
-				if(player.isOnline()) continue;
-				blockCache.remove(player);
-			}
-			for(Player player : blockFetch.keySet()) {
-				if(player.isOnline()) continue;
-				blockFetch.remove(player);
-			}
-		});
-
-		if(!blockFetch.containsKey(p)) {
-			blockFetch.put(p, 0L);
+		if(!blockFetch.containsKey(p.getUniqueId())) {
+			blockFetch.put(p.getUniqueId(), 0L);
 		}
 
 		String raw;
-		if(System.currentTimeMillis() - blockFetch.get(p) > 5000) {
-			if(blockCache.get(p) == null) {
+		if(System.currentTimeMillis() - blockFetch.get(p.getUniqueId()) > 5000) {
+			if(blockCache.get(p.getUniqueId()) == null) {
 				raw = scores.getMaterial(p.getUniqueId());
-				blockCache.put(p, raw);
-				blockFetch.put(p, System.currentTimeMillis());
+				blockCache.put(p.getUniqueId(), raw);
+				blockFetch.put(p.getUniqueId(), System.currentTimeMillis());
 			} else {
-				raw = blockCache.get(p);
+				raw = blockCache.get(p.getUniqueId());
 				cacheBlock(p);
 			}
 		} else {
-			raw = blockCache.get(p);
+			raw = blockCache.get(p.getUniqueId());
 		}
 
 		if(raw == null || raw.equalsIgnoreCase("random") || raw.equalsIgnoreCase(plugin.config.getString("random-item"))) {
@@ -407,9 +397,18 @@ public class BlockSelector implements Listener {
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
 			final String raw = scores.getMaterial(p.getUniqueId());
 			Bukkit.getScheduler().runTask(plugin, () -> {
-				blockCache.put(p, raw);
-				blockFetch.put(p, System.currentTimeMillis());
+				blockCache.put(p.getUniqueId(), raw);
+				blockFetch.put(p.getUniqueId(), System.currentTimeMillis());
 			});
 		});
+	}
+
+	@EventHandler
+	public void onPlayerLeave(PlayerQuitEvent e) {
+		UUID uuid = e.getPlayer().getUniqueId();
+		plys.remove(uuid);
+		pages.remove(uuid);
+		blockCache.remove(uuid);
+		blockFetch.remove(uuid);
 	}
 }
