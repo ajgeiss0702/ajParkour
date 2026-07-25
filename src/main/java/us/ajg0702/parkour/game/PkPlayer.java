@@ -17,7 +17,6 @@ import us.ajg0702.parkour.Scores;
 import us.ajg0702.parkour.api.events.PlayerEndParkourEvent;
 import us.ajg0702.parkour.api.events.PlayerJumpEvent;
 import us.ajg0702.parkour.api.events.PlayerStartParkourEvent;
-import us.ajg0702.parkour.api.events.PrePlayerStartParkourEvent;
 import us.ajg0702.parkour.utils.InvManager;
 import us.ajg0702.parkour.utils.VersionSupport;
 import us.ajg0702.utils.spigot.Config;
@@ -105,16 +104,6 @@ public class PkPlayer implements Listener {
 		afkkick = config.getInt("kick-time");
 		
 		fasterAfkCheck = config.getBoolean("faster-afk-detection");
-		
-		PrePlayerStartParkourEvent preevent = new PrePlayerStartParkourEvent(p);
-		Bukkit.getPluginManager().callEvent(preevent);
-		if(preevent.isCancelled()) {
-			active = false;
-			if(!man.pluginDisabling) {
-				man.checkActive();
-			}
-			return;
-		}
 		
 		Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
 			prevhigh = scores.getHighScore(ply.getUniqueId(), config.getBoolean("begin-score-per-area") ? area.getName() : null);

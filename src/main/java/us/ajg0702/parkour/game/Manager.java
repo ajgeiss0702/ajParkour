@@ -13,6 +13,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import us.ajg0702.parkour.Main;
 import us.ajg0702.parkour.Messages;
+import us.ajg0702.parkour.api.events.PrePlayerStartParkourEvent;
 import us.ajg0702.parkour.top.TopManager;
 
 import java.util.ArrayList;
@@ -27,23 +28,23 @@ import java.util.List;
  *
  */
 public class Manager implements Listener {
-	
+
 	static Manager instance = null;
-	
+
 	List<PkPlayer> plys = new ArrayList<>();
-	
+
 	List<PkArea> areas = new ArrayList<>();
-	
+
 	Main main;
-	
+
 	Messages msgs;
 
 	public Manager(Main pl) {
 		instance = this;
 		main = pl;
-		
+
 		msgs = main.msgs;
-		
+
 		Bukkit.getScheduler().scheduleSyncDelayedTask(pl, this::reloadPositions, 5);
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(main, this::checkActive, 15*20, 60*20);
 		Bukkit.getScheduler().runTaskTimer(pl, () -> {
@@ -54,7 +55,7 @@ public class Manager implements Listener {
 			}
 		}, 10, 20);
 	}
-	
+
 	/**
 	 * Gets the manager instance
 	 * @return the instance of the manager
@@ -62,8 +63,8 @@ public class Manager implements Listener {
 	public static Manager getInstance() {
 		return instance;
 	}
-	
-	
+
+
 	/**
 	 * Gets all (loaded) arenas
 	 * @return A list of PkAreas
@@ -71,7 +72,7 @@ public class Manager implements Listener {
 	public List<PkArea> getAreas() {
 		return areas;
 	}
-	
+
 	/**
 	 * Reloads all areas, portals, etc
 	 */
@@ -79,7 +80,7 @@ public class Manager implements Listener {
 		main.areaStorage.reload();
 		areas = main.areaStorage.getAreas();
 	}
-	
+
 	/**
 	 * Get an area by name.
 	 * @param name A String with the name of the area.
@@ -94,7 +95,7 @@ public class Manager implements Listener {
 		}
 		return f;
 	}
-	
+
 	/**
 	 * Gets a PkPlayer.
 	 * @param ply The {@link org.bukkit.entity.Player Player} to find.
@@ -109,7 +110,7 @@ public class Manager implements Listener {
 		}
 		return f;
 	}
-	
+
 	/**
 	 * Gets a list of all players in all areas.
 	 * @return A {@link java.util.List List} of {@link us.ajg0702.parkour.game.PkPlayer PkPlayer}s.
@@ -117,7 +118,7 @@ public class Manager implements Listener {
 	public List<PkPlayer> getPlayers() {
 		return plys;
 	}
-	
+
 	/**
 	 * Checks if a player is in parkour in any area.
 	 * @param ply a {@link org.bukkit.entity.Player Player} to check.
@@ -126,7 +127,7 @@ public class Manager implements Listener {
 	public boolean inParkour(Player ply) {
 		return this.getPlayer(ply) != null;
 	}
-	
+
 	/**
 	 * Gets all players in an area
 	 * @param area A {@link us.ajg0702.parkour.game.PkArea PkArea} that the players are in.
@@ -141,7 +142,7 @@ public class Manager implements Listener {
 		}
 		return f;
 	}
-	
+
 	/**
 	 * Gets the total number of players
 	 * @return The number of players in parkour in all areas.
@@ -166,7 +167,7 @@ public class Manager implements Listener {
 			return true;
 		}
 	}
-	
+
 	/**
 	 * Start parkour for a player
 	 * @param ply The {@link org.bukkit.entity.Player Player} to start parkour on.
@@ -174,7 +175,7 @@ public class Manager implements Listener {
 	public void startGame(Player ply) {
 		startGame(ply, null);
 	}
-	
+
 	/**
 	 * Start parkour for a player in a certain area.
 	 * @param ply The {@link org.bukkit.entity.Player Player} to start parkour on.
@@ -184,11 +185,11 @@ public class Manager implements Listener {
 		if(areas.size() <= 0) {
 			return;
 		}
-		
+
 		if(getPlayer(ply) != null) {
 			return;
 		}
-			
+
 		String fm = main.getAConfig().getString("area-selection");
 		PkArea s = area;
 		if(area == null) {
@@ -217,17 +218,24 @@ public class Manager implements Listener {
 		if(ply.getFoodLevel() <= 6) {
 			ply.setFoodLevel(7);
 		}
+
+		PrePlayerStartParkourEvent preevent = new PrePlayerStartParkourEvent(ply);
+		Bukkit.getPluginManager().callEvent(preevent);
+		if(preevent.isCancelled()) {
+			return;
+		}
+
 		PkPlayer p = new PkPlayer(ply, Manager.getInstance(), s);
 		plys.add(p);
 	}
-	
+
 	/**
 	 * Checks that all players are still in parkour. If they are not, they are removed from the list of player in parkour
 	 */
 	public void checkActive() {
 		plys.removeIf(p -> !p.active);
 	}
-	
+
 	/**
 	 * Get the number of people in an area
 	 * @param a The {@link us.ajg0702.parkour.game.PkArea PkArea} to check.
@@ -242,9 +250,9 @@ public class Manager implements Listener {
 		}
 		return f;
 	}
-	
+
 	public boolean pluginDisabling = false;
-	
+
 	/**
 	 * Function called when plugin is getting disabled. It kicks all players from the parkour.
 	 */
@@ -255,21 +263,21 @@ public class Manager implements Listener {
 			p.end();
 		}
 	}
-	
+
 	@EventHandler
 	public void onDrop(PlayerDropItemEvent e) {
 		Player p = e.getPlayer();
 		if(getPlayer(p) == null) return;
 		e.setCancelled(true);
 	}
-	
+
 	@EventHandler
 	public void onInvClick(InventoryClickEvent e) {
 		Player p = (Player) e.getWhoClicked();
 		if(getPlayer(p) == null) return;
 		e.setCancelled(true);
 	}
-	
+
 	@EventHandler
 	public void onInteract(PlayerInteractEvent e) {
 		Player p = e.getPlayer();
@@ -279,7 +287,7 @@ public class Manager implements Listener {
 			e.setCancelled(true);
 		}
 	}
-	
+
 	@EventHandler
 	public void onPlayerTeleport(PlayerTeleportEvent e) {
 		PkPlayer p = getPlayer(e.getPlayer());
@@ -308,12 +316,12 @@ public class Manager implements Listener {
 		kickPlayer(e.getPlayer());
 		TopManager.getInstance().clearPlayerCache(e.getPlayer());
 	}
-	
+
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent e) {
 		Player p = e.getPlayer();
 		if(p == null) return;
-		
+
 		if(getPlayer(p) != null) {
 			e.setCancelled(true);
 			p.sendMessage(msgs.get("block.place", p));
@@ -323,7 +331,7 @@ public class Manager implements Listener {
 	public void onEmptyBucket(PlayerBucketEmptyEvent e) {
 		Player p = e.getPlayer();
 		if(p == null) return;
-		
+
 		if(getPlayer(p) != null) {
 			e.setCancelled(true);
 			p.sendMessage(msgs.get("block.place", p));
@@ -333,7 +341,7 @@ public class Manager implements Listener {
 	public void onBlockBreak(BlockBreakEvent e) {
 		Player p = e.getPlayer();
 		if(p == null) return;
-		
+
 		if(getPlayer(p) != null) {
 			e.setCancelled(true);
 			p.sendMessage(msgs.get("block.break"));
@@ -353,7 +361,7 @@ public class Manager implements Listener {
 	public void onJoin(PlayerJoinEvent e) {
 		main.scores.updateName(e.getPlayer());
 	}
-	
-	
+
+
 
 }
