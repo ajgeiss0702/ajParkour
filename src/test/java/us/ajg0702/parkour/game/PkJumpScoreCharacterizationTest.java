@@ -48,11 +48,11 @@ class PkJumpScoreCharacterizationTest {
     }
 
     @Test
-    void outOfAreaCandidateAssignsScoreMinusTenBeforeDistancePenalty() {
+    void outOfAreaCandidateSubtractsTenWithoutDiscardingPriorScore() {
         Location from = new Location(world, 10, 5, 5);
         Location outside = new Location(world, 20, 5, 5);
 
-        assertEquals(-25, PkJump.getBlockScore(outside, from, area, null, 90f));
+        assertEquals(-18, PkJump.getBlockScore(outside, from, area, null, 0f));
     }
 
     @Test

@@ -316,7 +316,7 @@ public class PkJump {
 		
 		if(!area.contains(block)) {
 			d = Math.abs(d) * -1;
-			score =- 10;
+			score -= 10;
 		}
 		//Bukkit.broadcastMessage("d obounds: "+d);
 		
