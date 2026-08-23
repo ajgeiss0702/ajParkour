@@ -75,7 +75,7 @@ public class PkJump {
 		
 		
 		bks.addAll(candidateLocations(w, x, y, z, r, maxy));
-		if(ply.getJumps().size() >= 2) {
+		if(NayatsuGenerationConfig.antiUTurnGuardEnabled(main) && ply.getJumps().size() >= 2) {
 			Location previous = ply.getJumps().get(ply.jumps.size()-2).getFrom();
 			bks = filterReverseTurnCandidates(bks, previous, from);
 		}

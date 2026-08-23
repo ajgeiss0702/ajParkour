@@ -111,3 +111,15 @@ require-permission-for-block-selector-item: false
 # Some things that can help look for issues in the plugin
 #  Default: false
 debug: false
+
+# Nayatsu fork generation controls.
+# Missing nayatsu-generation keys behave as disabled for backward-compatible rollback.
+nayatsu-generation:
+  enabled: true
+  recent-history-size: 5
+  recent-region-radius: -1
+  anti-u-turn:
+    enabled: true
+  telemetry:
+    enabled: false
+  debug-fallback-log: false
