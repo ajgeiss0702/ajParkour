@@ -22,11 +22,15 @@ import us.ajg0702.parkour.utils.VersionSupport;
 import us.ajg0702.utils.spigot.Config;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.List;
 
 public class PkPlayer implements Listener {
+
+	private static final int RECENT_JUMP_HISTORY_LIMIT = 5;
 	
 	long lastmove;
 	
@@ -45,6 +49,8 @@ public class PkPlayer implements Listener {
 	long started;
 	
 	List<PkJump> jumps;
+
+	Deque<Location> recentJumpHistory = new ArrayDeque<>();
 	
 	int score = 0;
 	
@@ -223,6 +229,7 @@ public class PkPlayer implements Listener {
 	
 	private void madeIt() {
 		score++;
+		recordRecentJump(recentJumpHistory, jumps.get(0).getTo(), RECENT_JUMP_HISTORY_LIMIT);
 		jumps.get(0).remove();
 		jumps.remove(0);
 		Location prevJump = jumps.get(jumps.size()-1).getFrom();
@@ -393,6 +400,22 @@ public class PkPlayer implements Listener {
 	public List<PkJump> getJumps() {
 		return jumps;
 	}
+
+	List<Location> getRecentJumpHistory() {
+		return new ArrayList<>(recentJumpHistory);
+	}
+
+	static void recordRecentJump(Deque<Location> history, Location consumedJump, int limit) {
+		if(limit <= 0) return;
+		history.addLast(consumedJump.clone());
+		while(history.size() > limit) {
+			history.removeFirst();
+		}
+	}
+
+	static void clearRecentJumpHistory(Deque<Location> history) {
+		history.clear();
+	}
 	
 
 	
@@ -411,6 +434,7 @@ public class PkPlayer implements Listener {
 		for(PkJump j : jumps) {
 			j.remove();
 		}
+		clearRecentJumpHistory(recentJumpHistory);
 		
 		Bukkit.getScheduler().cancelTask(afktask);
 		
