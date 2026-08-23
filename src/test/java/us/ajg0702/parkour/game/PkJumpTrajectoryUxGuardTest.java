@@ -84,7 +84,7 @@ class PkJumpTrajectoryUxGuardTest {
 
         assertFalse(result.candidates.contains(nearRecent));
         assertTrue(result.candidates.contains(away));
-        assertEquals("RECENT_REGION", result.diagnostics.get(0).reason);
+        assertEquals("REJECT_RECENT_REGION", result.diagnostics.get(0).reason);
     }
 
     @Test

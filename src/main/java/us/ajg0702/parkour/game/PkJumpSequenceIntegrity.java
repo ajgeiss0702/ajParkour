@@ -9,8 +9,9 @@ import java.util.List;
 final class PkJumpSequenceIntegrity {
 
 	static final String PASS = "PASS";
-	static final String NEXT_NOT_REACHABLE = "NEXT_NOT_REACHABLE";
-	static final String NON_ADJACENT_SHORTCUT = "NON_ADJACENT_SHORTCUT";
+	static final String NEXT_NOT_REACHABLE = "REJECT_NEXT_NOT_REACHABLE";
+	static final String NON_ADJACENT_SHORTCUT = "REJECT_NON_ADJACENT_SHORTCUT";
+	static final String DUPLICATE_ACTIVE_PLATFORM = "REJECT_DUPLICATE_ACTIVE_PLATFORM";
 
 	private PkJumpSequenceIntegrity() { }
 
@@ -22,11 +23,13 @@ final class PkJumpSequenceIntegrity {
 		int vertical = to.getBlockY() - from.getBlockY();
 		if(horizontal <= 0) return false;
 
-		int maxHorizontal = PkJump.shapeForDistance(difficulty.getMax()).distance;
+		int generatedMax = PkJump.shapeForDistance(difficulty.getMax()).distance;
+		int downwardBonus = vertical < 0 ? Math.min(2, Math.abs(vertical)) : 0;
+		int maxHorizontal = generatedMax + downwardBonus;
 		if(horizontal - maxHorizontal > 0.0001) return false;
 
-		int maxVertical = horizontal > 4.0001 ? 0 : 1;
-		return Math.abs(vertical) <= maxVertical;
+		if(vertical > 1) return false;
+		return vertical <= 0 || horizontal <= 4.0001;
 	}
 
 	static SequenceValidation validateAppend(List<TrajectoryPoint> activeTrajectory, Location fallbackPredecessor, Location candidate, Difficulty difficulty) {
@@ -36,6 +39,12 @@ final class PkJumpSequenceIntegrity {
 				trajectory.get(trajectory.size() - 1);
 
 		List<ReachabilityEdge> edges = new ArrayList<>();
+		for(TrajectoryPoint point : trajectory) {
+			if(sameBlock(point.location, candidate)) {
+				return new SequenceValidation(false, DUPLICATE_ACTIVE_PLATFORM, point, edges);
+			}
+		}
+
 		boolean nextReachable = canReach(predecessor.location, candidate, difficulty);
 		edges.add(new ReachabilityEdge(predecessor, nextReachable, "ADJACENT_OK"));
 		if(!nextReachable) {
@@ -82,6 +91,14 @@ final class PkJumpSequenceIntegrity {
 		double dx = a.getBlockX() - b.getBlockX();
 		double dz = a.getBlockZ() - b.getBlockZ();
 		return Math.sqrt(dx * dx + dz * dz);
+	}
+
+	static boolean sameBlock(Location a, Location b) {
+		if(a == null || b == null) return false;
+		if(a.getWorld() != null && b.getWorld() != null && !a.getWorld().equals(b.getWorld())) return false;
+		return a.getBlockX() == b.getBlockX() &&
+				a.getBlockY() == b.getBlockY() &&
+				a.getBlockZ() == b.getBlockZ();
 	}
 
 	static class TrajectoryPoint {

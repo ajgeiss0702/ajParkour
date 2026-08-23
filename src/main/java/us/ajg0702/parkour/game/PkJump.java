@@ -63,6 +63,13 @@ public class PkJump {
 		if(guarded == null || guarded.candidates.isEmpty()) {
 			throw new IllegalStateException("NO_VALID_CANDIDATE: no sequence-safe and UX-guarded candidates survived the finite jumps.yml universe");
 		}
+		GuardedCandidates sequenceAndUxGuarded = guarded;
+		guarded = guardEnabled ?
+				filterOneStepViableCandidates(guarded, spatialHistory, activeTrajectory, d) :
+				guarded;
+		if(guarded.candidates.isEmpty()) {
+			throw new IllegalStateException("ONLY_DEAD_END_CANDIDATES: " + sequenceAndUxGuarded.candidates.size() + " guarded candidates had zero legal next continuations");
+		}
 		bks = guarded.candidates;
 		HashMap<Object, Double> sc = new HashMap<>();
 		for(Location bk : guarded.originalCandidates) {
@@ -429,6 +436,63 @@ public class PkJump {
 		return new GuardedCandidates(candidates, kept, candidates.size() - kept.size(), false, diagnostics);
 	}
 
+	static GuardedCandidates filterOneStepViableCandidates(GuardedCandidates guarded, List<Location> spatialHistory, List<PkJumpSequenceIntegrity.TrajectoryPoint> activeTrajectory, Difficulty difficulty) {
+		List<Location> kept = new ArrayList<>();
+		for(CandidateDiagnostic diagnostic : guarded.diagnostics) {
+			if(!diagnostic.accepted) {
+				continue;
+			}
+			diagnostic.viableNextCandidates = viableNextCandidateCount(diagnostic.candidate, spatialHistory, activeTrajectory, difficulty);
+			if(diagnostic.viableNextCandidates > 0) {
+				kept.add(diagnostic.candidate);
+			} else {
+				diagnostic.accepted = false;
+				diagnostic.reason = "REJECT_DEAD_END_CANDIDATE";
+			}
+		}
+		return new GuardedCandidates(guarded.originalCandidates, kept, guarded.originalCandidates.size() - kept.size(), false, guarded.diagnostics);
+	}
+
+	static int viableNextCandidateCount(Location candidate, List<Location> spatialHistory, List<PkJumpSequenceIntegrity.TrajectoryPoint> activeTrajectory, Difficulty difficulty) {
+		List<PkJumpSequenceIntegrity.TrajectoryPoint> nextTrajectory = trajectoryAfterCurrentCompletion(activeTrajectory, candidate);
+		if(nextTrajectory.isEmpty()) return 0;
+
+		Location previous = nextTrajectory.size() >= 2 ? nextTrajectory.get(nextTrajectory.size() - 2).location : null;
+		int maxGeneratedY = previous != null && candidate.getBlockY() - previous.getBlockY() > 0 ? 0 : 1;
+		List<Location> nextSpatialHistory = spatialHistoryAfterCurrentCompletion(spatialHistory, activeTrajectory);
+		List<Location> nextUniverse = candidateUniverse(candidate.getWorld(), candidate.getBlockX(), candidate.getBlockY(), candidate.getBlockZ(), difficulty, maxGeneratedY);
+		int viable = 0;
+		for(Location nextCandidate : nextUniverse) {
+			CandidateDiagnostic diagnostic = evaluateNayatsuUxGuard(nextCandidate, previous, candidate, nextSpatialHistory);
+			diagnostic.sequenceValidation = PkJumpSequenceIntegrity.validateAppend(nextTrajectory, candidate, nextCandidate, difficulty);
+			if(diagnostic.accepted && diagnostic.sequenceValidation.accepted) {
+				viable++;
+			}
+		}
+		return viable;
+	}
+
+	static List<PkJumpSequenceIntegrity.TrajectoryPoint> trajectoryAfterCurrentCompletion(List<PkJumpSequenceIntegrity.TrajectoryPoint> activeTrajectory, Location candidate) {
+		List<PkJumpSequenceIntegrity.TrajectoryPoint> nextTrajectory = new ArrayList<>();
+		List<PkJumpSequenceIntegrity.TrajectoryPoint> source = activeTrajectory == null ? Collections.emptyList() : activeTrajectory;
+		for(int i = source.size() > 1 ? 1 : 0; i < source.size(); i++) {
+			nextTrajectory.add(source.get(i));
+		}
+		nextTrajectory.add(new PkJumpSequenceIntegrity.TrajectoryPoint(-1, "LOOKAHEAD", candidate));
+		return nextTrajectory;
+	}
+
+	static List<Location> spatialHistoryAfterCurrentCompletion(List<Location> spatialHistory, List<PkJumpSequenceIntegrity.TrajectoryPoint> activeTrajectory) {
+		List<Location> nextSpatialHistory = new ArrayList<>();
+		if(spatialHistory != null) {
+			nextSpatialHistory.addAll(spatialHistory);
+		}
+		if(activeTrajectory != null && activeTrajectory.size() > 1) {
+			nextSpatialHistory.add(activeTrajectory.get(1).location);
+		}
+		return nextSpatialHistory;
+	}
+
 	static GuardedCandidates filterNayatsuUxGuardCandidates(List<Location> candidates, Location previous, Location from, List<Location> recentReferences) {
 		List<CandidateDiagnostic> diagnostics = new ArrayList<>();
 		List<Location> kept = new ArrayList<>();
@@ -455,9 +519,9 @@ public class PkJump {
 		boolean accepted = !reverse && !recentRegion;
 		String reason = "PASS";
 		if(reverse) {
-			reason = "ANTI_U_TURN";
+			reason = "REJECT_ANTI_U_TURN";
 		} else if(recentRegion) {
-			reason = "RECENT_REGION";
+			reason = "REJECT_RECENT_REGION";
 		}
 		return new CandidateDiagnostic(candidate, distanceFromCurrent, nearestRecentDistance, turnAngle(previous, from, candidate), !reverse, !recentRegion, accepted, reason);
 	}
@@ -557,6 +621,7 @@ public class PkJump {
 					" final=" + (diagnostic.accepted ? "ACCEPT" : "REJECT") +
 					" reason=" + diagnostic.reason +
 					" score=" + score +
+					" viableNextCandidates=" + diagnostic.viableNextCandidates +
 					" reachability=" + reachabilityList(diagnostic.sequenceValidation));
 		}
 	}
@@ -633,6 +698,7 @@ public class PkJump {
 		boolean accepted;
 		String reason;
 		PkJumpSequenceIntegrity.SequenceValidation sequenceValidation;
+		int viableNextCandidates = -1;
 
 		CandidateDiagnostic(Location candidate, double distanceFromCurrent, double nearestRecentDistance, double turnAngle, boolean antiUTurnPass, boolean recentRegionPass, boolean accepted, String reason) {
 			this.candidate = candidate;
