@@ -339,8 +339,8 @@ public class PkPlayer implements Listener {
 		double xg = goal.getX()+0.5;
 		double zg = goal.getZ()+0.5;
 		double xdist = Math.abs(x - xg);
-		double ydist = Math.abs(z - zg);
-		return xdist < 0.8 && ydist < 0.8;
+		double zdist = Math.abs(z - zg);
+		return xdist < 0.8 && zdist < 0.8;
 	}
 	
 	/**
