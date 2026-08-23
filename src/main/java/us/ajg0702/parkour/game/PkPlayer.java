@@ -235,7 +235,14 @@ public class PkPlayer implements Listener {
 		jumps.remove(0);
 		Location prevJump = jumps.get(jumps.size()-1).getFrom();
 		//ply.sendMessage(AreaStorage.coordsString(prevJump));
-		PkJump nj = new PkJump(this, prevJump);
+		PkJump nj;
+		try {
+			nj = new PkJump(this, prevJump);
+		} catch(IllegalStateException e) {
+			Bukkit.getLogger().severe("[ajParkour] Ending parkour because no sequence-safe continuation could be generated: " + e.getMessage());
+			end("Could not generate the next parkour jump safely.");
+			return;
+		}
 		nj.place();
 		jumps.add(nj);
 		VersionSupport.sendActionBar(ply, 
@@ -400,6 +407,43 @@ public class PkPlayer implements Listener {
 	 */
 	public List<PkJump> getJumps() {
 		return jumps;
+	}
+
+	Location getCurrentPlatform() {
+		return jumps.isEmpty() ? null : jumps.get(0).getTo();
+	}
+
+	List<Location> getPendingPlatforms() {
+		List<Location> pending = new ArrayList<>();
+		for(int i = 1; i < jumps.size(); i++) {
+			pending.add(jumps.get(i).getTo());
+		}
+		return pending;
+	}
+
+	List<PkJumpSequenceIntegrity.TrajectoryPoint> getActiveTrajectory() {
+		List<PkJumpSequenceIntegrity.TrajectoryPoint> trajectory = new ArrayList<>();
+		for(int i = 0; i < jumps.size(); i++) {
+			PkJump jump = jumps.get(i);
+			trajectory.add(new PkJumpSequenceIntegrity.TrajectoryPoint(
+					jump.getSequenceId(),
+					i == 0 ? "CURRENT" : "PENDING",
+					jump.getTo()
+			));
+		}
+		return trajectory;
+	}
+
+	Location getImmediatePredecessor() {
+		return jumps.isEmpty() ? null : jumps.get(jumps.size() - 1).getTo();
+	}
+
+	Location getPreviousMovementOrigin() {
+		return jumps.size() >= 2 ? jumps.get(jumps.size() - 2).getTo() : null;
+	}
+
+	List<Location> getSpatialHistory() {
+		return getRecentJumpHistory();
 	}
 
 	List<Location> getRecentJumpHistory() {
