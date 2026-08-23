@@ -27,6 +27,10 @@ dependencies {
   implementation("com.zaxxer:HikariCP:3.4.5")
   implementation("org.slf4j:slf4j-simple:1.6.4")
   implementation("us.ajg0702:ajUtils:1.0.0")
+
+  testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
+  testImplementation("org.mockito:mockito-core:4.11.0")
+  testImplementation("org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT")
 }
 
 tasks.withType<ProcessResources> {
@@ -48,6 +52,10 @@ tasks.shadowJar {
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 publishing {

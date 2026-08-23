@@ -325,20 +325,22 @@ public class PkPlayer implements Listener {
 	 * @return A boolean telling if they made the jump or not.
 	 */
 	public boolean checkMadeIt() {
-		double x = ply.getLocation().getX();
-		double z = ply.getLocation().getZ();
-		
-		Location goal = jumps.get(1).getTo();
-		double xg = goal.getX()+0.5;
-		double zg = goal.getZ()+0.5;
-		double xdist = Math.abs(x - xg);
-		double ydist = Math.abs(z - zg);
-		//ply.sendMessage("x: "+xdist+"\ny: "+ydist);
-		if(xdist < 0.8 && ydist < 0.8) {
+		if(isInsideMadeItZone(ply.getLocation(), jumps.get(1).getTo())) {
 			madeIt();
 			return true;
 		}
 		return false;
+	}
+
+	static boolean isInsideMadeItZone(Location playerLocation, Location goal) {
+		double x = playerLocation.getX();
+		double z = playerLocation.getZ();
+
+		double xg = goal.getX()+0.5;
+		double zg = goal.getZ()+0.5;
+		double xdist = Math.abs(x - xg);
+		double ydist = Math.abs(z - zg);
+		return xdist < 0.8 && ydist < 0.8;
 	}
 	
 	/**
@@ -348,13 +350,15 @@ public class PkPlayer implements Listener {
 		int below = 1;
 		Location plyloc = ply.getLocation();
 		int my = jumps.get(0).getTo().getBlockY();
-		if(
-				plyloc.getBlockY() < my-below ||
-				ply.isFlying() ||
-				plyloc.getBlockY() > getHighestBlock().getTo().getBlockY()+3
-			) {
+		if(shouldEndForFall(plyloc, ply.isFlying(), my, getHighestBlock().getTo().getBlockY(), below)) {
 			end();
 		}
+	}
+
+	static boolean shouldEndForFall(Location playerLocation, boolean flying, int currentBlockY, int highestBlockY, int below) {
+		return playerLocation.getBlockY() < currentBlockY-below ||
+				flying ||
+				playerLocation.getBlockY() > highestBlockY+3;
 	}
 	
 	/**

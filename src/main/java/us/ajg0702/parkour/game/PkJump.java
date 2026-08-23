@@ -41,8 +41,6 @@ public class PkJump {
 		
 		List<Location> bks = new ArrayList<>();
 
-		int maxy = 1;
-		
 		Difficulty d = ply.getArea().getDifficulty();
 
 		JumpManager jm = JumpManager.getInstance();
@@ -60,18 +58,12 @@ public class PkJump {
 			}
 		}
 		
-		int r = random(d.getMin(), d.getMax());
-		
+		JumpShape shape = shapeForDistance(random(d.getMin(), d.getMax()));
+		int r = shape.distance;
+		int maxy = shape.maxY;
+
 		//ply.getPlayer().sendMessage(ply.getScore()+":" + d.toString()+" ("+r+")");
-		
-		if(r > 4) {
-			maxy = 0;
-		}
-		if(r >= 5) {
-			r = 5;
-			maxy = 0;
-		}
-		
+
 		if(ply.getJumps().size() >= 2) {
 			int prevy = ply.getJumps().get(ply.jumps.size()-1).getFrom().getBlockY();
 			int prev2y = ply.getJumps().get(ply.jumps.size()-2).getFrom().getBlockY();
@@ -82,19 +74,7 @@ public class PkJump {
 		}
 		
 		
-		bks.add(new Location(w, x+r, y, z));
-		bks.add(new Location(w, x-r, y, z));
-		bks.add(new Location(w, x+r, y+maxy, z));
-		bks.add(new Location(w, x-r, y+maxy, z));
-		bks.add(new Location(w, x+r, y-maxy, z));
-		bks.add(new Location(w, x-r, y-maxy, z));
-		bks.add(new Location(w, x, y+maxy, z+r));
-		bks.add(new Location(w, x, y-maxy, z+r));
-		bks.add(new Location(w, x, y+maxy, z-r));
-		bks.add(new Location(w, x, y-maxy, z-r));
-		bks.add(new Location(w, x, y+maxy, z+r));
-		bks.add(new Location(w, x, y, z+r));
-		bks.add(new Location(w, x, y, z-r));
+		bks.addAll(candidateLocations(w, x, y, z, r, maxy));
 		
 		HashMap<Object, Double> sc = new HashMap<>();
 		for(Location bk : bks) {
@@ -354,6 +334,46 @@ public class PkJump {
 	
 		
 		return score;
+	}
+
+	static JumpShape shapeForDistance(int r) {
+		int maxy = 1;
+		if(r > 4) {
+			maxy = 0;
+		}
+		if(r >= 5) {
+			r = 5;
+			maxy = 0;
+		}
+		return new JumpShape(r, maxy);
+	}
+
+	static List<Location> candidateLocations(World w, int x, int y, int z, int r, int maxy) {
+		List<Location> bks = new ArrayList<>();
+		bks.add(new Location(w, x+r, y, z));
+		bks.add(new Location(w, x-r, y, z));
+		bks.add(new Location(w, x+r, y+maxy, z));
+		bks.add(new Location(w, x-r, y+maxy, z));
+		bks.add(new Location(w, x+r, y-maxy, z));
+		bks.add(new Location(w, x-r, y-maxy, z));
+		bks.add(new Location(w, x, y+maxy, z+r));
+		bks.add(new Location(w, x, y-maxy, z+r));
+		bks.add(new Location(w, x, y+maxy, z-r));
+		bks.add(new Location(w, x, y-maxy, z-r));
+		bks.add(new Location(w, x, y+maxy, z+r));
+		bks.add(new Location(w, x, y, z+r));
+		bks.add(new Location(w, x, y, z-r));
+		return bks;
+	}
+
+	static class JumpShape {
+		final int distance;
+		final int maxY;
+
+		JumpShape(int distance, int maxY) {
+			this.distance = distance;
+			this.maxY = maxY;
+		}
 	}
 	
 	
