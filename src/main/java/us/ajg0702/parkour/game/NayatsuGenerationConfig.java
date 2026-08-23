@@ -17,11 +17,12 @@ final class NayatsuGenerationConfig {
 	}
 
 	static boolean generationEnabled(Object raw) {
-		return booleanValue(raw, false);
+		return booleanValue(raw, true);
 	}
 
 	static boolean debugFallbackLogEnabled(Main main) {
-		return booleanValue(main.getAConfig().get(DEBUG_FALLBACK_LOG), false);
+		return booleanValue(main.getAConfig().get(DEBUG_FALLBACK_LOG), false) ||
+				booleanValue(main.getAConfig().get("nayatsu-generation.telemetry.enabled"), true);
 	}
 
 	static int recentHistorySize(Main main) {

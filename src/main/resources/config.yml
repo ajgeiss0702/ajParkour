@@ -113,7 +113,7 @@ require-permission-for-block-selector-item: false
 debug: false
 
 # Nayatsu fork generation controls.
-# Missing nayatsu-generation keys behave as disabled for backward-compatible rollback.
+# Missing nayatsu-generation keys behave as enabled; set enabled: false for rollback.
 nayatsu-generation:
   enabled: true
   recent-history-size: 5
@@ -121,5 +121,5 @@ nayatsu-generation:
   anti-u-turn:
     enabled: true
   telemetry:
-    enabled: false
+    enabled: true
   debug-fallback-log: false

@@ -9,8 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class NayatsuGenerationConfigTest {
 
     @Test
-    void missingGenerationEnabledDefaultsToDisabledForOldConfigs() {
-        assertFalse(NayatsuGenerationConfig.generationEnabled(null));
+    void missingGenerationEnabledDefaultsToEnabledForRuntimeSafety() {
+        assertTrue(NayatsuGenerationConfig.generationEnabled(null));
     }
 
     @Test

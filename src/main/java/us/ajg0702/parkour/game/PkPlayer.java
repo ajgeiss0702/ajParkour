@@ -230,7 +230,7 @@ public class PkPlayer implements Listener {
 	
 	private void madeIt() {
 		score++;
-		recordRecentJump(recentJumpHistory, jumps.get(0).getTo(), recentJumpHistoryLimit);
+		recordRecentJump(recentJumpHistory, jumps.get(1).getTo(), recentJumpHistoryLimit);
 		jumps.get(0).remove();
 		jumps.remove(0);
 		Location prevJump = jumps.get(jumps.size()-1).getFrom();
