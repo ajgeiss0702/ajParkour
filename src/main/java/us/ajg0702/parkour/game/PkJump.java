@@ -75,7 +75,11 @@ public class PkJump {
 		
 		
 		bks.addAll(candidateLocations(w, x, y, z, r, maxy));
-		
+		if(ply.getJumps().size() >= 2) {
+			Location previous = ply.getJumps().get(ply.jumps.size()-2).getFrom();
+			bks = filterReverseTurnCandidates(bks, previous, from);
+		}
+
 		HashMap<Object, Double> sc = new HashMap<>();
 		for(Location bk : bks) {
 			sc.put(bk, (double)getBlockScore(bk, from, ply.getArea(), ply, ply.getPlayer().getLocation().getYaw()));
@@ -364,6 +368,23 @@ public class PkJump {
 		bks.add(new Location(w, x, y, z+r));
 		bks.add(new Location(w, x, y, z-r));
 		return bks;
+	}
+
+	static List<Location> filterReverseTurnCandidates(List<Location> candidates, Location previous, Location from) {
+		int prevX = Integer.compare(from.getBlockX() - previous.getBlockX(), 0);
+		int prevZ = Integer.compare(from.getBlockZ() - previous.getBlockZ(), 0);
+		if(prevX == 0 && prevZ == 0) return candidates;
+
+		List<Location> kept = new ArrayList<>();
+		for(Location candidate : candidates) {
+			int nextX = Integer.compare(candidate.getBlockX() - from.getBlockX(), 0);
+			int nextZ = Integer.compare(candidate.getBlockZ() - from.getBlockZ(), 0);
+			boolean reverse = nextX == -prevX && nextZ == -prevZ;
+			if(!reverse) {
+				kept.add(candidate);
+			}
+		}
+		return kept.isEmpty() ? candidates : kept;
 	}
 
 	static class JumpShape {
