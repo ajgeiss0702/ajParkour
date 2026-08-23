@@ -30,8 +30,6 @@ import java.util.List;
 
 public class PkPlayer implements Listener {
 
-	private static final int RECENT_JUMP_HISTORY_LIMIT = 5;
-	
 	long lastmove;
 	
 	Player ply;
@@ -51,6 +49,8 @@ public class PkPlayer implements Listener {
 	List<PkJump> jumps;
 
 	Deque<Location> recentJumpHistory = new ArrayDeque<>();
+
+	int recentJumpHistoryLimit;
 	
 	int score = 0;
 	
@@ -100,6 +100,7 @@ public class PkPlayer implements Listener {
 		scores = plugin.scores;
 		
 		config = plugin.getAConfig();
+		recentJumpHistoryLimit = NayatsuGenerationConfig.recentHistorySize(plugin);
 		
 		block = plugin.selector.getBlock(p, area);
 		
@@ -229,7 +230,7 @@ public class PkPlayer implements Listener {
 	
 	private void madeIt() {
 		score++;
-		recordRecentJump(recentJumpHistory, jumps.get(0).getTo(), RECENT_JUMP_HISTORY_LIMIT);
+		recordRecentJump(recentJumpHistory, jumps.get(0).getTo(), recentJumpHistoryLimit);
 		jumps.get(0).remove();
 		jumps.remove(0);
 		Location prevJump = jumps.get(jumps.size()-1).getFrom();
