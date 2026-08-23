@@ -77,7 +77,11 @@ public class PkJump {
 		bks.addAll(candidateLocations(w, x, y, z, r, maxy));
 		if(NayatsuGenerationConfig.antiUTurnGuardEnabled(main) && ply.getJumps().size() >= 2) {
 			Location previous = ply.getJumps().get(ply.jumps.size()-2).getFrom();
-			bks = filterReverseTurnCandidates(bks, previous, from);
+			GuardedCandidates guarded = filterReverseTurnCandidates(bks, previous, from);
+			bks = guarded.candidates;
+			if(guarded.fallbackUsed && NayatsuGenerationConfig.debugFallbackLogEnabled(main)) {
+				Bukkit.getLogger().info("[ajParkour] fallback_used=true fallback_level=anti-u-turn-relaxed area=" + ply.getArea().getName());
+			}
 		}
 
 		HashMap<Object, Double> sc = new HashMap<>();
@@ -370,10 +374,10 @@ public class PkJump {
 		return bks;
 	}
 
-	static List<Location> filterReverseTurnCandidates(List<Location> candidates, Location previous, Location from) {
+	static GuardedCandidates filterReverseTurnCandidates(List<Location> candidates, Location previous, Location from) {
 		int prevX = Integer.compare(from.getBlockX() - previous.getBlockX(), 0);
 		int prevZ = Integer.compare(from.getBlockZ() - previous.getBlockZ(), 0);
-		if(prevX == 0 && prevZ == 0) return candidates;
+		if(prevX == 0 && prevZ == 0) return new GuardedCandidates(candidates, false);
 
 		List<Location> kept = new ArrayList<>();
 		for(Location candidate : candidates) {
@@ -384,7 +388,17 @@ public class PkJump {
 				kept.add(candidate);
 			}
 		}
-		return kept.isEmpty() ? candidates : kept;
+		return kept.isEmpty() ? new GuardedCandidates(candidates, true) : new GuardedCandidates(kept, false);
+	}
+
+	static class GuardedCandidates {
+		final List<Location> candidates;
+		final boolean fallbackUsed;
+
+		GuardedCandidates(List<Location> candidates, boolean fallbackUsed) {
+			this.candidates = candidates;
+			this.fallbackUsed = fallbackUsed;
+		}
 	}
 
 	static class JumpShape {

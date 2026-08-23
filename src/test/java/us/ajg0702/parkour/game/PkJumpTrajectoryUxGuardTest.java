@@ -25,12 +25,14 @@ class PkJumpTrajectoryUxGuardTest {
         Location straight = new Location(world, 6, 64, 0);
         Location turn = new Location(world, 3, 64, 3);
 
-        List<Location> filtered = PkJump.filterReverseTurnCandidates(
+        PkJump.GuardedCandidates result = PkJump.filterReverseTurnCandidates(
                 Arrays.asList(reverse, straight, turn),
                 previous,
                 from
         );
 
+        List<Location> filtered = result.candidates;
+        assertFalse(result.fallbackUsed);
         assertFalse(filtered.contains(reverse));
         assertTrue(filtered.contains(straight));
         assertTrue(filtered.contains(turn));
@@ -45,7 +47,10 @@ class PkJumpTrajectoryUxGuardTest {
                 new Location(world, 0, 65, 0)
         );
 
-        assertEquals(candidates, PkJump.filterReverseTurnCandidates(candidates, previous, from));
+        PkJump.GuardedCandidates result = PkJump.filterReverseTurnCandidates(candidates, previous, from);
+
+        assertEquals(candidates, result.candidates);
+        assertTrue(result.fallbackUsed);
     }
 
     @Test
@@ -54,6 +59,9 @@ class PkJumpTrajectoryUxGuardTest {
         Location from = new Location(world, 3, 65, 0);
         List<Location> candidates = Arrays.asList(new Location(world, 0, 65, 0));
 
-        assertSame(candidates, PkJump.filterReverseTurnCandidates(candidates, previous, from));
+        PkJump.GuardedCandidates result = PkJump.filterReverseTurnCandidates(candidates, previous, from);
+
+        assertSame(candidates, result.candidates);
+        assertFalse(result.fallbackUsed);
     }
 }

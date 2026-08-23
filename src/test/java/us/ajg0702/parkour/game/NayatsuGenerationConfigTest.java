@@ -24,4 +24,9 @@ class NayatsuGenerationConfigTest {
     void nestedAntiUTurnDefaultsToEnabledWhenNamespaceIsEnabled() {
         assertTrue(NayatsuGenerationConfig.booleanValue(null, true));
     }
+
+    @Test
+    void debugFallbackLogDefaultsToDisabled() {
+        assertFalse(NayatsuGenerationConfig.booleanValue(null, false));
+    }
 }

@@ -6,6 +6,7 @@ final class NayatsuGenerationConfig {
 
 	static final String ENABLED = "nayatsu-generation.enabled";
 	static final String ANTI_U_TURN_ENABLED = "nayatsu-generation.anti-u-turn.enabled";
+	static final String DEBUG_FALLBACK_LOG = "nayatsu-generation.debug-fallback-log";
 
 	private NayatsuGenerationConfig() { }
 
@@ -16,6 +17,10 @@ final class NayatsuGenerationConfig {
 
 	static boolean generationEnabled(Object raw) {
 		return booleanValue(raw, false);
+	}
+
+	static boolean debugFallbackLogEnabled(Main main) {
+		return booleanValue(main.getAConfig().get(DEBUG_FALLBACK_LOG), false);
 	}
 
 	static boolean booleanValue(Object raw, boolean fallback) {
